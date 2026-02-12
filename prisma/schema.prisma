@@ -1,5 +1,5 @@
 model Event {
-  id        String     @id @default(cuid())
+  id        Int        @id @default(autoincrement())
   name      String
   date      DateTime
   description String?
@@ -30,7 +30,7 @@ datasource db {
 
 
 model User {
-  id        String     @id @default(cuid())
+  id        Int        @id @default(autoincrement())
   email     String     @unique
   name      String
   password_hash String
@@ -59,7 +59,7 @@ model Guest {
   childAge     Int?
   isPaying     Boolean    @default(true)
   
-  eventId      String
+  eventId      Int
   event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
   
   created_at   DateTime   @default(now())
@@ -71,9 +71,9 @@ model Guest {
 }
 
 model UserEvent {
-  id        String     @id @default(cuid())
-  userId    String
-  eventId   String
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  eventId   Int
   created_at DateTime   @default(now())
   
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
