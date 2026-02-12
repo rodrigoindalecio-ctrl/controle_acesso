@@ -1,0 +1,157 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal h2 {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  color: var(--color-dark, #333);
+  text-align: center;
+}
+
+.guestName {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-primary, #8b7355);
+  text-align: center;
+  margin: 0 0 24px 0;
+  padding: 12px;
+  background: rgba(123, 45, 61, 0.1);
+  border-radius: 8px;
+}
+
+.checkboxContainer {
+  margin: 24px 0;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #e8dfd6;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--color-dark, #333);
+  user-select: none;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary, #8b7355);
+}
+
+.checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btnCancel,
+.btnConfirm {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnCancel {
+  background: #e8dfd6;
+  color: var(--color-dark, #333);
+}
+
+.btnCancel:hover:not(:disabled) {
+  background: #ddd0c8;
+}
+
+.btnConfirm {
+  background: var(--color-primary, #8b7355);
+  color: white;
+}
+
+.btnConfirm:hover:not(:disabled) {
+  background: #7a6349;
+}
+
+.btnCancel:disabled,
+.btnConfirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnDelete {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-danger, #c97e7e);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-danger, #c97e7e);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btnDelete:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger, #c97e7e) 8%, transparent 92%);
+  color: var(--color-danger-dark, var(--color-danger, #c97e7e));
+}
+
+.btnDelete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

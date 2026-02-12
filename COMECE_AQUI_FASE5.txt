@@ -1,0 +1,128 @@
+# ⚡ COMECE AQUI - FASE 5 CHECK-IN
+
+## 🎯 Começar agora
+
+### 1️⃣ Iniciar servidor
+```bash
+npm run dev
+```
+
+### 2️⃣ Fazer login
+```
+📧 admin@example.com
+🔑 admin123
+```
+
+### 3️⃣ Ir para check-in
+```
+Dashboard → Evento qualquer → /checkin
+
+OU direto:
+http://localhost:3000/events/[event-id]/checkin
+```
+
+### 4️⃣ Usar interface
+```
+🔍 Digite nome na barra
+↓ Autocomplete mostra
+↓ Selecione (mouse/setas)
+↓ Enter para confirmar
+✅ Presença marcada
+```
+
+---
+
+## 📊 O QUE VER
+
+### Topo
+- Back button para dashboard
+- Título "Check-in de Convidados"
+
+### Lado esquerdo
+- Barra de busca com autocomplete
+- Hint com atalhos de teclado
+
+### Lado direito
+- Contadores: Total, Presentes, Ausentes, %
+- Lista de convidados
+- Cada um com botão ✅ ou 🔄
+
+---
+
+## 🎮 ATALHOS
+
+| Tecla | Ação |
+|-------|------|
+| ↓/↑ | Navegar resultados |
+| Enter | Confirmar seleção |
+| Esc | Fechar dropdown |
+
+---
+
+## 📱 Responsividade
+
+- **Desktop**: Busca + Lista lado a lado
+- **Tablet**: Busca acima, lista abaixo
+- **Mobile**: Layout full-stack
+
+---
+
+## 🔐 Permissões
+
+### ADMIN
+- ✅ Tudo
+
+### USER (Recepção)
+- ✅ Check-in
+- ✅ Desfazer
+- ✅ Adicionar novo
+
+---
+
+## 📁 Arquivos Principais
+
+```
+Backend:
+- /app/api/events/[id]/guests/route.ts
+- /app/api/guests/[id]/attendance/route.ts
+- /app/api/events/[id]/guests/manual/route.ts
+
+Frontend:
+- /app/events/[id]/checkin/page.tsx
+- /app/components/GuestSearchBar.tsx
+- /app/components/GuestCheckInList.tsx
+```
+
+---
+
+## 📖 Documentação
+
+- **FASE5_CHECKIN.md** - Documentação técnica completa
+- **FASE5_RESUMO.md** - Resumo executivo
+
+---
+
+## ✅ Checklist
+
+- [x] Endpoints funcionando
+- [x] Página acessível
+- [x] Busca com autocomplete
+- [x] Check-in funcionando
+- [x] Desfazer funcionando
+- [x] Adicionar novo funcionando
+- [x] Contadores atualizando
+- [x] Permissões implementadas
+- [x] Sem erros TypeScript
+- [x] Responsividade OK
+
+---
+
+## 🚀 Pronto!
+
+Sistema está **100% funcional** e pronto para:
+- Eventos com centenas de convidados
+- Ambiente de buffet
+- Operação rápida
+- Correção de erros
+
+**Vá testar!** 🎉

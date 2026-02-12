@@ -1,0 +1,246 @@
+.container {
+  padding: var(--spacing-lg);
+}
+
+.card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8dfd6;
+  transition: all 0.2s ease;
+}
+
+.card h3 {
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-dark);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Summary Stats */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat {
+  padding: 1rem;
+  background: #fafaf9;
+  border-radius: var(--radius-md);
+  border-left: 4px solid #e8dfd6;
+  text-align: center;
+}
+
+.stat.valid {
+  border-left-color: #2ecc71;
+  background: #f0fdf4;
+}
+
+.stat.duplicate {
+  border-left-color: #f39c12;
+  background: #fffbf0;
+}
+
+.stat.invalid {
+  border-left-color: #e74c3c;
+  background: #fef2f2;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--color-text);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-dark);
+  margin-top: var(--spacing-xs);
+}
+
+/* Warning Banner */
+.warning {
+  padding: var(--spacing-md);
+  background: #fffbf0;
+  border: 1px solid #f39c12;
+  border-radius: var(--radius-md);
+  color: #c68910;
+  font-size: 14px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.warning strong {
+  color: #a67c0d;
+}
+
+/* Table Styles */
+.tableWrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  background: #f5f5f5;
+  z-index: 10;
+}
+
+.table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-dark);
+  border-bottom: 1px solid #ddd;
+}
+
+.table td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 14px;
+}
+
+.row {
+  transition: background-color 0.2s ease;
+}
+
+.row:hover {
+  background: #fafafa;
+}
+
+.row-novo {
+  background: #f0fdf4;
+}
+
+.row-duplicado {
+  background: #fffbf0;
+}
+
+.row-erro {
+  background: #fef2f2;
+}
+
+.statusCell {
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.novo {
+  background: #d4edda;
+  color: #155724;
+}
+
+.badge.duplicado {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.badge.erro {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.errorMessage {
+  display: block;
+  font-size: 11px;
+  font-weight: normal;
+  color: #721c24;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(114, 28, 36, 0.2);
+}
+
+/* Footer */
+.note {
+  font-size: 12px;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-sm);
+  background: #f9f9f9;
+  border-radius: var(--radius-sm);
+}
+
+.disabledHint {
+  font-size: 12px;
+  color: #c68910;
+  padding: var(--spacing-md);
+  background: #fffbf0;
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-lg);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+
+.backButton,
+.confirmButton {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton {
+  background: white;
+  color: #666;
+  border: 1px solid #e8dfd6;
+  padding: 0.75rem 1.5rem;
+}
+
+.backButton:hover:not(:disabled) {
+  background: #fafaf9;
+  border-color: #7b2d3d;
+  color: #7b2d3d;
+}
+
+.backButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  background: #7b2d3d;
+  color: white;
+  padding: 0.75rem 1.5rem;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #7b2d3d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(123, 45, 61, 0.2);
+}
+
+.confirmButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

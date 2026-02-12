@@ -1,0 +1,300 @@
+.container {
+  background: white;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid #e8dfd6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  margin: 1.2rem 0;
+}
+
+.title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  margin-top: 0;
+  color: #1a1a1a;
+}
+
+.error {
+  background-color: #ffebee;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-danger);
+}
+
+.error p {
+  margin: 0;
+}
+
+/* Contadores */
+.counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+
+.counter {
+  background: white;
+  border-left: 3px solid #7b2d3d;
+  padding: 0.7rem 0.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e8dfd6;
+  min-height: 48px;
+}
+
+.counterLabel {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  margin-bottom: 0.15rem;
+}
+
+.counterValue {
+  font-size: 1.45rem;
+  font-weight: bold;
+  color: var(--color-dark);
+}
+
+.counterValue.present {
+  color: var(--color-success);
+}
+
+.counterValue.absent {
+  color: var(--color-danger);
+}
+
+.percentage {
+  font-size: 1.45rem;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+/* Charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.chartCard {
+  background: white;
+  padding: 0.7rem 0.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.chartCard h3 {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-dark);
+  font-size: 1.1rem;
+}
+
+/* Pie Chart */
+.pieWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: var(--spacing-lg) 0;
+}
+
+.pieChart {
+  display: flex;
+  justify-content: center;
+}
+
+.pieSlice {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.pieCenter {
+  width: 88px;
+  height: 88px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.pieText {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-dark);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+}
+
+/* Payment Section */
+.paymentSection {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8dfd6;
+}
+
+.paymentTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.7rem 0;
+  color: var(--color-dark);
+}
+
+.paymentGrid {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.paymentItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.paymentLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.paymentValue {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+/* Category List */
+.categoryList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.categoryRow {
+  display: grid;
+  grid-template-columns: 120px 60px 1fr;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.categoryName {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-dark);
+  text-transform: capitalize;
+}
+
+.categoryStats {
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.categoryStats .present {
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.categoryStats .separator {
+  color: var(--color-border);
+  margin: 0 0.25rem;
+}
+
+.categoryBar {
+  height: 8px;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.categoryFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-success), #81c784);
+  border-radius: var(--radius-sm);
+  transition: width var(--transition-base);
+}
+
+.empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--spacing-md);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .counters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pieWrapper {
+    flex-direction: column-reverse;
+    gap: 1rem;
+  }
+
+  .categoryRow {
+    grid-template-columns: 100px 50px 1fr;
+  }
+
+  .counterValue {
+    font-size: 1.75rem;
+  }
+
+  .pieSlice {
+    width: 120px;
+    height: 120px;
+  }
+
+  .pieCenter {
+    width: 88px;
+    height: 88px;
+  }
+
+  .pieText {
+    font-size: 1.2rem;
+  }
+
+  .paymentGrid {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,130 @@
+/**
+ * P4.2: Estilos do Componente CheckInTimeline
+ */
+
+.container {
+  margin-bottom: 24px;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e8dfd6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 60px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #fafaf9;
+  transition: all 0.2s ease;
+}
+
+.hour {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-align: center;
+  font-family: monospace;
+}
+
+.barContainer {
+  background: #f0ebe3;
+  border-radius: 6px;
+  height: 24px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e8dfd6;
+}
+
+.bar {
+  background: linear-gradient(90deg, #4CAF50, #45a049);
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  min-width: 2px;
+}
+
+.count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  text-align: right;
+  width: 40px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 14px;
+  color: #999;
+}
+
+/* Skeleton Loading */
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonRow {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  height: 24px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .container {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+
+  .item {
+    grid-template-columns: 50px 1fr 35px;
+    gap: 8px;
+  }
+
+  .hour {
+    font-size: 12px;
+  }
+
+  .count {
+    font-size: 12px;
+    width: 35px;
+  }
+
+  .barContainer {
+    height: 20px;
+  }
+}

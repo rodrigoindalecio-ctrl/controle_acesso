@@ -1,0 +1,42 @@
+﻿app/components/CheckInList.tsx(3,8): error TS1259: Module '"C:/Users/rodri/Desktop/App RSVP site/Google Gravity/controle_acesso/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+app/components/CheckInList.tsx(4,20): error TS2307: Cannot find module './CheckInList.module.css' or its corresponding type declarations.
+app/components/CheckInList.tsx(94,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(124,44): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/components/CheckInList.tsx(170,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(171,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(172,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(173,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(180,5): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(182,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(183,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(186,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(187,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(188,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(189,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(191,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(192,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(195,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(197,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(198,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(201,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(207,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(208,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(219,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(220,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(228,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(237,7): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(243,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(244,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(247,11): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(254,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(260,15): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(261,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(262,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(265,19): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(267,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(275,23): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(282,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(285,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(291,64): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/components/CheckInList.tsx(326,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+app/components/CheckInList.tsx(344,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.

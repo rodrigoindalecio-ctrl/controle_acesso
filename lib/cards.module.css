@@ -1,0 +1,231 @@
+/* Cards Design System - Fase 2
+   Suave, elegante, emocional (casamento/debutante)
+   Mobile-first, CSS Modules
+   Uses tokens from app/globals.css
+*/
+
+/* BASE CARD */
+.card {
+  background: white;
+  border: 1px solid #e8dfd6;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* SOFT CARD — Subtle, less aggressive */
+.cardSoft {
+  background: var(--color-bg-lighter, #faf7f2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--spacing-md, 1rem);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-fast, 180ms) ease,
+              box-shadow var(--transition-fast, 180ms) ease;
+}
+
+.cardSoft:hover {
+  background: var(--color-bg-light, #f5f0eb);
+  box-shadow: var(--shadow-md);
+}
+
+/* HIGHLIGHT CARD — Elevated, featured */
+.cardHighlight {
+  background: var(--color-white);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--spacing-lg, 1.5rem);
+  box-shadow: 0 4px 12px rgba(123, 45, 61, 0.12); /* premium glow */
+  position: relative;
+}
+
+.cardHighlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(123, 45, 61, 0.03) 0%, 
+    rgba(123, 45, 61, 0) 100%);
+  border-radius: var(--radius-lg, 12px);
+  pointer-events: none;
+}
+
+.cardHighlight:hover {
+  box-shadow: 0 8px 20px rgba(123, 45, 61, 0.15);
+  transform: translateY(-2px);
+}
+
+/* NEW: Aliases and requested class names (cardBase, cardSoft already exists above)
+   and cardOutline for list-style cards. These maintain the same visual system
+   while providing the exact API requested in the design guide. */
+
+/* Card base alias */
+.cardBase {
+  composes: card; /* CSS Modules: keep same styles as .card */
+}
+
+/* cardSoft already exists as .cardSoft above; provide camelCase alias */
+.cardSoft {
+  composes: cardSoft;
+}
+
+/* cardHighlight alias */
+.cardHighlight {
+  composes: cardHighlight;
+}
+
+/* cardOutline: no filled background, delicate border for long lists */
+.cardOutline {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 12px;
+  padding: var(--spacing-sm, 0.75rem);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--transition-fast, 180ms) ease, box-shadow var(--transition-fast, 180ms) ease;
+}
+
+/* General checked-in marker for any card */
+.isCheckedIn {
+  border-color: var(--color-success);
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(107,165,131,0.04) 100%);
+}
+
+/* GUEST ITEM CARD — For check-in lists */
+.guestCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--spacing-md, 1rem);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast, 180ms) ease;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm, 0.5rem);
+}
+
+.guestCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  background: var(--color-bg-lighter, #faf7f2);
+}
+
+/* GUEST CARD CHECKED-IN STATE */
+.guestCard.isCheckedIn {
+  border-color: var(--color-success);
+  background: linear-gradient(135deg, 
+    var(--color-white) 0%, 
+    rgba(107, 165, 131, 0.04) 100%);
+}
+
+.guestCard.isCheckedIn:hover {
+  border-color: var(--color-success);
+  box-shadow: 0 2px 8px rgba(107, 165, 131, 0.12);
+}
+
+/* STATS CARD — For summary/dashboard */
+.statCard {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--spacing-md, 1rem);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  transition: box-shadow var(--transition-fast, 180ms) ease;
+
+  /* Standardize card body width so stats look consistent across pages */
+  min-width: 220px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.statCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* TIMELINE ITEM CARD */
+.timelineCard {
+  background: var(--color-bg-lighter, #faf7f2);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-sm, 6px);
+  padding: var(--spacing-md, 1rem);
+  box-shadow: none;
+  transition: all var(--transition-fast, 180ms) ease;
+}
+
+.timelineCard:hover {
+  background: var(--color-white);
+  border-left-color: var(--color-primary-dark, #5e1f2d);
+  box-shadow: var(--shadow-sm);
+}
+
+/* CARD SECTIONS — For internal structure */
+.cardHeader {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-sm, 0.5rem);
+  margin-bottom: var(--spacing-md, 1rem);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.cardBody {
+  flex: 1;
+  color: var(--color-text-muted, #a0a0a0);
+  line-height: 1.6;
+}
+
+.cardFooter {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-md, 1rem);
+  margin-top: var(--spacing-md, 1rem);
+  display: flex;
+  gap: var(--spacing-sm, 0.5rem);
+  justify-content: flex-end;
+}
+
+/* RESPONSIVE — Mobile-first */
+@media (max-width: 640px) {
+  .card {
+    padding: var(--spacing-md, 1rem);
+    border-radius: var(--radius-md, 8px);
+  }
+
+  .cardHighlight {
+    padding: var(--spacing-md, 1rem);
+  }
+
+  .guestCard {
+    padding: var(--spacing-sm, 0.5rem);
+  }
+}
+
+/* ACCESSIBILITY */
+.card:focus-visible,
+.cardSoft:focus-visible,
+.cardHighlight:focus-visible,
+.guestCard:focus-visible,
+.statCard:focus-visible,
+.timelineCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* UTILITY: Disable hover on touch devices */
+@media (hover: none) {
+  .card:hover,
+  .cardSoft:hover,
+  .cardHighlight:hover,
+  .guestCard:hover,
+  .statCard:hover,
+  .timelineCard:hover {
+    transform: none;
+  }
+}

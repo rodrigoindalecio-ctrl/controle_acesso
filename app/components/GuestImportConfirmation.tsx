@@ -91,7 +91,7 @@ export default function GuestImportConfirmation({ confirmData, onClose }: GuestI
 
       const rows: (string | number)[][] = [];
       // Header same as standard export
-      rows.push(['Nome completo', 'Categoria', 'Telefone', 'Mesa', 'Observações', 'Status']);
+      rows.push(['Nome completo', 'Categoria', 'Mesa', 'Status']);
 
       const toExport = type === 'errors' ? results.filter(r => r.action === 'failed') : type === 'ignored' ? results.filter(r => r.action === 'skipped') : filteredResults;
 
@@ -108,9 +108,7 @@ export default function GuestImportConfirmation({ confirmData, onClose }: GuestI
         rows.push([
           r.full_name,
           '', // category unknown in results
-          '', // phone
           '', // table
-          r.reason || '',
           statusMap[r.action] || r.action
         ]);
       }

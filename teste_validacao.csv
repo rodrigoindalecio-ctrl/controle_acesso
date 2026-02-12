@@ -1,0 +1,6 @@
+full_name,phone,category,table_number,notes
+João Silva,11999999999,familia_noiva,A01,Primo do noivo
+Maria Santos,invalid_phone,familia_noivo,A02,Tia da noiva
+Pedro,11977777777,categoria_invalida,B01,Padrinho
+Ana Costa,11966666666,amigos,TABELA_COM_NOME_MUITO_LONGO_DEMAIS,Colega de trabalho
+Carlos Mendes,11955555555,vip,VIP01,

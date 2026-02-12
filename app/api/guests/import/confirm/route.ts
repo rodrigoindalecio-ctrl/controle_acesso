@@ -25,17 +25,26 @@ interface ImportResultItem {
 }
 
 // Zod schemas for request validation
+// Aceita campos extras vindos da etapa de validação (id, status, etc.)
+// mas mantém apenas os campos necessários para importação.
 const GuestItemSchema = z.object({
   full_name: z.string().min(2).max(255),
   category: z.string().max(50).optional(),
   phone: z.string().max(20).optional(),
   notes: z.string().max(1000).optional(),
-  table_number: z.string().max(20).optional(),
-  // allow extra fields but ignore them
-}).strict().transform((obj) => ({ ...obj }));
+  table_number: z.string().max(20).optional()
+}).passthrough().transform((obj: any) => ({
+  full_name: obj.full_name,
+  category: obj.category,
+  phone: obj.phone,
+  notes: obj.notes,
+  table_number: obj.table_number
+}));
 
 const ConfirmBodySchema = z.object({
-  eventId: z.string().uuid(),
+  // Prisma IDs here are `cuid()` (see prisma/schema.prisma), not UUID.
+  // Accept any non-empty string to support cuid/uuid without rejecting valid event IDs.
+  eventId: z.string().trim().min(1).max(64),
   guests: z.array(GuestItemSchema).min(1).max(5000),
   importMode: z.string().optional(),
   duplicateStrategy: z.enum(['ignore', 'update', 'mark']),
@@ -55,14 +64,6 @@ export async function POST(request: NextRequest) {
     const authResult = await verifyAuth(request);
     if (!authResult) {
       return NextResponse.json({ message: 'Não autorizado' }, { status: 401 });
-    }
-
-    // Autorização
-    if (authResult.role !== 'ADMIN') {
-      return NextResponse.json(
-        { message: 'Apenas administradores podem importar' },
-        { status: 403 }
-      );
     }
 
     const body = await request.json();
@@ -107,6 +108,25 @@ export async function POST(request: NextRequest) {
     const event = await prisma.event.findUnique({ where: { id: eventId }, select: { id: true } });
     if (!event) {
       return NextResponse.json({ code: 'EVENT_NOT_FOUND', message: 'Evento não encontrado' }, { status: 404 });
+    }
+
+    // Autorização: ADMIN ou USER vinculado ao evento
+    if (authResult.role !== 'ADMIN') {
+      const userEvent = await prisma.userEvent.findUnique({
+        where: {
+          userId_eventId: {
+            userId: authResult.userId,
+            eventId
+          }
+        }
+      });
+
+      if (!userEvent) {
+        return NextResponse.json(
+          { code: 'FORBIDDEN', message: 'Acesso negado ao evento' },
+          { status: 403 }
+        );
+      }
     }
 
     // Idempotency handling: if idempotencyKey provided, check ImportJob table
@@ -205,8 +225,7 @@ export async function POST(request: NextRequest) {
                   category: guest.category || existing.category || 'Convidado',
                   phone: guest._normalizedPhone || existing.phone || null,
                   notes: guest.notes || existing.notes || null,
-                  tableNumber: guest.table_number || existing.tableNumber || null,
-                  isManual: true
+                  tableNumber: guest.table_number || existing.tableNumber || null
                 }
               });
 
@@ -232,7 +251,7 @@ export async function POST(request: NextRequest) {
                   notes: markedNotes,
                   tableNumber: guest.table_number || null,
                   eventId,
-                  isManual: true
+                  isManual: false
                 }
               });
 
@@ -256,7 +275,7 @@ export async function POST(request: NextRequest) {
               notes: guest.notes || null,
               tableNumber: guest.table_number || null,
               eventId,
-              isManual: true
+              isManual: false
             }
           });
 

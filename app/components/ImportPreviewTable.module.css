@@ -1,0 +1,7 @@
+.wrapper { display:flex; flex-direction:column; gap:8px }
+.tableWrap { max-height: 320px; overflow: auto; border: 1px solid #eee; border-radius:6px }
+.table { width:100%; border-collapse: collapse; }
+.table th { background:#fafafa; text-align:left; padding:8px; position:sticky; top:0 }
+.table td { padding:8px; border-top:1px solid #f1f1f1 }
+.row:nth-child(even) { background:#fff }
+.note { font-size:0.9rem; color:#666; padding-top:8px }

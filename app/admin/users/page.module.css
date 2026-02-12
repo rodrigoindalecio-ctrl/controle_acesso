@@ -1,0 +1,428 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-bg-lighter) 0%, var(--color-bg-light) 100%);
+}
+
+.header {
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+  padding: 20px 0;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo h1 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--color-dark);
+}
+
+.main {
+  flex: 1;
+  padding: 28px 0;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--color-dark);
+}
+
+.error {
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  color: #c33;
+  margin: 12px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-dark);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.formGrid .field:last-child {
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-top: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 70px;
+  justify-content: flex-end;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.input,
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--color-dark);
+  font: inherit;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(123, 45, 61,0.08);
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+  background: white;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.95rem;
+}
+
+.table th {
+  background: var(--color-bg-light);
+  color: var(--color-dark);
+  font-weight: 700;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.subtle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Filter row para Lista de usuários */
+.filterRow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filterFields {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.filterFields .field {
+  min-height: auto;
+}
+
+.filterActions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.filterCount {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  padding-left: 4px;
+}
+
+/* Responsividade para tablets grandes */
+@media (max-width: 900px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filterFields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filterActions {
+    grid-column: span 2;
+    flex-wrap: wrap;
+  }
+
+  .filterActions button {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .headerContent {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1rem;
+  }
+
+  .table {
+    min-width: 100%;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .actions button {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 6px 8px;
+  }
+}
+
+/* Responsividade para tablets pequenos */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .main {
+    padding: 20px 0;
+  }
+
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .filterFields {
+    grid-template-columns: 1fr;
+  }
+
+  .filterActions {
+    grid-column: span 1;
+    width: 100%;
+  }
+
+  .filterActions button {
+    flex: 1;
+  }
+
+  /* Tabela como cards em tablets pequenos também */
+  .tableWrap {
+    border: none;
+    overflow-x: visible;
+  }
+
+  .table {
+    min-width: 100%;
+    display: block;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .table tbody td {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: none;
+    font-size: 0.9rem;
+  }
+
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .actions button {
+    flex: 1;
+    min-width: 80px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+}
+
+/* Responsividade para mobile */
+@media (max-width: 640px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  .main {
+    padding: 16px 0;
+  }
+
+  .topRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .title {
+    font-size: 1.15rem;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .table tbody tr {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .table tbody td {
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .error {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 380px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .input,
+  .select {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+
+  .label {
+    font-size: 0.8rem;
+  }
+}

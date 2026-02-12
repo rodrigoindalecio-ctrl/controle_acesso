@@ -1,0 +1,119 @@
+model Event {
+  id        String     @id @default(cuid())
+  name      String
+  date      DateTime
+  description String?
+  status    String     @default("PENDING")
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  lastChangeType String?
+
+  // Relação com usuários
+  users     UserEvent[]
+  // Relação com convidados
+  guests    Guest[]
+
+  @@map("events")
+}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  password_hash String
+  role      String     @default("USER")
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  // Relação com eventos
+  events    UserEvent[]
+  @@map("users")
+}
+
+model Guest {
+  id           String     @id @default(cuid())
+  fullName     String
+  phone        String?
+  category     String     @default("outros")
+  tableNumber  String?
+  notes        String?
+  checkedInAt  DateTime?
+  checkedInBy  String?    // P4.1: User ID who performed check-in
+  undoAt       DateTime?  // P4.1: When check-in was undone
+  undoBy       String?    // P4.1: User ID who undid the check-in
+  undoReason   String?    // P5.1: Justificativa obrigatória para undo (5-255 chars)
+  isManual     Boolean    @default(false)
+  isChild      Boolean    @default(false)
+  childAge     Int?
+  isPaying     Boolean    @default(true)
+  
+  eventId      String
+  event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+  
+  // Índice para prevenir duplicatas
+  @@unique([fullName, eventId])
+  @@map("guests")
+}
+
+model UserEvent {
+  id        String     @id @default(cuid())
+  userId    String
+  eventId   String
+  created_at DateTime   @default(now())
+  
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, eventId])
+  @@map("user_events")
+}
+
+model AuditLog {
+  id           String     @id @default(cuid())
+  userId       String
+  role         String
+  action       String     // CHECKIN, UNCHECK, EDIT_GUEST, CREATE_GUEST, DELETE_GUEST, IMPORT_GUESTS
+  entityType   String     // Guest, Event, User
+  entityId     String
+  before       String?    // JSON serializado
+  after        String?    // JSON serializado
+  justification String?   // Motivo da ação (ex: correção)
+  ip           String?
+  userAgent    String?
+  created_at   DateTime   @default(now())
+  
+  // Índices para queries rápidas
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([created_at])
+  @@map("audit_logs")
+}
+
+model ImportJob {
+  id              String   @id @default(cuid())
+  userId          String
+  eventId         String
+  idempotencyKey  String
+  status          String   @default("pending")
+  result          String?  // JSON serialized result
+  created_at      DateTime @default(now())
+
+  @@unique([userId, eventId, idempotencyKey])
+  @@map("import_jobs")
+}

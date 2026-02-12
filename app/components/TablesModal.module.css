@@ -1,0 +1,97 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2500;
+}
+
+.modal {
+  width: 90%;
+  max-width: 960px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e8dfd6;
+}
+
+.header h3 { margin: 0; }
+
+.close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.body {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+}
+
+.tablesList {
+  width: 260px;
+  max-height: 60vh;
+  overflow: auto;
+  border-right: 1px solid #f0e9e2;
+  padding-right: 8px;
+}
+
+.tableButton {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #eee;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tableButton:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+
+.tableButton.active {
+  border-color: #7b2d3d;
+  background: linear-gradient(135deg, rgba(123,45,61,0.04), rgba(123,45,61,0));
+}
+
+.tableName { font-weight: 600; color: #333; }
+.tableMeta { font-size: 0.85rem; color: #777; }
+
+.guestsPanel { flex: 1; padding-left: 12px; }
+
+.guestsHeader { display:flex; justify-content: space-between; align-items:center; margin-bottom: 12px; }
+.guestsHeader h4 { margin: 0; }
+.count { color:#777; font-size:0.9rem }
+
+.guestsList { max-height: 58vh; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
+.guestRow { display:flex; justify-content: space-between; align-items:center; padding: 12px; background: #fff; border:1px solid #f0e9e2; border-radius:8px; }
+.guestName { font-weight: 600; }
+.guestMeta { color: #777 }
+
+.loading, .empty, .error { padding: 12px; color: #666 }
+
+.actions { display:flex; justify-content:flex-end; gap:8px; padding: 12px; border-top: 1px solid #f0e9e2 }
+.closeBtn { background:#7b2d3d; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+
+@media (max-width: 720px) {
+  .body { flex-direction: column; }
+  .tablesList { width: 100%; max-height: 200px; border-right: none; border-bottom: 1px solid #f0e9e2; padding-right:0; padding-bottom: 8px }
+  .guestsList { max-height: 40vh }
+}

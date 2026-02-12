@@ -1,0 +1,523 @@
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import styles from './page.module.css';
+import cardStyles from '@/lib/cards.module.css';
+import Link from 'next/link';
+import EventModal, { EventFormData } from '@/app/components/EventModal';
+import ConfirmDialog from '@/app/components/ConfirmDialog';
+
+interface User {
+  userId: string;
+  email: string;
+  role: 'ADMIN' | 'USER';
+}
+
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  description?: string;
+  status: string;
+}
+
+interface Guest {
+  id: string;
+  fullName: string;
+  category: string;
+  checkedInAt: string | null;
+  isChild: boolean;
+  tableNumber?: string;
+}
+
+interface EventWithStats extends Event {
+  guests: Guest[];
+  totalGuests: number;
+  checkedInGuests: number;
+  awaitingGuests: number;
+  checkInPercentage: number;
+  guestsByCategory: { [key: string]: { total: number; checkedIn: number } };
+}
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [eventStats, setEventStats] = useState<EventWithStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditingEvent, setIsEditingEvent] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isSubmittingModal, setIsSubmittingModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ eventId: string; eventName: string } | null>(null);
+  const [isDeletingEvent, setIsDeletingEvent] = useState(false);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (selectedEventId) {
+      loadEventStats(selectedEventId);
+    } else {
+      setEventStats(null);
+    }
+  }, [selectedEventId]);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/me');
+      const data = await response.json();
+
+      if (data.user) {
+        setUser(data.user);
+        // Carrega eventos após confirmar autenticação
+        await loadEvents(data.user);
+      } else {
+        router.push('/');
+      }
+    } catch (error) {
+      router.push('/');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadEvents = async (currentUser: User) => {
+    try {
+      const response = await fetch('/api/events');
+      if (response.ok) {
+        const data = await response.json();
+        const eventList = data.events || [];
+        setEvents(eventList);
+        // Se é colaborador, seleciona o primeiro evento automaticamente
+        if (currentUser.role === 'USER' && eventList.length > 0) {
+          setSelectedEventId(eventList[0].id);
+        }
+      } else {
+        setError('Erro ao carregar eventos');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar eventos:', error);
+      setError('Erro ao carregar eventos');
+    }
+  };
+
+  const loadEventStats = async (eventId: string) => {
+    setStatsLoading(true);
+    try {
+      const response = await fetch(`/api/events/${eventId}/guests`);
+      if (response.ok) {
+        const data = await response.json();
+        const guests = data.guests || [];
+        
+        const totalGuests = guests.length;
+        const checkedInGuests = guests.filter((g: Guest) => g.checkedInAt).length;
+        const awaitingGuests = totalGuests - checkedInGuests;
+        const checkInPercentage = totalGuests > 0 ? Math.round((checkedInGuests / totalGuests) * 100) : 0;
+
+        const guestsByCategory: { [key: string]: { total: number; checkedIn: number } } = {};
+        guests.forEach((guest: Guest) => {
+          if (!guestsByCategory[guest.category]) {
+            guestsByCategory[guest.category] = { total: 0, checkedIn: 0 };
+          }
+          guestsByCategory[guest.category].total++;
+          if (guest.checkedInAt) {
+            guestsByCategory[guest.category].checkedIn++;
+          }
+        });
+
+        const event = events.find(e => e.id === eventId);
+        if (event) {
+          setEventStats({
+            ...event,
+            guests,
+            totalGuests,
+            checkedInGuests,
+            awaitingGuests,
+            checkInPercentage,
+            guestsByCategory
+          });
+        }
+      } else {
+        setError('Erro ao carregar estatísticas');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error);
+      setError('Erro ao carregar estatísticas');
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  const recentCheckins = useMemo(() => {
+    if (!eventStats) return [];
+    const checkins = eventStats.guests
+      .filter(g => g.checkedInAt)
+      .sort((a, b) => new Date(b.checkedInAt || 0).getTime() - new Date(a.checkedInAt || 0).getTime())
+      .slice(0, 5);
+    return checkins;
+  }, [eventStats]);
+
+  const awaitingGuests = useMemo(() => {
+    if (!eventStats) return [];
+    return eventStats.guests
+      .filter(g => !g.checkedInAt)
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+  }, [eventStats]);
+
+  const categoryList = useMemo(() => {
+    if (!eventStats) return [];
+    return Object.entries(eventStats.guestsByCategory)
+      .map(([name, stats]) => ({
+        name,
+        total: stats.total,
+        checkedIn: stats.checkedIn,
+        percentage: stats.total > 0 ? Math.round((stats.checkedIn / stats.total) * 100) : 0
+      }))
+      .sort((a, b) => b.total - a.total);
+  }, [eventStats]);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      setIsLoggingOut(false);
+    }
+  };
+
+  const handleCreateClick = () => {
+    setSelectedEvent(null);
+    setIsEditingEvent(false);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (e: React.MouseEvent, event: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedEvent(event);
+    setIsEditingEvent(true);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, eventId: string, eventName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteConfirm({ eventId, eventName });
+  };
+
+  const handleModalSubmit = async (formData: EventFormData) => {
+    setIsSubmittingModal(true);
+    try {
+      const url = isEditingEvent
+        ? `/api/events/${selectedEvent?.id}`
+        : '/api/events';
+      
+      const method = isEditingEvent ? 'PUT' : 'POST';
+
+      // Converte datetime-local para ISO string
+      let dateToSend = formData.date;
+      if (formData.date && !formData.date.includes('T')) {
+        // Se vier em formato datetime-local, já está em formato ISO
+        dateToSend = new Date(formData.date).toISOString();
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          date: dateToSend,
+          description: formData.description || null,
+          status: formData.status
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao salvar evento');
+      }
+
+      const successData = await response.json();
+      
+      if (isEditingEvent) {
+        // Atualiza evento na lista
+        setEvents(events.map(e => 
+          e.id === selectedEvent?.id 
+            ? { ...successData.event, date: new Date(successData.event.date).toISOString() }
+            : e
+        ));
+      } else {
+        // Adiciona novo evento
+        setEvents([...events, { ...successData.event, date: new Date(successData.event.date).toISOString() }]);
+      }
+
+      setIsModalOpen(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error('Erro ao salvar evento:', error);
+      setError(error instanceof Error ? error.message : 'Erro ao salvar evento');
+    } finally {
+      setIsSubmittingModal(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirm) return;
+
+    setIsDeletingEvent(true);
+    try {
+      const response = await fetch(`/api/events/${deleteConfirm.eventId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao deletar evento');
+      }
+
+      // Remove evento da lista
+      setEvents(events.filter(e => e.id !== deleteConfirm.eventId));
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error('Erro ao deletar evento:', error);
+      setError(error instanceof Error ? error.message : 'Erro ao deletar evento');
+      setDeleteConfirm(null);
+    } finally {
+      setIsDeletingEvent(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loadingSpinner}></div>
+        <p>Carregando...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className={styles.dashboardContainer}>
+      {/* Header */}
+      <header className={styles.header}>
+        <div className={styles.container}>
+          <div className={styles.headerContent}>
+            <div className={styles.logo}>
+              <h1>✨ Controle de Acesso</h1>
+            </div>
+
+            <div className={styles.userInfo}>
+              <div className={styles.userDetails}>
+                <span className={styles.userName}>{user.email}</span>
+                <span className={styles.userRole}>
+                  {user.role === 'ADMIN' ? '👑 Administrador' : '👤 Colaborador'}
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className={styles.logoutButton}
+              >
+                {isLoggingOut ? 'Saindo...' : 'Sair'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className={styles.main}>
+        <div className={styles.container}>
+          {/* Dashboard Header */}
+          <section className={styles.dashboardHeader}>
+            <div>
+              <h2>Dashboard</h2>
+              <p>Acompanhamento em tempo real</p>
+            </div>
+            <button
+              onClick={() => handleLogout()}
+              disabled={isLoggingOut}
+              className={styles.exportButton}
+            >
+              Exportar
+            </button>
+          </section>
+
+          {/* Event Selector */}
+          {user.role === 'USER' && events.length > 0 && (
+            <div className={styles.eventSelector}>
+              <select
+                value={selectedEventId || ''}
+                onChange={(e) => setSelectedEventId(e.target.value)}
+                className={styles.selectEvent}
+              >
+                <option value="">Selecione um evento</option>
+                {events.map(event => (
+                  <option key={event.id} value={event.id}>
+                    {event.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {user.role === 'ADMIN' && (
+            <>
+              {/* Admin View - Show all events */}
+              <section className={styles.eventsSection}>
+                <div className={styles.sectionHeader}>
+                  <h3>📅 Todos os Eventos</h3>
+                  <button
+                    onClick={handleCreateClick}
+                    className={styles.createButton}
+                  >
+                    + Criar Evento
+                  </button>
+                </div>
+                
+                {error && (
+                  <div className={styles.error}>{error}</div>
+                )}
+
+                {events.length === 0 ? (
+                  <p className={styles.emptyState}>Nenhum evento cadastrado ainda</p>
+                ) : (
+                  <div className={styles.eventsList}>
+                    {events.map((event) => (
+                      <div key={event.id} className={styles.eventCardWrapper}>
+                        <Link href={`/events/${event.id}`} className={styles.eventCard}>
+                          <div className={styles.eventHeader}>
+                            <h4>{event.name}</h4>
+                            <span
+                              className={styles.eventStatus}
+                              data-status={event.status.toLowerCase()}
+                            >
+                              {event.status}
+                            </span>
+                          </div>
+                          <p className={styles.eventDate}>
+                            📅 {new Date(event.date).toLocaleDateString('pt-BR')}
+                          </p>
+                          {event.description && (
+                            <p className={styles.eventDescription}>{event.description}</p>
+                          )}
+                        </Link>
+
+                        <div className={styles.eventActions}>
+                          <button
+                            onClick={(e) => handleEditClick(e, event)}
+                            className={styles.actionBtn}
+                            title="Editar evento"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteClick(e, event.id, event.name)}
+                            className={`${styles.actionBtn} ${styles.danger}`}
+                            title="Deletar evento"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {/* Dashboard Stats - Colaborador */}
+          {user.role === 'USER' && events.length > 0 && (
+            <>
+              <section className={styles.eventsSection}>
+                <h3>📅 Meus Eventos</h3>
+                <div className={styles.eventsList}>
+                  {events.map((event) => (
+                    <Link key={event.id} href={`/events/${event.id}/checkin`} className={`${styles.eventCard} ${cardStyles.cardBase}`}>
+                      <div className={styles.eventHeader}>
+                        <h4>{event.name}</h4>
+                        <span
+                          className={styles.eventStatus}
+                          data-status={event.status.toLowerCase()}
+                        >
+                          {event.status}
+                        </span>
+                      </div>
+                      <p className={styles.eventDate}>
+                        📅 {new Date(event.date).toLocaleDateString('pt-BR')}
+                      </p>
+                      {event.description && (
+                        <p className={styles.eventDescription}>{event.description}</p>
+                      )}
+                      <div className={styles.eventFooter}>
+                        <button className={styles.cardButton}>
+                          Ir para Check-in
+                        </button>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            </>
+          )}
+
+          {user.role === 'USER' && events.length === 0 && (
+            <p className={styles.emptyState}>Você não está vinculado a nenhum evento</p>
+          )}
+
+      {/* Modals */}
+      <EventModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedEvent(null);
+          setIsEditingEvent(false);
+        }}
+        onSubmit={handleModalSubmit}
+        isEditing={isEditingEvent}
+        initialData={selectedEvent ? {
+          name: selectedEvent.name,
+          date: new Date(selectedEvent.date).toISOString().slice(0, 16), // datetime-local format
+          description: selectedEvent.description,
+          status: selectedEvent.status
+        } : undefined}
+        isLoading={isSubmittingModal}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deleteConfirm}
+        title="Deletar Evento"
+        message={`Tem certeza que deseja deletar o evento "${deleteConfirm?.eventName}"? Esta ação é irreversível.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        isDangerous={true}
+        isLoading={isDeletingEvent}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm(null)}
+      />
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <div className={styles.container}>
+          <p>&copy; 2026 Controle de Acesso - Todos os direitos reservados</p>
+        </div>
+      </footer>
+    </div>
+  );
+}

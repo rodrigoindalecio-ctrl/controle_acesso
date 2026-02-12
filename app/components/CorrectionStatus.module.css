@@ -1,0 +1,123 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.statusNormal {
+  color: var(--success-color);
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusCorrected {
+  color: var(--warning-color, #ffc107);
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  transition: transform var(--transition-fast);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.statusCorrected:hover {
+  transform: scale(1.15);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+  animation: tooltipAppear 0.2s ease;
+  max-width: 250px;
+  white-space: normal;
+}
+
+@keyframes tooltipAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.tooltipContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.title {
+  font-weight: var(--font-weight-semi-bold);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.detail strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semi-bold);
+}
+
+.arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid var(--border-color);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .tooltip {
+    position: fixed;
+    bottom: auto;
+    left: auto;
+    top: 50%;
+    right: var(--spacing-md);
+    transform: translateY(-50%);
+    margin-bottom: 0;
+    max-width: 200px;
+  }
+
+  .arrow {
+    display: none;
+  }
+}

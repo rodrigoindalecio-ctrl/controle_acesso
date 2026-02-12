@@ -1,0 +1,140 @@
+.card {
+  background: white;
+  border: 1px solid #e8dfd6;
+  border-radius: var(--radius-md);
+  padding: 0.6rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.48rem;
+  text-align: center;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(123, 45, 61, 0.1);
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.header {
+  width: 100%;
+  margin: 0;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  font-family: 'Playfair Display', serif;
+}
+
+.chartContainer {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chart {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+}
+
+.chartBg {
+  fill: none;
+  stroke: #f0ebe3;
+  stroke-width: 8;
+}
+
+.chartProgress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 282.74;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.chartText {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.percentage {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.label {
+  font-size: 0.55rem;
+  color: #999;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.24rem;
+  width: 100%;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  color: #333;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    padding: 1.25rem;
+    gap: 1.5rem;
+  }
+
+  .leftSection {
+    text-align: center;
+  }
+
+  .header h3 {
+    font-size: 1rem;
+  }
+
+  .percentage {
+    font-size: 1.75rem;
+  }
+
+  .chartContainer {
+    width: 120px;
+    height: 120px;
+  }
+}

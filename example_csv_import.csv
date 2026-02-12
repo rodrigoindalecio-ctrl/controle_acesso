@@ -1,0 +1,9 @@
+# NOTA: Recomenda-se usar o formato XLSX (Excel) pois oferece melhor formatação
+# Este arquivo é apenas um exemplo em CSV. Baixe o arquivo XLSX formatado do sistema!
+
+full_name,phone,category,table_number,notes
+João Silva,11999999999,familia_noiva,A01,Convidado VIP
+Maria Santos,11988888888,familia_noivo,A02,Tia
+Pedro Oliveira,11977777777,padrinhos,B01,Padrinho
+Ana Costa,11966666666,amigos,C01,Colega
+Carlos Ferreira,11955555555,vip,VIP01,Gerente
