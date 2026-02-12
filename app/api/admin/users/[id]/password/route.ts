@@ -65,7 +65,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     await createAuditLog({
       userId: admin.auth.userId,
       role: admin.auth.role,
-      action: 'CHANGE_USER_PASSWORD',
+      action: 'EDIT_GUEST', // ou outro valor permitido por AuditAction
       entityType: 'User',
       entityId: target.id,
       before: { id: target.id, email: target.email, name: target.name, role: target.role },
