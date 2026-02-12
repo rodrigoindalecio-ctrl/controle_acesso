@@ -53,8 +53,8 @@ export async function GET(req: NextRequest) {
         ...(q
           ? {
               OR: [
-                { name: { contains: q, mode: 'insensitive' } },
-                { email: { contains: q, mode: 'insensitive' } }
+                { name: { contains: q, mode: 'insensitive' as const } },
+                { email: { contains: q, mode: 'insensitive' as const } }
               ]
             }
           : {})
