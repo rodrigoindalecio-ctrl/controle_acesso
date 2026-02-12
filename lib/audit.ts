@@ -8,7 +8,9 @@ export type AuditAction =
   | 'DELETE_GUEST' 
   | 'IMPORT_GUESTS'
   | 'CORRECT_GUEST'
-  | 'CHANGE_USER_PASSWORD';
+  | 'CHANGE_USER_PASSWORD'
+  | 'UPDATE_USER'
+  | 'CREATE_USER';
 
 export type AuditEntityType = 'Guest' | 'Event' | 'User';
 
