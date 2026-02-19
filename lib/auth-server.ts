@@ -71,8 +71,8 @@ export async function hasEventAccess(eventId: string): Promise<boolean> {
     const userEvent = await prisma.userEvent.findUnique({
       where: {
         userId_eventId: {
-          userId: user.userId,
-          eventId: eventId
+          userId: Number(user.userId),
+          eventId: Number(eventId)
         }
       }
     });

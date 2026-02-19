@@ -26,6 +26,20 @@ interface Guest {
   isManual: boolean;
 }
 
+type Collaborator = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+};
+
+type SystemUser = {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+};
+
 interface EditingGuest {
   id: string;
   fullName: string;
@@ -45,114 +59,120 @@ interface Props {
 }
 
 export default function GuestManagement({ eventId, eventName, eventDate, eventDescription, eventStatus }: Props) {
-    const { user } = useAuth();
-    // Função padrão para check-in/desfazer check-in igual à página de colaboradores
-    // Check-in admin: usa o mesmo fluxo do sistema (POST /api/events/[eventId]/check-in)
-    // Check-in admin: sempre usa a rota oficial do sistema
-    // Modal state for check-in confirmation
-    const [checkInModalOpen, setCheckInModalOpen] = useState(false);
-    const [checkInLoading, setCheckInLoading] = useState(false);
-    const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
-    const [successGuest, setSuccessGuest] = useState<Guest | null>(null);
+  const { user } = useAuth();
+  // Função padrão para check-in/desfazer check-in igual à página de colaboradores
+  // Check-in admin: usa o mesmo fluxo do sistema (POST /api/events/[eventId]/check-in)
+  // Check-in admin: sempre usa a rota oficial do sistema
+  // Modal state for check-in confirmation
+  const [checkInModalOpen, setCheckInModalOpen] = useState(false);
+  const [checkInLoading, setCheckInLoading] = useState(false);
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
+  const [successGuest, setSuccessGuest] = useState<Guest | null>(null);
 
-    const [showAddGuestChoiceModal, setShowAddGuestChoiceModal] = useState(false);
+  const [showAddGuestChoiceModal, setShowAddGuestChoiceModal] = useState(false);
 
-    const [isSmallScreen, setIsSmallScreen] = useState(false);
-    const [detailsExpanded, setDetailsExpanded] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [detailsExpanded, setDetailsExpanded] = useState(true);
 
-    useEffect(() => {
-      const mq = window.matchMedia('(max-width: 520px)');
-      const apply = () => {
-        const small = mq.matches;
-        setIsSmallScreen(small);
-        setDetailsExpanded(!small);
-      };
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [allUsers, setAllUsers] = useState<SystemUser[]>([]);
+  const [collabLoading, setCollabLoading] = useState(false);
+  const [collabError, setCollabError] = useState<string | null>(null);
+  const [showCollabDropdown, setShowCollabDropdown] = useState(false);
 
-      apply();
-      const onChange = () => apply();
-      if (typeof mq.addEventListener === 'function') {
-        mq.addEventListener('change', onChange);
-        return () => mq.removeEventListener('change', onChange);
-      }
-      mq.addListener(onChange);
-      return () => mq.removeListener(onChange);
-    }, []);
-
-    useEffect(() => {
-      if (!showAddGuestChoiceModal) return;
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') setShowAddGuestChoiceModal(false);
-      };
-      document.addEventListener('keydown', onKey);
-      return () => document.removeEventListener('keydown', onKey);
-    }, [showAddGuestChoiceModal]);
-
-    // Open modal instead of direct check-in
-    const handleCheckInClick = (guest: Guest) => {
-      setSelectedGuest(guest);
-      setCheckInModalOpen(true);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 520px)');
+    const apply = () => {
+      const small = mq.matches;
+      setIsSmallScreen(small);
+      setDetailsExpanded(!small);
     };
 
-    // Confirm check-in with modal
-    const handleConfirmCheckIn = async (isNonPaying: boolean) => {
-      if (!selectedGuest) return;
-      setCheckInLoading(true);
-      try {
-        // Check-in: POST /api/events/{eventId}/check-in
-        const response = await fetch(`/api/events/${eventId}/check-in`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ guestId: selectedGuest.id, isPaying: !isNonPaying }),
-        });
-        if (!response.ok) {
-          let errorMsg = 'Erro ao confirmar presença';
-          try {
-            const errorData = await response.json();
-            errorMsg = errorData.error || errorMsg;
-          } catch {}
-          throw new Error(errorMsg);
-        }
-        setGuests(guests => guests.map(g =>
-          g.id === selectedGuest.id ? { ...g, checkedInAt: new Date().toISOString(), isPaying: !isNonPaying } : g
-        ));
-        // Exibir overlay de sucesso verde
-        setSuccessGuest({ ...selectedGuest, checkedInAt: new Date().toISOString() });
-        setCheckInModalOpen(false);
-        setSelectedGuest(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro ao atualizar presença');
-      } finally {
-        setCheckInLoading(false);
-      }
-    };
+    apply();
+    const onChange = () => apply();
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    }
+    mq.addListener(onChange);
+    return () => mq.removeListener(onChange);
+  }, []);
 
-    // Undo check-in (no modal)
-    const handleUndoCheckIn = async (guestId: string) => {
-      try {
-        const response = await fetch(`/api/guests/${guestId}/attendance`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ present: false }),
-        });
-        if (!response.ok) {
-          let errorMsg = 'Erro ao desfazer presença';
-          try {
-            const errorData = await response.json();
-            errorMsg = errorData.error || errorMsg;
-          } catch {}
-          throw new Error(errorMsg);
-        }
-        setGuests(guests => guests.map(g =>
-          g.id === guestId ? { ...g, checkedInAt: undefined } : g
-        ));
-        setSuccessMessage('Presença desfeita!');
-        setTimeout(() => setSuccessMessage(''), 2000);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erro ao atualizar presença');
-      }
+  useEffect(() => {
+    if (!showAddGuestChoiceModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowAddGuestChoiceModal(false);
     };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [showAddGuestChoiceModal]);
+
+  // Open modal instead of direct check-in
+  const handleCheckInClick = (guest: Guest) => {
+    setSelectedGuest(guest);
+    setCheckInModalOpen(true);
+  };
+
+  // Confirm check-in with modal
+  const handleConfirmCheckIn = async (isNonPaying: boolean) => {
+    if (!selectedGuest) return;
+    setCheckInLoading(true);
+    try {
+      // Check-in: POST /api/events/{eventId}/check-in
+      const response = await fetch(`/api/events/${eventId}/check-in`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ guestId: selectedGuest.id, isPaying: !isNonPaying }),
+      });
+      if (!response.ok) {
+        let errorMsg = 'Erro ao confirmar presença';
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch { }
+        throw new Error(errorMsg);
+      }
+      setGuests(guests => guests.map(g =>
+        g.id === selectedGuest.id ? { ...g, checkedInAt: new Date().toISOString(), isPaying: !isNonPaying } : g
+      ));
+      // Exibir overlay de sucesso verde
+      setSuccessGuest({ ...selectedGuest, checkedInAt: new Date().toISOString() });
+      setCheckInModalOpen(false);
+      setSelectedGuest(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar presença');
+    } finally {
+      setCheckInLoading(false);
+    }
+  };
+
+  // Undo check-in (no modal)
+  const handleUndoCheckIn = async (guestId: string) => {
+    try {
+      const response = await fetch(`/api/guests/${guestId}/attendance`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ present: false }),
+      });
+      if (!response.ok) {
+        let errorMsg = 'Erro ao desfazer presença';
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.error || errorMsg;
+        } catch { }
+        throw new Error(errorMsg);
+      }
+      setGuests(guests => guests.map(g =>
+        g.id === guestId ? { ...g, checkedInAt: undefined } : g
+      ));
+      setSuccessMessage('Presença desfeita!');
+      setTimeout(() => setSuccessMessage(''), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar presença');
+    }
+  };
   const [showFilter, setShowFilter] = useState<string | null>(null);
   // Fecha popup ao clicar fora
   useEffect(() => {
@@ -254,6 +274,76 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
     return () => clearInterval(interval);
   }, [eventId]);
 
+  // Carregar colaboradores
+  const fetchCollaborators = async () => {
+    if (!eventId) return;
+    setCollabLoading(true);
+    try {
+      const res = await fetch(`/api/events/${eventId}/collaborators`);
+      if (res.ok) {
+        const data = await res.json();
+        setCollaborators(data.collaborators || []);
+      }
+
+      // Se for admin, carrega todos os usuários para poder adicionar
+      if (user?.role === 'ADMIN') {
+        const usersRes = await fetch('/api/admin/users');
+        if (usersRes.ok) {
+          const usersData = await usersRes.json();
+          setAllUsers(usersData.users || []);
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao carregar colaboradores:', err);
+    } finally {
+      setCollabLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCollaborators();
+  }, [eventId, user]);
+
+  const handleAddCollaborator = async (email: string) => {
+    try {
+      setCollabLoading(true);
+      const res = await fetch(`/api/events/${eventId}/collaborators`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erro ao adicionar');
+      }
+      await fetchCollaborators();
+      setShowCollabDropdown(false);
+    } catch (err) {
+      setCollabError(err instanceof Error ? err.message : 'Erro ao adicionar');
+      setTimeout(() => setCollabError(null), 3000);
+    } finally {
+      setCollabLoading(false);
+    }
+  };
+
+  const handleRemoveCollaborator = async (userId: string) => {
+    try {
+      setCollabLoading(true);
+      const res = await fetch(`/api/events/${eventId}/collaborators`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      if (!res.ok) throw new Error('Erro ao remover');
+      await fetchCollaborators();
+    } catch (err) {
+      setCollabError(err instanceof Error ? err.message : 'Erro ao remover');
+      setTimeout(() => setCollabError(null), 3000);
+    } finally {
+      setCollabLoading(false);
+    }
+  };
+
   // Aplicar filtros
   useEffect(() => {
     const filtered = guests.filter(guest => {
@@ -262,7 +352,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       const matchTable = !filters.table || (guest.tableNumber && guest.tableNumber.toLowerCase().includes(filters.table.toLowerCase()));
       const matchType = !filters.type || (filters.type === 'crianca' ? guest.isChild : !guest.isChild);
       const matchStatus = !filters.status || (filters.status === 'presente' ? guest.checkedInAt : !guest.checkedInAt);
-      
+
       return matchName && matchCategory && matchTable && matchType && matchStatus;
     });
     setFilteredGuests(filtered);
@@ -298,7 +388,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       }
 
       const data = await response.json();
-      
+
       // Atualizar lista
       setGuests(guests.map(g => g.id === editingGuest.id ? data.guest : g));
       setEditingId(null);
@@ -457,13 +547,13 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                 <div className={styles.eventDetailsValue}>
                   {eventDate
                     ? new Date(eventDate).toLocaleString('pt-BR', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })
                     : '-'}
                 </div>
               </div>
@@ -479,52 +569,142 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                 <div className={styles.eventDetailsLabel}>DESCRIÇÃO</div>
                 <div className={styles.eventDetailsValue}>{eventDescription || '-'}</div>
               </div>
+
+              <div className={styles.eventDetailsMetaItem}>
+                <div className={styles.eventDetailsLabel}>
+                  COLABORADORES
+                  {user?.role === 'ADMIN' && (
+                    <div style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle', marginLeft: '6px' }}>
+                      <button
+                        onClick={() => setShowCollabDropdown(!showCollabDropdown)}
+                        className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
+                        style={{ padding: '0 4px', fontSize: '1rem', height: '1rem', minWidth: 'unset', display: 'flex', alignItems: 'center', lineHeight: 1, border: 'none' }}
+                        title="Adicionar colaborador"
+                      >
+                        +
+                      </button>
+                      {showCollabDropdown && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          background: '#fff',
+                          border: '1px solid #ddd',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                          zIndex: 100,
+                          minWidth: '200px',
+                          maxHeight: '200px',
+                          overflowY: 'auto'
+                        }}>
+                          {allUsers.filter(u => u.role === 'USER' && !collaborators.some(c => c.id === u.id)).map(u => (
+                            <button
+                              key={u.id}
+                              onClick={() => handleAddCollaborator(u.email)}
+                              style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '8px 12px',
+                                textAlign: 'left',
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                fontSize: '0.85rem'
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.background = '#f5f5f5')}
+                              onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+                            >
+                              {u.name || u.email}
+                            </button>
+                          ))}
+                          {allUsers.filter(u => u.role === 'USER' && !collaborators.some(c => c.id === u.id)).length === 0 && (
+                            <div style={{ padding: '8px 12px', fontSize: '0.8rem', color: '#888' }}>
+                              Nenhum usuário disponível
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className={styles.eventDetailsValue}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {collaborators.length > 0 ? collaborators.map(c => (
+                      <span
+                        key={c.id}
+                        style={{
+                          background: '#f0f0f0',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.8rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        {c.name || c.email}
+                        {user?.role === 'ADMIN' && (
+                          <button
+                            onClick={() => handleRemoveCollaborator(c.id)}
+                            style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#999', fontSize: '0.9rem', padding: '0 2px' }}
+                          >
+                            ×
+                          </button>
+                        )}
+                      </span>
+                    )) : (
+                      <span style={{ color: '#999', fontSize: '0.85rem' }}>Nenhum colaborador</span>
+                    )}
+                  </div>
+                  {collabError && <div style={{ color: 'red', fontSize: '0.7rem', marginTop: '4px' }}>{collabError}</div>}
+                </div>
+              </div>
             </div>
           </>
         )}
       </div>
 
       {/* Bloco de botões de filtro, estatísticas, exportação e mesas */}
-      <div className={styles.filterBar} style={{maxWidth:'1100px',margin:'0 auto 16px auto'}}>
+      <div className={styles.filterBar} style={{ maxWidth: '1100px', margin: '0 auto 16px auto' }}>
         <div className={styles.filterBarGroup}>
           {/* Dropdown de Categoria */}
-          <div ref={categoryDropdownRef} style={{position:'relative', display:'inline-block', flexShrink:0}}>
-            <button 
-              className={buttonStyles.btn + ' ' + (filters.category ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} 
+          <div ref={categoryDropdownRef} style={{ position: 'relative', display: 'inline-block', flexShrink: 0 }}>
+            <button
+              className={buttonStyles.btn + ' ' + (filters.category ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton}
               onClick={() => setShowCategoryDropdown(prev => !prev)}
-              style={{display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap'}}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
             >
               {filters.category ? `${filters.category}` : 'Categoria'}
-              <span style={{fontSize:'0.6rem'}}>{showCategoryDropdown ? '▲' : '▼'}</span>
+              <span style={{ fontSize: '0.6rem' }}>{showCategoryDropdown ? '▲' : '▼'}</span>
             </button>
             {showCategoryDropdown && (
               <div style={{
-                position:'absolute',
-                top:'100%',
-                left:0,
-                marginTop:'4px',
-                background:'#fff',
-                border:'1px solid #7b2d3d',
-                borderRadius:'8px',
-                boxShadow:'0 4px 12px rgba(0,0,0,0.15)',
-                zIndex:100,
-                minWidth:'180px',
-                maxHeight:'280px',
-                overflowY:'auto'
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: '4px',
+                background: '#fff',
+                border: '1px solid #7b2d3d',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                zIndex: 100,
+                minWidth: '180px',
+                maxHeight: '280px',
+                overflowY: 'auto'
               }}>
                 <button
                   onClick={() => { setFilters(f => ({ ...f, category: '' })); setShowCategoryDropdown(false); }}
                   style={{
-                    display:'block',
-                    width:'100%',
-                    padding:'0.6rem 1rem',
-                    textAlign:'left',
+                    display: 'block',
+                    width: '100%',
+                    padding: '0.6rem 1rem',
+                    textAlign: 'left',
                     background: !filters.category ? '#7b2d3d' : 'transparent',
                     color: !filters.category ? '#fff' : '#333',
-                    border:'none',
-                    cursor:'pointer',
-                    fontSize:'0.95rem',
-                    borderBottom:'1px solid #eee'
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    borderBottom: '1px solid #eee'
                   }}
                 >
                   Todas as Categorias
@@ -534,16 +714,16 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                     key={cat}
                     onClick={() => { setFilters(f => ({ ...f, category: cat })); setShowCategoryDropdown(false); }}
                     style={{
-                      display:'block',
-                      width:'100%',
-                      padding:'0.6rem 1rem',
-                      textAlign:'left',
+                      display: 'block',
+                      width: '100%',
+                      padding: '0.6rem 1rem',
+                      textAlign: 'left',
                       background: filters.category === cat ? '#7b2d3d' : 'transparent',
                       color: filters.category === cat ? '#fff' : '#333',
-                      border:'none',
-                      cursor:'pointer',
-                      fontSize:'0.95rem',
-                      borderBottom:'1px solid #eee'
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '0.95rem',
+                      borderBottom: '1px solid #eee'
                     }}
                   >
                     {cat} ({guests.filter(g => g.category === cat).length})
@@ -553,24 +733,24 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             )}
           </div>
 
-          <button className={buttonStyles.btn + ' ' + (filters.status === 'pendente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}} onClick={() => setFilters(f => ({ ...f, status: 'pendente' }))}>Pendentes ({guests.filter(g=>!g.checkedInAt).length})</button>
-          <button className={buttonStyles.btn + ' ' + (filters.status === 'presente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}} onClick={() => setFilters(f => ({ ...f, status: 'presente' }))}>✓ Presentes ({guests.filter(g=>g.checkedInAt).length})</button>
-          <button className={buttonStyles.btn + ' ' + (filters.status === '' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}} onClick={() => setFilters(f => ({ ...f, status: '' }))}>Todos ({guests.length})</button>
+          <button className={buttonStyles.btn + ' ' + (filters.status === 'pendente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setFilters(f => ({ ...f, status: 'pendente' }))}>Pendentes ({guests.filter(g => !g.checkedInAt).length})</button>
+          <button className={buttonStyles.btn + ' ' + (filters.status === 'presente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setFilters(f => ({ ...f, status: 'presente' }))}>✓ Presentes ({guests.filter(g => g.checkedInAt).length})</button>
+          <button className={buttonStyles.btn + ' ' + (filters.status === '' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setFilters(f => ({ ...f, status: '' }))}>Todos ({guests.length})</button>
 
-          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}} onClick={() => setShowStatsModal(true)}>Estatísticas</button>
-          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}} onClick={() => setShowTablesModal(true)}>Mesas</button>
+          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setShowStatsModal(true)}>Estatísticas</button>
+          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setShowTablesModal(true)}>Mesas</button>
         </div>
 
         <div className={styles.filterBarGroupEnd}>
-          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}}
+          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
             onClick={() => setShowExportModal(true)}
             disabled={guests.length === 0}
             title="Exportar"
           >Exportar</button>
           {canManageEvent && (
-            <button 
-              className={buttonStyles.btn + ' ' + buttonStyles['btn--danger'] + ' ' + styles.filterBarButton} 
-              style={{padding:'0.5rem 0.75rem', fontSize:'0.85rem', whiteSpace:'nowrap', flexShrink:0}}
+            <button
+              className={buttonStyles.btn + ' ' + buttonStyles['btn--danger'] + ' ' + styles.filterBarButton}
+              style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
               onClick={handleDeleteAllClick}
               disabled={guests.length === 0}
               title="Excluir todos os convidados"
@@ -580,7 +760,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       </div>
 
       {/* Campo de busca por nome */}
-      <div className={styles.searchBox} style={{ marginBottom: '1.2rem', marginTop: '-0.5rem', maxWidth:'1100px',marginLeft:'auto',marginRight:'auto', width:'100%' }}>
+      <div className={styles.searchBox} style={{ marginBottom: '1.2rem', marginTop: '-0.5rem', maxWidth: '1100px', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', width: '100%' }}>
           <input
             type="text"
@@ -673,14 +853,14 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       {/* Modal de Exportação */}
       {showExportModal && (
         <div className={styles.statsModalOverlay} onClick={() => setShowExportModal(false)}>
-          <div className={styles.statsModal} onClick={e => e.stopPropagation()} style={{maxWidth:'400px', padding:'2rem'}}>
+          <div className={styles.statsModal} onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', padding: '2rem' }}>
             <button className={styles.closeBtn} onClick={() => setShowExportModal(false)}>Fechar</button>
-            <h2 style={{fontSize:'1.4rem', fontWeight:'bold', color:'#222', marginBottom:'1.5rem', textAlign:'center'}}>Exportar Lista</h2>
-            <p style={{color:'#666', marginBottom:'1.5rem', textAlign:'center'}}>Escolha o formato de exportação:</p>
-            <div style={{display:'flex', gap:'1rem', justifyContent:'center'}}>
-              <button 
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#222', marginBottom: '1.5rem', textAlign: 'center' }}>Exportar Lista</h2>
+            <p style={{ color: '#666', marginBottom: '1.5rem', textAlign: 'center' }}>Escolha o formato de exportação:</p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
                 className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
-                style={{minWidth:'120px', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem', padding:'1rem 1.5rem'}}
+                style={{ minWidth: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem 1.5rem' }}
                 onClick={() => {
                   const guestReports = guests.map(guest => ({
                     ...guest,
@@ -689,20 +869,20 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                   import('@/app/utils/exportToPdf').then(mod => mod.generateEventReport(guestReports, {
                     eventName: eventName || eventId,
                     total: guests.length,
-                    checkedIn: guests.filter(g=>g.checkedInAt).length,
-                    pending: guests.filter(g=>!g.checkedInAt).length,
-                    paying: guests.filter(g=>g.isPaying).length,
-                    nonPaying: guests.filter(g=>!g.isPaying).length
+                    checkedIn: guests.filter(g => g.checkedInAt).length,
+                    pending: guests.filter(g => !g.checkedInAt).length,
+                    paying: guests.filter(g => g.isPaying).length,
+                    nonPaying: guests.filter(g => !g.isPaying).length
                   }));
                   setShowExportModal(false);
                 }}
               >
-                <span style={{fontSize:'1.5rem'}}>📄</span>
+                <span style={{ fontSize: '1.5rem' }}>📄</span>
                 <span>PDF</span>
               </button>
-              <button 
+              <button
                 className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
-                style={{minWidth:'120px', display:'flex', flexDirection:'column', alignItems:'center', gap:'0.5rem', padding:'1rem 1.5rem'}}
+                style={{ minWidth: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem 1.5rem' }}
                 onClick={async () => {
                   try {
                     const response = await fetch(`/api/guests/export?eventId=${eventId}`, {
@@ -735,7 +915,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                   setShowExportModal(false);
                 }}
               >
-                <span style={{fontSize:'1.5rem'}}>📊</span>
+                <span style={{ fontSize: '1.5rem' }}>📊</span>
                 <span>XLSX</span>
               </button>
             </div>
@@ -744,7 +924,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       )}
 
       {/* Listagem visual dos convidados dentro do container original */}
-      <div className={styles.tableWrapper} style={{maxWidth:'1100px',margin:'0 auto'}}>
+      <div className={styles.tableWrapper} style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <GuestCheckInList
           guests={filteredGuests}
           onCheckIn={id => {

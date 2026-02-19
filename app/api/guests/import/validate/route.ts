@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Validar que evento existe
     const event = await prisma.event.findUnique({
-      where: { id: eventId },
+      where: { id: Number(eventId) },
       select: { id: true }
     });
 
@@ -45,8 +45,8 @@ export async function POST(request: NextRequest) {
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: authResult.userId,
-            eventId
+            userId: Number(authResult.userId),
+            eventId: Number(eventId)
           }
         }
       });
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     // Parse arquivo (CSV ou XLSX)
     let csvData: Record<string, any>[];
-    
+
     if (isXLSXFile(file)) {
       csvData = await parseXLSX(file);
     } else {
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     // Buscar nomes existentes do evento para detecção de duplicatas
     const existingGuests = await prisma.guest.findMany({
-      where: { eventId },
+      where: { eventId: Number(eventId) },
       select: { fullName: true }
     });
 

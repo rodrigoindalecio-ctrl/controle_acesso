@@ -60,8 +60,8 @@ export async function POST(
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: payload.userId,
-            eventId: eventId
+            userId: Number(payload.userId),
+            eventId: Number(eventId)
           }
         }
       });
@@ -76,7 +76,7 @@ export async function POST(
 
     // Verifica se evento existe
     const event = await prisma.event.findUnique({
-      where: { id: eventId }
+      where: { id: Number(eventId) }
     });
 
     if (!event) {
@@ -91,7 +91,7 @@ export async function POST(
       where: {
         fullName_eventId: {
           fullName: fullName.trim(),
-          eventId: eventId
+          eventId: Number(eventId)
         }
       }
     });
@@ -108,7 +108,7 @@ export async function POST(
       data: {
         fullName: fullName.trim(),
         category: category || 'outros',
-        eventId: eventId,
+        eventId: Number(eventId),
         isManual: true,
         checkedInAt: new Date() // Check-in automático
       },

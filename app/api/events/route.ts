@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
     // Vincula o ADMIN ao evento automaticamente
     await prisma.userEvent.create({
       data: {
-        userId: payload.userId,
+        userId: Number(payload.userId),
         eventId: event.id
       }
     });

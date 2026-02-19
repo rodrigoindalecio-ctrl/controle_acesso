@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     // Gerar token
     const token = generateToken({
-      userId: user.id,
+      userId: Number(user.id),
       email: user.email,
       name: user.name,
       role: user.role as 'ADMIN' | 'USER'

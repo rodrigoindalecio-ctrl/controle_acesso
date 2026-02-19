@@ -33,7 +33,7 @@ async function ensureAdmin(req: NextRequest) {
   return { ok: true as const, auth };
 }
 
-async function isLastAdmin(userId: string) {
+async function isLastAdmin(userId: number) {
   const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
   if (adminCount <= 1) {
     const isAdmin = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
@@ -51,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const admin = await ensureAdmin(req);
     if (!admin.ok) return admin.res;
 
-    const userId = params.id;
+    const userId = Number(params.id);
 
     const beforeUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -70,7 +70,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const nextRole = parsed.data.role;
     if (nextRole && nextRole !== beforeUser.role) {
       if (beforeUser.role === 'ADMIN' && nextRole === 'USER') {
-        const last = await isLastAdmin(beforeUser.id);
+        const last = await isLastAdmin(Number(beforeUser.id));
         if (last) {
           return NextResponse.json({ error: 'Não é possível remover o último ADMIN do sistema' }, { status: 400 });
         }
@@ -100,7 +100,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       role: admin.auth.role,
       action: 'UPDATE_USER',
       entityType: 'User',
-      entityId: user.id,
+      entityId: String(user.id),
       before: beforeUser,
       after: { id: user.id, name: user.name, email: user.email, role: user.role },
       justification: 'Edição de usuário',
@@ -124,9 +124,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const admin = await ensureAdmin(req);
     if (!admin.ok) return admin.res;
 
-    const userId = params.id;
+    const userId = Number(params.id);
 
-    if (userId === admin.auth.userId) {
+    if (String(userId) === admin.auth.userId) {
       return NextResponse.json({ error: 'Você não pode excluir seu próprio usuário' }, { status: 400 });
     }
 
@@ -139,7 +139,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     }
 
     if (beforeUser.role === 'ADMIN') {
-      const last = await isLastAdmin(beforeUser.id);
+      const last = await isLastAdmin(Number(beforeUser.id));
       if (last) {
         return NextResponse.json({ error: 'Não é possível excluir o último ADMIN do sistema' }, { status: 400 });
       }
@@ -153,7 +153,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       role: admin.auth.role,
       action: 'DELETE_USER',
       entityType: 'User',
-      entityId: beforeUser.id,
+      entityId: String(beforeUser.id),
       before: beforeUser,
       after: null as any,
       justification: 'Exclusão de usuário',

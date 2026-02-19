@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const admin = await ensureAdmin(req);
     if (!admin.ok) return admin.res;
 
-    const userId = params.id;
+    const userId = Number(params.id);
     const body = await req.json().catch(() => null);
     const parsed = changePasswordSchema.safeParse(body);
     if (!parsed.success) {
@@ -65,9 +65,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     await createAuditLog({
       userId: admin.auth.userId,
       role: admin.auth.role,
-      action: 'EDIT_GUEST', // ou outro valor permitido por AuditAction
+      action: 'UPDATE_USER' as any,
       entityType: 'User',
-      entityId: target.id,
+      entityId: String(target.id),
       before: { id: target.id, email: target.email, name: target.name, role: target.role },
       after: { id: target.id },
       justification: 'Alteração de senha via admin',

@@ -353,6 +353,7 @@ export default function UsersModal({ isOpen, onClose }: UsersModalProps) {
                         >
                           Senha
                         </button>
+
                         <button
                           type="button"
                           className={`${btn.btn} ${btn['btn--danger']} ${btn['btn--sm']}`}

@@ -45,7 +45,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const admin = ensureAdmin(req);
     if (!admin.ok) return admin.res;
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
 
     const event = await prisma.event.findUnique({ where: { id: eventId }, select: { id: true } });
     if (!event) {
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
 
     const assignments = await prisma.userEvent.findMany({
-      where: { eventId },
+      where: { eventId: eventId },
       include: {
         user: { select: { id: true, email: true, name: true, role: true } }
       },
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     });
 
     const collaborators: CollaboratorDTO[] = assignments.map((a) => ({
-      id: a.user.id,
+      id: String(a.user.id),
       email: a.user.email,
       name: a.user.name,
       role: a.user.role
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const admin = ensureAdmin(req);
     if (!admin.ok) return admin.res;
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
     const body = await req.json().catch(() => ({}));
     const email = normalizeEmail(body?.email);
 
@@ -112,8 +112,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     try {
       await prisma.userEvent.create({
         data: {
-          userId: user.id,
-          eventId
+          userId: Number(user.id),
+          eventId: eventId
         }
       });
     } catch (e: any) {
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json(
       {
         success: true,
-        collaborator: { id: user.id, email: user.email, name: user.name, role: user.role }
+        collaborator: { id: String(user.id), email: user.email, name: user.name, role: user.role }
       },
       { status: 201 }
     );
@@ -147,9 +147,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const admin = ensureAdmin(req);
     if (!admin.ok) return admin.res;
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
     const body = await req.json().catch(() => ({}));
-    const userId = typeof body?.userId === 'string' ? body.userId.trim() : '';
+    const userId = body?.userId ? Number(body.userId) : 0;
 
     if (!userId) {
       return NextResponse.json({ error: 'Campo obrigatório: userId' }, { status: 400 });
@@ -163,8 +163,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     await prisma.userEvent.delete({
       where: {
         userId_eventId: {
-          userId,
-          eventId
+          userId: userId,
+          eventId: eventId
         }
       }
     });

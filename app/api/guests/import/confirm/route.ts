@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Verificar se evento existe (após validação)
-    const event = await prisma.event.findUnique({ where: { id: eventId }, select: { id: true } });
+    const event = await prisma.event.findUnique({ where: { id: Number(eventId) }, select: { id: true } });
     if (!event) {
       return NextResponse.json({ code: 'EVENT_NOT_FOUND', message: 'Evento não encontrado' }, { status: 404 });
     }
@@ -115,8 +115,8 @@ export async function POST(request: NextRequest) {
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: authResult.userId,
-            eventId
+            userId: Number(authResult.userId),
+            eventId: Number(eventId)
           }
         }
       });
@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
       importJob = await prisma.importJob.findUnique({
         where: {
           userId_eventId_idempotencyKey: {
-            userId: authResult.userId,
-            eventId,
+            userId: String(authResult.userId),
+            eventId: String(eventId),
             idempotencyKey
           }
         }
@@ -159,8 +159,8 @@ export async function POST(request: NextRequest) {
         // create pending job record
         importJob = await prisma.importJob.create({
           data: {
-            userId: authResult.userId,
-            eventId,
+            userId: String(authResult.userId),
+            eventId: String(eventId),
             idempotencyKey,
             status: 'pending'
           }
@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
 
     // Transaction para garantir atomicidade
     // Fetch existing guests for the event once, and build a map by normalized name
-    const existingGuests = await prisma.guest.findMany({ where: { eventId }, select: { id: true, fullName: true, category: true, phone: true, notes: true, tableNumber: true } });
+    const existingGuests = await prisma.guest.findMany({ where: { eventId: Number(eventId) }, select: { id: true, fullName: true, category: true, phone: true, notes: true, tableNumber: true } });
     const existingMap = new Map<string, { id: string; fullName: string; category: string | null; phone: string | null; notes: string | null; tableNumber: string | null }>();
     for (const eg of existingGuests) {
       const key = eg.fullName ? eg.fullName.trim().replace(/\s+/g, ' ').toLowerCase() : '';
@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
                   phone: guest._normalizedPhone || null,
                   notes: markedNotes,
                   tableNumber: guest.table_number || null,
-                  eventId,
+                  eventId: Number(eventId),
                   isManual: false
                 }
               });
@@ -274,7 +274,7 @@ export async function POST(request: NextRequest) {
               phone: guest._normalizedPhone || null,
               notes: guest.notes || null,
               tableNumber: guest.table_number || null,
-              eventId,
+              eventId: Number(eventId),
               isManual: false
             }
           });
@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
       role: authResult.role,
       action: 'IMPORT_GUESTS',
       entityType: 'Event',
-      entityId: eventId,
+      entityId: String(eventId),
       justification: `Importação: created=${summary.created} updated=${summary.updated} skipped=${summary.skipped}`,
       before: { count: 0 },
       after: { created: summary.created, updated: summary.updated, skipped: summary.skipped, failed: summary.failed },

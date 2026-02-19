@@ -37,10 +37,10 @@ async function main() {
   console.log('📅 Criando eventos...');
   
   const wedding = await prisma.event.upsert({
-    where: { id: 'event-wedding' },
+    where: { id: 1 },
     update: {},
     create: {
-      id: 'event-wedding',
+      id: 1,
       name: 'Casamento Ana & João',
       date: new Date('2026-06-15T18:00:00'),
       description: 'Casamento da Ana e do João. Local: Salão Grand Hotel.',
@@ -50,17 +50,17 @@ async function main() {
   console.log('  ✅ ' + wedding.name);
 
   const debutante = await prisma.event.upsert({
-    where: { id: 'event-debutante' },
+    where: { id: 2 },
     update: {},
     create: {
-      id: 'event-debutante',
+      id: 2,
       name: '15 Anos – Maria',
       date: new Date('2026-08-20T20:00:00'),
       description: 'Festa de 15 anos da Maria. Local: Clube da Cidade.',
       status: 'PENDING'
     }
   });
-  console.log('  ✅ ' + debutante.name + '\n');
+  console.log('  ✅ ' + debutante.name);
 
   // 3. Vincular usuários aos eventos
   console.log('🔗 Vinculando usuários aos eventos...');

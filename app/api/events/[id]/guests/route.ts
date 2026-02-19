@@ -36,14 +36,14 @@ export async function GET(
     }
 
     const { id } = await params;
-    const eventId = id;
+    const eventId = Number(id);
 
     // Verifica se tem acesso ao evento
     if (payload.role !== 'ADMIN') {
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: payload.userId,
+            userId: Number(payload.userId),
             eventId: eventId
           }
         }
@@ -121,14 +121,14 @@ export async function POST(
     }
 
     const { id } = await params;
-    const eventId = id;
+    const eventId = Number(id);
 
     // Verifica se tem acesso ao evento
     if (payload.role !== 'ADMIN') {
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: payload.userId,
+            userId: Number(payload.userId),
             eventId: eventId
           }
         }
@@ -175,7 +175,7 @@ export async function POST(
     // Verificar se convidado já existe (busca por título case armazenado)
     const existingGuest = await prisma.guest.findFirst({
       where: {
-        eventId,
+        eventId: eventId,
         fullName: titleCaseName
       }
     });
@@ -305,7 +305,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const eventId = id;
+    const eventId = Number(id);
 
     // Verifica se o evento existe
     const event = await prisma.event.findUnique({
@@ -324,7 +324,7 @@ export async function DELETE(
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: payload.userId,
+            userId: Number(payload.userId),
             eventId
           }
         }
@@ -340,7 +340,7 @@ export async function DELETE(
 
     // Conta quantos convidados serão excluídos
     const guestCount = await prisma.guest.count({
-      where: { eventId }
+      where: { eventId: eventId }
     });
 
     if (guestCount === 0) {
@@ -354,7 +354,7 @@ export async function DELETE(
     // Exclui todos os convidados do evento
     await prisma.$transaction(async (tx) => {
       await tx.guest.deleteMany({
-        where: { eventId }
+        where: { eventId: eventId }
       });
 
       await tx.event.update({

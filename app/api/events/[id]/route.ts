@@ -26,7 +26,7 @@ export async function GET(
       );
     }
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
 
     // Busca o evento
     const event = await prisma.event.findUnique({
@@ -113,7 +113,7 @@ export async function PUT(
       );
     }
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
 
     // Verifica se evento existe
     const event = await prisma.event.findUnique({
@@ -241,7 +241,7 @@ export async function DELETE(
       );
     }
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
 
     // Verifica se evento existe
     const event = await prisma.event.findUnique({
@@ -257,7 +257,7 @@ export async function DELETE(
 
     // Deleta as relações de usuários primeiro (para evitar constraint)
     await prisma.userEvent.deleteMany({
-      where: { eventId }
+      where: { eventId: eventId }
     });
 
     // Deleta o evento

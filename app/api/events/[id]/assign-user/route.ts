@@ -39,7 +39,7 @@ export async function POST(
       );
     }
 
-    const eventId = params.id;
+    const eventId = Number(params.id);
 
     // Obtém dados do corpo da requisição
     const body = await req.json();
@@ -67,7 +67,7 @@ export async function POST(
 
     // Verifica se o usuário existe
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: Number(userId) }
     });
 
     if (!user) {
@@ -81,8 +81,8 @@ export async function POST(
     const existingAssignment = await prisma.userEvent.findUnique({
       where: {
         userId_eventId: {
-          userId,
-          eventId
+          userId: Number(userId),
+          eventId: eventId
         }
       }
     });
@@ -97,8 +97,8 @@ export async function POST(
     // Cria a vinculação
     const assignment = await prisma.userEvent.create({
       data: {
-        userId,
-        eventId
+        userId: Number(userId),
+        eventId: eventId
       }
     });
 

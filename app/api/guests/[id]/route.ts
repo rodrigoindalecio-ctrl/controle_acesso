@@ -65,7 +65,7 @@ export async function PUT(
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: payload.userId,
+            userId: Number(payload.userId),
             eventId: guest.eventId
           }
         }
@@ -156,7 +156,7 @@ export async function DELETE(
       const userEvent = await prisma.userEvent.findUnique({
         where: {
           userId_eventId: {
-            userId: payload.userId,
+            userId: Number(payload.userId),
             eventId: guest.eventId
           }
         }

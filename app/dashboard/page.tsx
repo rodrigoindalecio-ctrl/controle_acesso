@@ -21,7 +21,7 @@ interface User {
 }
 
 interface Event {
-  id: string;
+  id: number;
   name: string;
   date: string;
   description?: string;
@@ -32,7 +32,7 @@ interface DashboardStats {
   totalEvents: number;
   totalGuests: number;
   nextEvent: {
-    id: string;
+    id: number;
     name: string;
     date: string;
   } | null;

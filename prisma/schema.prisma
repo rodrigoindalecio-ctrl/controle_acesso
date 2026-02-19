@@ -78,6 +78,7 @@ model UserEvent {
   
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  updated_at DateTime   @default(now()) @updatedAt
   
   @@unique([userId, eventId])
   @@map("user_events")
