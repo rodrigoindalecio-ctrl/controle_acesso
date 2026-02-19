@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     // Verificar autenticação
     const authResult = await verifyAuth(request);
-    
+
     if (!authResult) {
       return NextResponse.json(
         { message: 'Não autorizado' },
@@ -61,20 +61,19 @@ export async function GET(request: NextRequest) {
 
     if (userId) {
       where.userId = {
-        contains: userId,
-        mode: 'insensitive'
+        contains: userId
       };
     }
 
     if (dateFrom || dateTo) {
       where.created_at = {};
-      
+
       if (dateFrom) {
         const fromDate = new Date(dateFrom);
         fromDate.setHours(0, 0, 0, 0);
         where.created_at.gte = fromDate;
       }
-      
+
       if (dateTo) {
         const toDate = new Date(dateTo);
         toDate.setHours(23, 59, 59, 999);

@@ -52,11 +52,11 @@ export async function GET(req: NextRequest) {
         ...(role === 'ADMIN' || role === 'USER' ? { role } : {}),
         ...(q
           ? {
-              OR: [
-                { name: { contains: q, mode: 'insensitive' as const } },
-                { email: { contains: q, mode: 'insensitive' as const } }
-              ]
-            }
+            OR: [
+              { name: { contains: q } },
+              { email: { contains: q } }
+            ]
+          }
           : {})
       },
       select: {
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
       role: admin.auth.role,
       action: 'CREATE_USER',
       entityType: 'User',
-      entityId: user.id,
+      entityId: String(user.id),
       before: null as any,
       after: { id: user.id, name: user.name, email: user.email, role: user.role },
       justification: 'Criação de usuário',
