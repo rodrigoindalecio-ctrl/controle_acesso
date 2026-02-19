@@ -12,12 +12,12 @@ interface AddGuestModalProps {
   eventId: string;
   isOpen: boolean;
   onClose: () => void;
-  onGuestAdded?: (guest: { 
+  onGuestAdded?: (guest: {
     id: string
     fullName: string
     checkedInAt: string | Date | null
-    category?: string
-    tableNumber?: string | null
+    category?: string | null
+    tableNumber?: string | number | null
     isManual?: boolean
     isChild?: boolean
     childAge?: number | null
@@ -62,7 +62,7 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
       if (guestsRes.ok) {
         const data = await guestsRes.json();
         const guests = data.guests || [];
-        
+
         // Extract unique tables
         const tableSet = new Set<string>();
         guests.forEach((g: any) => {
@@ -77,14 +77,14 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
         const tableList = Array.from(tableSet)
           .sort((a, b) => tableNameCollator.compare(String(a), String(b)))
           .map(name => ({ id: name, name }));
-        
+
         setTables(tableList);
-        
+
         // Set first table as default if available
         if (tableList.length > 0) {
           setTableNumber(tableList[0].name);
         }
-        
+
         // Extract unique categories
         const categorySet = new Set<string>();
         guests.forEach((g: any) => {
@@ -144,7 +144,7 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
 
       let data: ApiResponse = {};
       const contentType = res.headers.get('content-type');
-      
+
       // Tentar fazer parse de JSON só se o content-type é JSON
       if (contentType && contentType.includes('application/json')) {
         try {
