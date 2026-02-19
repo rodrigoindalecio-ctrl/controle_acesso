@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
-import cardStyles from '@/lib/cards.module.css';
 import Link from 'next/link';
 import EventModal, { EventFormData } from '@/app/components/EventModal';
 import ConfirmDialog from '@/app/components/ConfirmDialog';
@@ -49,7 +48,7 @@ export default function DashboardPage() {
   const [isEditingEvent, setIsEditingEvent] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isSubmittingModal, setIsSubmittingModal] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ eventId: string; eventName: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ eventId: number; eventName: string } | null>(null);
   const [isDeletingEvent, setIsDeletingEvent] = useState(false);
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
@@ -66,7 +65,7 @@ export default function DashboardPage() {
 
       if (data.user) {
         setUser(data.user);
-        await loadEvents(data.user);
+        await loadEvents();
         if (data.user.role === 'ADMIN') {
           await loadStats();
         }
@@ -80,7 +79,7 @@ export default function DashboardPage() {
     }
   };
 
-  const loadEvents = async (currentUser: User) => {
+  const loadEvents = async () => {
     try {
       const response = await fetch('/api/events');
       if (response.ok) {
@@ -95,14 +94,12 @@ export default function DashboardPage() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch('/api/dashboard/stats', {
+      const response = await fetch('/api/reports/stats', {
         credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
         setStats(data);
-      } else {
-        console.error('Erro ao carregar estatísticas:', response.status, await response.text());
       }
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
@@ -134,7 +131,7 @@ export default function DashboardPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (e: React.MouseEvent, eventId: string, eventName: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, eventId: number, eventName: string) => {
     e.preventDefault();
     e.stopPropagation();
     setDeleteConfirm({ eventId, eventName });
@@ -146,7 +143,7 @@ export default function DashboardPage() {
       const url = isEditingEvent
         ? `/api/events/${selectedEvent?.id}`
         : '/api/events';
-      
+
       const method = isEditingEvent ? 'PUT' : 'POST';
 
       let dateToSend = formData.date;
@@ -173,10 +170,10 @@ export default function DashboardPage() {
       }
 
       const successData = await response.json();
-      
+
       if (isEditingEvent) {
-        setEvents(events.map(e => 
-          e.id === selectedEvent?.id 
+        setEvents(events.map(e =>
+          e.id === selectedEvent?.id
             ? { ...successData.event, date: new Date(successData.event.date).toISOString() }
             : e
         ));
@@ -184,9 +181,7 @@ export default function DashboardPage() {
         setEvents([...events, { ...successData.event, date: new Date(successData.event.date).toISOString() }]);
       }
 
-      // Refresh stats after event change
       loadStats();
-
       setIsModalOpen(false);
       setSelectedEvent(null);
     } catch (error) {
@@ -213,7 +208,6 @@ export default function DashboardPage() {
 
       setEvents(events.filter(e => e.id !== deleteConfirm.eventId));
       setDeleteConfirm(null);
-      // Refresh stats after event deletion
       loadStats();
     } catch (error) {
       console.error('Erro ao deletar evento:', error);
@@ -251,7 +245,6 @@ export default function DashboardPage() {
                 priority
               />
             </div>
-
             <div className={styles.userInfo}>
               <UserMenu user={user} onLogout={handleLogout} />
             </div>
@@ -261,14 +254,13 @@ export default function DashboardPage() {
 
       <main className={styles.mainContent}>
         <div className={styles.container}>
-          {/* Banner de Boas-vindas */}
           <div className={styles.welcomeBanner}>
             <div className={styles.welcomeContent}>
               <h2 className={styles.welcomeTitle}>
                 Olá, {user.name || user.email.split('@')[0]}! 👋
               </h2>
               <p className={styles.welcomeSubtitle}>
-                {user.role === 'ADMIN' 
+                {user.role === 'ADMIN'
                   ? `Você tem ${events.length} evento${events.length !== 1 ? 's' : ''} para gerenciar`
                   : `Você está vinculado a ${events.length} evento${events.length !== 1 ? 's' : ''}`
                 }
@@ -279,7 +271,6 @@ export default function DashboardPage() {
 
           {user.role === 'ADMIN' ? (
             <>
-              {/* Estatísticas Rápidas - Admin */}
               {stats && (
                 <div className={styles.quickStats}>
                   <div className={styles.quickStatCard}>
@@ -288,7 +279,7 @@ export default function DashboardPage() {
                   </div>
                   <div className={styles.quickStatCard}>
                     <span className={styles.quickStatValue}>
-                      {stats.nextEvent 
+                      {stats.nextEvent
                         ? new Date(stats.nextEvent.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
                         : '—'
                       }
@@ -304,172 +295,76 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Cards de Acesso Rápido - Admin */}
               <div className={styles.quickAccessCards}>
-                <div
-                  className={styles.quickCard}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setIsUsersModalOpen(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setIsUsersModalOpen(true);
-                    }
-                  }}
-                >
+                <div className={styles.quickCard} onClick={() => setIsUsersModalOpen(true)}>
                   <h3>👥 Usuários</h3>
                   <p className={styles.cardSubtitle}>Gerenciar usuários do sistema</p>
                 </div>
-                <div
-                  className={styles.quickCard}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setIsReportsOpen(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setIsReportsOpen(true);
-                    }
-                  }}
-                >
+                <div className={styles.quickCard} onClick={() => setIsReportsOpen(true)}>
                   <h3>📈 Relatórios</h3>
                   <p className={styles.cardSubtitle}>Visualizar relatórios gerais</p>
                 </div>
               </div>
 
               <section className={styles.eventsSection}>
-              <div className={styles.sectionHeader}>
-                <h3>Todos os Eventos</h3>
-                <button
-                  onClick={handleCreateClick}
-                  className={styles.createButton}
-                >
-                  + Criar Evento
-                </button>
-              </div>
-              
-              {error && (
-                <div className={styles.error}>{error}</div>
-              )}
-
-              {events.length === 0 ? (
-                <div className={styles.emptyStateElegant}>
-                  <div className={styles.emptyIllustration}>
-                    <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="16" y="24" width="64" height="48" rx="12" fill="#f5e8eb" stroke="#7b2d3d" strokeWidth="2"/>
-                      <rect x="28" y="36" width="40" height="24" rx="6" fill="#fff" stroke="#7b2d3d" strokeWidth="1.5"/>
-                      <circle cx="48" cy="48" r="6" fill="#7b2d3d"/>
-                    </svg>
-                  </div>
-                  <h3 className={styles.emptyTitle}>Nenhum evento cadastrado</h3>
-                  <p className={styles.emptySubtitle}>Crie seu primeiro evento para começar a organizar!</p>
-                  <button className={styles.emptyAction} onClick={handleCreateClick}>
-                    + Criar Evento
-                  </button>
+                <div className={styles.sectionHeader}>
+                  <h3>Todos os Eventos</h3>
+                  <button onClick={handleCreateClick} className={styles.createButton}>+ Criar Evento</button>
                 </div>
-              ) : (
-                <div className={styles.eventsList}>
-                  {events.map((event) => (
-                    <div
-                      key={event.id}
-                      className={styles.eventCardWrapper}
-                      style={{ animationDelay: `${0.08 * events.indexOf(event)}s` }}
-                    >
-                      <div className={styles.eventCardWithMenu}>
+
+                {error && <div className={styles.error}>{error}</div>}
+
+                {events.length === 0 ? (
+                  <div className={styles.emptyStateElegant}>
+                    <h3 className={styles.emptyTitle}>Nenhum evento cadastrado</h3>
+                    <button className={styles.emptyAction} onClick={handleCreateClick}>+ Criar Evento</button>
+                  </div>
+                ) : (
+                  <div className={styles.eventsList}>
+                    {events.map((event) => (
+                      <div key={event.id} className={styles.eventCardWithMenu}>
                         <Link href={`/events/${event.id}`} className={styles.eventCard}>
                           <div className={styles.eventHeader}>
                             <h4>{event.name}</h4>
-                            <span
-                              className={styles.eventStatus}
-                              data-status={event.status.toLowerCase()}
-                            >
+                            <span className={styles.eventStatus} data-status={event.status.toLowerCase()}>
                               {translateStatus(event.status)}
                             </span>
                           </div>
-                          <p className={styles.eventDate}>
-                            {new Date(event.date).toLocaleDateString('pt-BR')}
-                          </p>
-                          {event.description && (
-                            <p className={styles.eventDescription}>{event.description}</p>
-                          )}
+                          <p className={styles.eventDate}>{new Date(event.date).toLocaleDateString('pt-BR')}</p>
                         </Link>
                         <div className={styles.menuWrapper}>
-                          <button
-                            className={styles.menuButton}
-                            title="Mais ações"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setSelectedEvent(selectedEvent && selectedEvent.id === event.id ? null : event);
-                            }}
-                          >
-                            ⋮
-                          </button>
-                          {selectedEvent && selectedEvent.id === event.id && (
+                          <button className={styles.menuButton} onClick={() => setSelectedEvent(selectedEvent?.id === event.id ? null : event)}>⋮</button>
+                          {selectedEvent?.id === event.id && (
                             <div className={styles.menuDropdown}>
-                              <button
-                                className={styles.menuItem}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleEditClick(e, event);
-                                  setSelectedEvent(null);
-                                }}
-                              >
-                                ✏️ Editar
-                              </button>
-                              <button
-                                className={styles.menuItemDanger}
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  handleDeleteClick(e, event.id, event.name);
-                                  setSelectedEvent(null);
-                                }}
-                              >
-                                🗑️ Excluir
-                              </button>
+                              <button className={styles.menuItem} onClick={(e) => handleEditClick(e, event)}>✏️ Editar</button>
+                              <button className={styles.menuItemDanger} onClick={(e) => handleDeleteClick(e, event.id, event.name)}>🗑️ Excluir</button>
                             </div>
                           )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
+                    ))}
+                  </div>
+                )}
+              </section>
             </>
           ) : (
             <section className={styles.eventsSection}>
               <div className={styles.sectionHeader}>
                 <h3>Meus Eventos</h3>
               </div>
-              {events.length === 0 ? (
-                <p className={styles.emptyState}>Você não está vinculado a nenhum evento</p>
-              ) : (
-                <div className={styles.eventsList}>
-                  {events.map((event) => (
-                    <Link key={event.id} href={`/events/${event.id}/checkin`} className={styles.eventCard}>
-                      <div className={styles.eventHeader}>
-                        <h4>{event.name}</h4>
-                        <span
-                          className={styles.eventStatus}
-                          data-status={event.status.toLowerCase()}
-                        >
-                          {translateStatus(event.status)}
-                        </span>
-                      </div>
-                      <p className={styles.eventDate}>
-                        {new Date(event.date).toLocaleDateString('pt-BR')}
-                      </p>
-                      {event.description && (
-                        <p className={styles.eventDescription}>{event.description}</p>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <div className={styles.eventsList}>
+                {events.map((event) => (
+                  <Link key={event.id} href={`/events/${event.id}/checkin`} className={styles.eventCard}>
+                    <div className={styles.eventHeader}>
+                      <h4>{event.name}</h4>
+                      <span className={styles.eventStatus} data-status={event.status.toLowerCase()}>
+                        {translateStatus(event.status)}
+                      </span>
+                    </div>
+                    <p className={styles.eventDate}>{new Date(event.date).toLocaleDateString('pt-BR')}</p>
+                  </Link>
+                ))}
+              </div>
             </section>
           )}
         </div>
@@ -483,11 +378,7 @@ export default function DashboardPage() {
 
       <EventModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setSelectedEvent(null);
-          setIsEditingEvent(false);
-        }}
+        onClose={() => { setIsModalOpen(false); setSelectedEvent(null); setIsEditingEvent(false); }}
         onSubmit={handleModalSubmit}
         isEditing={isEditingEvent}
         eventId={isEditingEvent ? selectedEvent?.id : undefined}

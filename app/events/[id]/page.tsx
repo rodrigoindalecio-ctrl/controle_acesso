@@ -10,7 +10,7 @@ import styles from './event.module.css';
 import buttonStyles from '@/lib/buttons.module.css';
 
 interface Event {
-  id: string;
+  id: number;
   name: string;
   date: string;
   description?: string;
@@ -32,7 +32,7 @@ export default function EventPage() {
     const loadEvent = async () => {
       try {
         const response = await fetch(`/api/events/${eventId}`);
-        
+
         if (response.status === 403) {
           // Acesso negado
           router.push('/dashboard');
@@ -70,7 +70,7 @@ export default function EventPage() {
         <div className={styles.error}>
           {error || 'Evento não encontrado'}
         </div>
-        <button 
+        <button
           className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
           onClick={() => router.push('/dashboard')}
           title="Voltar ao Dashboard"
@@ -96,7 +96,7 @@ export default function EventPage() {
     <div className={styles.eventContainer}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <button 
+          <button
             className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
             onClick={() => router.push('/dashboard')}
             title="Voltar ao Dashboard"
@@ -112,20 +112,20 @@ export default function EventPage() {
 
       <main className={styles.mainContent}>
 
-      <div className={styles.content}>
-        {isAdmin && event && (
-          <>
-            <GuestManagement 
-              eventId={eventId} 
-              eventName={event.name} 
-              eventDate={event.date}
-              eventDescription={event.description}
-              eventStatus={event.status}
-              key={refreshKey} 
-            />
-          </>
-        )}
-      </div>
+        <div className={styles.content}>
+          {isAdmin && event && (
+            <>
+              <GuestManagement
+                eventId={eventId}
+                eventName={event.name}
+                eventDate={event.date}
+                eventDescription={event.description}
+                eventStatus={event.status}
+                key={refreshKey}
+              />
+            </>
+          )}
+        </div>
       </main>
 
       <footer className={styles.footer}>

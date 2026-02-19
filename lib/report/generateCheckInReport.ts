@@ -4,14 +4,14 @@
  */
 
 interface GuestForReport {
-  id: string;
+  id: string | number;
   fullName: string;
-  category?: string;
-  tableNumber?: string | null;
-  checkedInAt?: string | null;
-  checkedInBy?: string;
-  undoAt?: string;
-  undoBy?: string;
+  category?: string | null;
+  tableNumber?: string | number | null;
+  checkedInAt?: string | Date | null;
+  checkedInBy?: string | number | null;
+  undoAt?: string | Date | null;
+  undoBy?: string | number | null;
 }
 
 export interface CheckInReportSummary {
@@ -52,8 +52,8 @@ export function generateCheckInReport(guests: GuestForReport[]): CheckInReport {
   const timelineMap = new Map<string, number>();
 
   guests.forEach((guest) => {
-    const hasCheckedIn = guest.checkedInAt && guest.checkedInAt.trim() !== '';
-    const hasUndo = guest.undoAt && guest.undoAt.trim() !== '';
+    const hasCheckedIn = !!guest.checkedInAt;
+    const hasUndo = !!guest.undoAt;
 
     if (hasUndo) {
       // Check-in foi desfeito
