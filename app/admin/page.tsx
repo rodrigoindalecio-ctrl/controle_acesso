@@ -64,7 +64,7 @@ export default function AdminPage() {
       if (filters.dateTo) params.append('dateTo', filters.dateTo);
 
       const response = await fetch(
-        `/api/audit?${params.toString()}`,
+        `/api/admin/audit?${params.toString()}`,
         {
           credentials: 'include'
         }
