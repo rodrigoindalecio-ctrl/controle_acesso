@@ -3,7 +3,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { GuestHistoryResponse } from '@/app/api/events/[id]/guests/[guestId]/history/route';
+export interface GuestHistoryResponse {
+  history: {
+    type: 'checkin' | 'undo';
+    timestamp: string;
+    userId?: string;
+    reason?: string;
+  }[];
+}
 
 interface UseGuestHistoryReturn {
   history: GuestHistoryResponse | null;

@@ -75,6 +75,23 @@ export async function GET(req: NextRequest, { params }: { params: { slug?: strin
         return NextResponse.json({ updatedAt: event.updated_at, lastChangeType: event.lastChangeType || null });
     }
 
+    // 7. GET /api/events/[id]/guests/[guestId]/history
+    if (slug.length === 4 && slug[1] === 'guests' && slug[3] === 'history') {
+        const guestId = slug[2];
+        const logs = await prisma.auditLog.findMany({
+            where: { entityType: 'Guest', entityId: guestId },
+            orderBy: { created_at: 'asc' }
+        });
+        return NextResponse.json({
+            history: logs.map(l => ({
+                type: l.action.toLowerCase() === 'checkin' || l.action === 'CHECKIN' ? 'checkin' : 'undo',
+                timestamp: l.created_at.toISOString(),
+                userId: l.userId,
+                reason: l.justification
+            }))
+        });
+    }
+
     return NextResponse.json({ error: 'Not Found' }, { status: 404 });
 }
 

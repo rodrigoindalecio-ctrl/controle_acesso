@@ -7,8 +7,7 @@
 import React from 'react';
 import styles from './GuestHistoryDrawer.module.css';
 import cardStyles from '@/lib/cards.module.css';
-import { useGuestHistory } from '@/lib/hooks/useGuestHistory';
-import { GuestHistoryResponse } from '@/app/api/events/[id]/guests/[guestId]/history/route';
+import { useGuestHistory, GuestHistoryResponse } from '@/lib/hooks/useGuestHistory';
 
 interface GuestHistoryDrawerProps {
   eventId: string;
