@@ -472,47 +472,6 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
     return <div className={styles.loading}>Carregando convidados...</div>;
   }
 
-  // Função para confirmar presença (check-in)
-
-  // Função para confirmar presença
-  const handleConfirmPresence = async (guest: Guest) => {
-    try {
-      const response = await fetch(`/api/guests/${guest.id}/checkin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao confirmar presença');
-      }
-      const data = await response.json();
-      setGuests(guests.map(g => g.id === guest.id ? { ...g, checkedInAt: data.checkedInAt || new Date().toISOString() } : g));
-      setSuccessMessage('Presença confirmada!');
-      setTimeout(() => setSuccessMessage(''), 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao confirmar presença');
-    }
-  };
-
-  // Função para desfazer presença
-  const handleUndoPresence = async (guest: Guest) => {
-    try {
-      const response = await fetch(`/api/guests/${guest.id}/attendance`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ present: false }),
-      });
-      if (!response.ok) {
-        throw new Error('Erro ao desfazer presença');
-      }
-      setGuests(guests.map(g => g.id === guest.id ? { ...g, checkedInAt: undefined } : g));
-      setSuccessMessage('Presença desfeita!');
-      setTimeout(() => setSuccessMessage(''), 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao desfazer presença');
-    }
-  };
-
   return (
     <section className={styles.section}>
       {/* Card de detalhes do evento */}
