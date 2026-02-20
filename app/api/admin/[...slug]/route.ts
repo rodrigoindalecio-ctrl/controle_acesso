@@ -6,6 +6,8 @@ import { z } from 'zod';
 import * as bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 const createUserSchema = z.object({
     name: z.string().min(2).max(120),
