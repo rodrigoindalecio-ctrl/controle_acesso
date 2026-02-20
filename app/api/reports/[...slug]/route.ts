@@ -66,19 +66,19 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
         }).filter(e => e.totalAusentes > 0);
 
         const auditLogs = await prisma.auditLog.findMany({
-            where: payload.role === 'ADMIN' ? {} : { userId: Number(payload.userId) },
+            where: payload.role === 'ADMIN' ? {} : { userId: String(payload.userId) },
             orderBy: { created_at: 'desc' },
             take: 500
         });
 
-        const userIds = [...new Set(auditLogs.map(log => log.userId))];
+        const userIds = [...new Set(auditLogs.map(log => Number(log.userId)))];
         const users = await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, name: true, email: true } });
         const userMap = new Map(users.map(u => [u.id, u]));
 
-        const atividadeMap: Record<number, any> = {};
+        const atividadeMap: Record<string, any> = {};
         auditLogs.forEach(log => {
             if (!atividadeMap[log.userId]) {
-                const user = userMap.get(log.userId);
+                const user = userMap.get(Number(log.userId));
                 atividadeMap[log.userId] = { userId: log.userId, nome: user?.name || 'Desconhecido', email: user?.email || '', checkins: 0, unchecks: 0, edicoes: 0, criacoes: 0, exclusoes: 0, importacoes: 0, total: 0 };
             }
             atividadeMap[log.userId].total++;
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
             .filter(log => acoesCriticas.includes(log.action))
             .slice(0, 50)
             .map(log => {
-                const user = userMap.get(log.userId);
+                const user = userMap.get(Number(log.userId));
                 return { id: log.id, acao: log.action, tipo: log.entityType, usuario: user?.name || 'Desconhecido', justificativa: log.justification || null, data: log.created_at };
             });
 

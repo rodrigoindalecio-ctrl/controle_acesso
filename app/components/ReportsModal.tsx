@@ -127,7 +127,7 @@ export default function ReportsModal({ isOpen, onClose, events }: ReportsModalPr
   const [error, setError] = useState('');
   const [activeEventTab, setActiveEventTab] = useState<EventTabType>('resumo');
   const [activeConsolidatedTab, setActiveConsolidatedTab] = useState<ConsolidatedTabType>('comparativo');
-  const [expandedNoShow, setExpandedNoShow] = useState<string | null>(null);
+  const [expandedNoShow, setExpandedNoShow] = useState<number | null>(null);
   const [printFilter, setPrintFilter] = useState<PrintFilter>('todos');
 
   const loadReport = useCallback(async (eventId: number) => {
