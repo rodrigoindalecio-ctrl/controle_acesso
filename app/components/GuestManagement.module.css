@@ -541,9 +541,9 @@
 
 @media (max-width: 520px) {
   .eventDetailsCard {
-    padding: 16px;
+    padding: 12px 16px;
     border-radius: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
 
   .eventDetailsTitle {

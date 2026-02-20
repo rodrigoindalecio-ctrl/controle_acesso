@@ -11,6 +11,7 @@
   transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
   z-index: 1;
 }
+
 /* --- Event Card Action Menu --- */
 .eventCardWithMenu {
   position: relative;
@@ -39,7 +40,9 @@
   align-items: center;
   justify-content: center;
 }
-.menuButton:hover, .menuButton:focus {
+
+.menuButton:hover,
+.menuButton:focus {
   background: #f5e8eb;
   color: #5e1f2d;
   outline: none;
@@ -62,8 +65,15 @@
 }
 
 @keyframes fadeInMenu {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .menuItem {
@@ -80,7 +90,9 @@
   align-items: center;
   gap: 8px;
 }
-.menuItem:hover, .menuItem:focus {
+
+.menuItem:hover,
+.menuItem:focus {
   background: #f5e8eb;
   color: #5e1f2d;
   outline: none;
@@ -100,11 +112,14 @@
   align-items: center;
   gap: 8px;
 }
-.menuItemDanger:hover, .menuItemDanger:focus {
+
+.menuItemDanger:hover,
+.menuItemDanger:focus {
   background: #fee2e2;
   color: #ef4444;
   outline: none;
 }
+
 .dashboardContainer {
   display: flex;
   flex-direction: column;
@@ -180,14 +195,14 @@
   gap: 16px;
 }
 
-.main {
+.mainContent {
   flex: 1;
   padding: 40px 0;
   position: relative;
   z-index: 1;
 }
 
-.main > .container {
+.mainContent>.container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -349,6 +364,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -927,6 +943,7 @@
     opacity: 0;
     transform: translateY(24px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -938,7 +955,8 @@
 .eventStatus {
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   color: #166534;
-  padding: 6px 14px 6px 10px; /* padding-right reduzido */
+  padding: 6px 14px 6px 10px;
+  /* padding-right reduzido */
   border-radius: 20px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -1005,8 +1023,17 @@
 }
 
 @keyframes statusPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.9); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
 }
 
 .eventStatus[data-status="inactive"] {
@@ -1087,6 +1114,7 @@
   border-color: #ef4444;
   color: #991b1b;
 }
+
 .actionBtn.danger:hover {
   background: #fee2e2;
   color: #ef4444;
@@ -1115,15 +1143,26 @@
 }
 
 @media (max-width: 768px) {
-  .main {
+  .mainContent {
     padding: var(--spacing-xl) 0;
   }
 
-  .headerContent {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-md);
+  .header {
+    padding: 10px 0;
   }
+
+  .headerContent {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo img {
+    height: auto !important;
+    max-height: 35px !important;
+    width: auto !important;
+  }
+
 
   .statsHeader {
     flex-direction: column;
@@ -1148,7 +1187,7 @@
 }
 
 @media (max-width: 480px) {
-  .main {
+  .mainContent {
     padding: var(--spacing-lg) 0;
   }
 
@@ -1187,6 +1226,7 @@
 
 /* Footer */
 .footer {
+  margin-top: auto;
   padding: 16px 0;
   border-top: 1px solid var(--color-border);
   text-align: center;
@@ -1200,4 +1240,14 @@
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 10px 0;
+  }
+
+  .footer p {
+    font-size: 0.78rem;
+  }
 }

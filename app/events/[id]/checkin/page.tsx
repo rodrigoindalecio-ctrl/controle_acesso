@@ -70,11 +70,12 @@ export default function CheckInPage() {
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
             <button
-              className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
+              className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost'] + ' ' + styles.backButton}
               onClick={() => router.push('/dashboard')}
               title="Voltar ao Dashboard"
             >
-              ← Dashboard
+              <span className={styles.backIcon}>←</span>
+              <span className={styles.backText}>Dashboard</span>
             </button>
           </div>
           <h1 className={styles.title}>{eventName}</h1>

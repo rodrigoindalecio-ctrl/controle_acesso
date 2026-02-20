@@ -96,16 +96,21 @@ export default function EventPage() {
     <div className={styles.eventContainer}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <button
-            className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
-            onClick={() => router.push('/dashboard')}
-            title="Voltar ao Dashboard"
-          >
-            ← Dashboard
-          </button>
-          <h1>{event.name}</h1>
-          <div className={styles.userInfo}>
-            {user && <UserMenu user={user} onLogout={handleLogout} eventId={eventId} />}
+          <div className={styles.headerLeft}>
+            <button
+              className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost'] + ' ' + styles.backButton}
+              onClick={() => router.push('/dashboard')}
+              title="Voltar ao Dashboard"
+            >
+              <span className={styles.backIcon}>←</span>
+              <span className={styles.backText}>Dashboard</span>
+            </button>
+          </div>
+          <h1 className={styles.title}>{event.name}</h1>
+          <div className={styles.headerRight}>
+            <div className={styles.userInfo}>
+              {user && <UserMenu user={user} onLogout={handleLogout} eventId={eventId} />}
+            </div>
           </div>
         </div>
       </header>
