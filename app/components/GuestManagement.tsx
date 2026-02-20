@@ -916,7 +916,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       )}
 
       {/* Listagem visual dos convidados dentro do container original */}
-      <div className={styles.tableWrapper} style={{ maxWidth: '1100px', margin: '0 auto' }}>
+      <div className={styles.tableWrapper} style={{ maxWidth: '1100px', margin: '0 auto', marginTop: '1.5rem' }}>
         <GuestCheckInList
           guests={filteredGuests}
           onCheckIn={id => {
