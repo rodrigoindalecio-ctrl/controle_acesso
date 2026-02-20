@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import GuestManagement from '@/app/components/GuestManagement';
@@ -20,6 +20,7 @@ export default function CheckInPage() {
   const [eventDate, setEventDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [eventStatus, setEventStatus] = useState('');
+  const exportRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -82,7 +83,7 @@ export default function CheckInPage() {
           <h1 className={styles.title}>{eventName}</h1>
           <div className={styles.headerRight}>
             <div className={styles.userInfo}>
-              <UserMenu user={user} onLogout={handleLogout} eventId={eventId} />
+              <UserMenu user={user} onLogout={handleLogout} eventId={eventId} onExport={() => exportRef.current?.()} />
             </div>
           </div>
         </div>
@@ -95,6 +96,7 @@ export default function CheckInPage() {
           eventDate={eventDate}
           eventDescription={eventDescription}
           eventStatus={eventStatus}
+          exportRef={exportRef}
         />
       </main>
 
