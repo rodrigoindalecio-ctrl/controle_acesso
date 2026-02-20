@@ -1008,6 +1008,7 @@
   font-size: var(--font-size-md);
   color: var(--text-primary);
   flex: 1;
+  word-break: break-word;
 }
 
 
@@ -1184,7 +1185,16 @@
   .actionCards {
     grid-template-columns: 1fr;
   }
+
+  .eventsList {
+    grid-template-columns: 1fr;
+  }
+
+  .eventsSection {
+    padding: 1.5rem;
+  }
 }
+
 
 @media (max-width: 480px) {
   .mainContent {
@@ -1221,6 +1231,24 @@
     width: 100%;
     margin-left: 0;
     margin-top: var(--spacing-xs);
+  }
+
+  .eventsSection {
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+  }
+
+  .eventCard {
+    padding: 16px;
+  }
+
+  .eventHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .eventStatus {
+    margin-top: 8px;
   }
 }
 
