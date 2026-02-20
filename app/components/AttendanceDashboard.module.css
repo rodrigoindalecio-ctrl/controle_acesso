@@ -4,7 +4,8 @@
   border-radius: 10px;
   border: 1px solid #e8dfd6;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  margin: 1.2rem 0;
+  margin: 1.2rem auto;
+  max-width: 420px;
 }
 
 .title {
@@ -34,6 +35,26 @@
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.7rem;
   margin-bottom: 1.2rem;
+}
+
+/* Mobile-specific grid for counters */
+@media (max-width: 768px) {
+  .counters {
+    display: grid;
+    grid-template-areas:
+      "total presence"
+      "absent present";
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.7rem;
+  }
+  .counter {
+    min-width: 0;
+  }
+  .counter:nth-child(1) { grid-area: total; }
+  .counter:nth-child(2) { grid-area: presence; }
+  .counter:nth-child(3) { grid-area: absent; }
+  .counter:nth-child(4) { grid-area: present; }
 }
 
 .counter {
@@ -259,9 +280,7 @@
     padding: 1rem;
   }
 
-  .counters {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  /* .counters grid-template-columns removed to allow grid-template-areas to work */
 
   .chartsGrid {
     grid-template-columns: 1fr;

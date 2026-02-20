@@ -11,6 +11,7 @@ export function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <div className={styles.container}>
+      <img src="/logo-vb.png" alt="Logo" style={{ width: 56, height: 56, marginBottom: 16 }} />
       <div className={`${styles.spinner} ${styles[size]}`}></div>
       {message && <p className={styles.message}>{message}</p>}
     </div>

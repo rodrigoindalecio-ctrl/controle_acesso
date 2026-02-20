@@ -151,8 +151,8 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
 
     // 5. POST /api/events/[id]/guests/manual
     if (slug.length === 3 && slug[1] === 'guests' && slug[2] === 'manual') {
-        const { fullName, category } = await req.json();
-        const guest = await prisma.guest.create({ data: { fullName: fullName.trim(), category, eventId, isManual: true, checkedInAt: new Date() } });
+        const { fullName, category, tableNumber } = await req.json();
+        const guest = await prisma.guest.create({ data: { fullName: fullName.trim(), category, tableNumber, eventId, isManual: true, checkedInAt: new Date() } });
         await prisma.event.update({ where: { id: eventId }, data: { updated_at: new Date(), lastChangeType: 'CREATE' } });
         return NextResponse.json({ success: true, guest }, { status: 201 });
     }

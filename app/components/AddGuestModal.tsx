@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import CheckInSuccessOverlay from './CheckInSuccessOverlay';
 import styles from './AddGuestModal.module.css';
 
 interface Table {
@@ -29,12 +30,15 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
   const [fullName, setFullName] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const [category, setCategory] = useState('');
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [successGuest, setSuccessGuest] = useState<any>(null);
   const [tables, setTables] = useState<Table[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingTables, setLoadingTables] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isPresent, setIsPresent] = useState(true); // checkbox marcado por padrão
 
   useEffect(() => {
     if (isOpen) {
@@ -113,11 +117,23 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
     }
 
     setLoading(true);
+    // Só confirma presença se o checkbox estiver marcado
+    if (!isPresent) {
+      setSuccess(true);
+      setFullName('');
+      setTableNumber('');
+      setCategory('');
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+      setLoading(false);
+      return;
+    }
 
     try {
       const trimmedCategory = typeof category === 'string' ? category.trim() : '';
 
-      const res = await fetch(`/api/events/${eventId}/guests`, {
+      const res = await fetch(`/api/events/${eventId}/guests/manual`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -172,10 +188,15 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
       setFullName('');
       setTableNumber('');
       setCategory('');
+      setIsPresent(true);
 
+      setSuccessGuest(newGuest);
+      setShowSuccessOverlay(true);
       onGuestAdded?.(newGuest);
 
       setTimeout(() => {
+        setShowSuccessOverlay(false);
+        setSuccessGuest(null);
         onClose();
       }, 1500);
     } catch (err) {
@@ -197,6 +218,19 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
         </div>
 
         <form onSubmit={handleSubmit} className={styles.body}>
+                    <div className={styles.formGroup}>
+                      <label htmlFor="isPresent" style={{display:'flex',alignItems:'center',gap:8}}>
+                        <input
+                          id="isPresent"
+                          type="checkbox"
+                          checked={isPresent}
+                          onChange={e => setIsPresent(e.target.checked)}
+                          disabled={loading}
+                          style={{marginRight:8}}
+                        />
+                        Confirmar presença
+                      </label>
+                    </div>
           {error && <div className={styles.error}>{error}</div>}
           {success && <div className={styles.success}>✅ Convidado adicionado com sucesso!</div>}
 
@@ -275,6 +309,13 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
             </button>
           </div>
         </form>
+        {showSuccessOverlay && successGuest && (
+          <CheckInSuccessOverlay guest={successGuest} onClose={() => {
+            setShowSuccessOverlay(false);
+            setSuccessGuest(null);
+            onClose();
+          }} />
+        )}
       </div>
     </div>
   );

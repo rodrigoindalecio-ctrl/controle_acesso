@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { LoadingSpinner } from '../../../components/LoadingSpinner';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -61,11 +62,7 @@ export default function EventPage() {
   }, [eventId, router]);
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <p>Carregando...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Carregando..." />;
   }
 
   if (error || !event) {

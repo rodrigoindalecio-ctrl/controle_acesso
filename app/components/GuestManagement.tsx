@@ -226,7 +226,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   });
 
   const [hasEventAccess, setHasEventAccess] = useState<boolean | null>(null);
-  const canManageEvent = user?.role === 'ADMIN' || hasEventAccess === true;
+  const canManageEvent = user?.role === 'ADMIN';
 
   // Fechar dropdown de categoria ao clicar fora
   useEffect(() => {
@@ -542,10 +542,10 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                 <div className={styles.eventDetailsValue}>{eventDescription || '-'}</div>
               </div>
 
-              <div className={styles.eventDetailsMetaItem}>
-                <div className={styles.eventDetailsLabel}>
-                  COLABORADORES
-                  {user?.role === 'ADMIN' && (
+              {user?.role === 'ADMIN' && (
+                <div className={styles.eventDetailsMetaItem}>
+                  <div className={styles.eventDetailsLabel}>
+                    COLABORADORES
                     <div style={{ position: 'relative', display: 'inline-block', verticalAlign: 'middle', marginLeft: '6px' }}>
                       <button
                         onClick={() => setShowCollabDropdown(!showCollabDropdown)}
@@ -597,40 +597,40 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
-                <div className={styles.eventDetailsValue}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                    {collaborators.length > 0 ? collaborators.map(c => (
-                      <span
-                        key={c.id}
-                        style={{
-                          background: '#f0f0f0',
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        {c.name || c.email}
-                        {user?.role === 'ADMIN' && (
-                          <button
-                            onClick={() => handleRemoveCollaborator(c.id)}
-                            style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#999', fontSize: '0.9rem', padding: '0 2px' }}
-                          >
-                            ×
-                          </button>
-                        )}
-                      </span>
-                    )) : (
-                      <span style={{ color: '#999', fontSize: '0.85rem' }}>Nenhum colaborador</span>
-                    )}
                   </div>
-                  {collabError && <div style={{ color: 'red', fontSize: '0.7rem', marginTop: '4px' }}>{collabError}</div>}
+                  <div className={styles.eventDetailsValue}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {collaborators.length > 0 ? collaborators.map(c => (
+                        <span
+                          key={c.id}
+                          style={{
+                            background: '#f0f0f0',
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          {c.name || c.email}
+                          {user?.role === 'ADMIN' && (
+                            <button
+                              onClick={() => handleRemoveCollaborator(c.id)}
+                              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#999', fontSize: '0.9rem', padding: '0 2px' }}
+                            >
+                              ×
+                            </button>
+                          )}
+                        </span>
+                      )) : (
+                        <span style={{ color: '#999', fontSize: '0.85rem' }}>Nenhum colaborador</span>
+                      )}
+                    </div>
+                    {collabError && <div style={{ color: 'red', fontSize: '0.7rem', marginTop: '4px' }}>{collabError}</div>}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </>
         )}

@@ -37,11 +37,12 @@
 }
 
 .subtitle {
-  font-size: clamp(1.2rem, 5vw, 1.8rem);
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
+  font-size: clamp(2.5rem, 10vw, 5rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0.5em 0 0 0;
   animation: subtitleFadeIn 500ms ease-out 400ms both;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 
 /* Animations */
@@ -132,10 +133,10 @@
   }
 
   .title {
-    font-size: 1.5rem;
+    font-size: clamp(2rem, 8vw, 4rem);
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: clamp(2.5rem, 10vw, 5rem);
   }
 }

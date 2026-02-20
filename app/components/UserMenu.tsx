@@ -116,7 +116,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
             </button>
 
             <div className={styles.divider}></div>
-
+  
             {/* Ações do evento — só aparecem na página de evento */}
             {onExport && (
               <button

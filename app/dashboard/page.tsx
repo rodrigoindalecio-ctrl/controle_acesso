@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
@@ -220,12 +221,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingSpinner}></div>
-        <p>Carregando...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Carregando..." />;
   }
 
   if (!user) {

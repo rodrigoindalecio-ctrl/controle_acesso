@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { LoadingSpinner } from '../../../../components/LoadingSpinner';
 import GuestManagement from '@/app/components/GuestManagement';
 import UserMenu from '@/app/components/UserMenu';
 import styles from './checkin.module.css';
@@ -47,7 +48,7 @@ export default function CheckInPage() {
   }, [eventId]);
 
   if (authLoading) {
-    return <div className={styles.container}><p>Carregando...</p></div>;
+    return <LoadingSpinner message="Carregando..." />;
   }
 
   if (!user?.userId) {
