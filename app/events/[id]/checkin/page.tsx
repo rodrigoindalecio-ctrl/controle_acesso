@@ -68,22 +68,26 @@ export default function CheckInPage() {
     <div className={styles.checkinContainer}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <button 
-            className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
-            onClick={() => router.push('/dashboard')}
-            title="Voltar ao Dashboard"
-          >
-            ← Dashboard
-          </button>
-          <h1>Check-in de Convidados</h1>
-          <div className={styles.userInfo}>
-            <UserMenu user={user} onLogout={handleLogout} eventId={eventId} />
+          <div className={styles.headerLeft}>
+            <button
+              className={buttonStyles.btn + ' ' + buttonStyles['btn--ghost']}
+              onClick={() => router.push('/dashboard')}
+              title="Voltar ao Dashboard"
+            >
+              ← Dashboard
+            </button>
+          </div>
+          <h1 className={styles.title}>{eventName}</h1>
+          <div className={styles.headerRight}>
+            <div className={styles.userInfo}>
+              <UserMenu user={user} onLogout={handleLogout} eventId={eventId} />
+            </div>
           </div>
         </div>
       </header>
 
       <main className={styles.mainContent}>
-        <GuestManagement 
+        <GuestManagement
           eventId={eventId}
           eventName={eventName}
           eventDate={eventDate}

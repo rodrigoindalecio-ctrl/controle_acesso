@@ -33,12 +33,32 @@
   width: 100%;
 }
 
-.headerContent h1 {
-  font-size: 1.5rem;
+.headerContent h1.title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
   margin: 0;
   color: var(--color-dark);
   flex: 1;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 10px;
+}
+
+.headerLeft,
+.headerRight {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.headerLeft {
+  justify-content: flex-start;
+}
+
+.headerRight {
+  justify-content: flex-end;
 }
 
 .userInfo {
@@ -53,7 +73,7 @@
   padding: 0.5rem;
 }
 
-.mainContent > .container {
+.mainContent>.container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -171,15 +191,17 @@
     gap: 0.5rem;
   }
 
-  .header h1 {
-    font-size: 1.5rem;
-    margin: 0;
-    text-align: left;
-    flex: 1;
+  .headerLeft {
+    width: auto;
   }
 
-  .headerSpacer {
-    display: none;
+  .headerRight {
+    width: auto;
+  }
+
+  .header h1.title {
+    font-size: 1.1rem;
+    padding: 0 5px;
   }
 
   .searchSection {

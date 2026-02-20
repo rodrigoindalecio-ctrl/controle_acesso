@@ -719,20 +719,54 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       </div>
 
       {/* Campo de busca por nome */}
-      <div className={styles.searchBox} style={{ marginBottom: '1.2rem', marginTop: '-0.5rem', maxWidth: '1100px', marginLeft: 'auto', marginRight: 'auto', width: '100%' }}>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', width: '100%' }}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Buscar por nome..."
-            value={filters.name}
-            onChange={e => setFilters({ ...filters, name: e.target.value })}
-            style={{ flex: 1, minWidth: 0 }}
-          />
+      <div
+        className={styles.searchBox}
+        style={{
+          marginBottom: '1.2rem',
+          marginTop: '-0.5rem',
+          maxWidth: '1100px',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          width: '100%',
+          padding: '0 10px',
+          boxSizing: 'border-box'
+        }}
+      >
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
+          <div style={{ flex: '1 1 auto', display: 'flex', minWidth: 0 }}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Buscar por nome..."
+              value={filters.name}
+              onChange={e => setFilters({ ...filters, name: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '0.8rem 1rem',
+                borderRadius: '10px',
+                border: '1px solid #d1d5db',
+                fontSize: '1rem',
+                outline: 'none',
+                boxSizing: 'border-box',
+                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
+              }}
+            />
+          </div>
           <button
             type="button"
             className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
-            style={{ padding: '0.55rem 0.85rem', fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}
+            style={{
+              flex: '0 0 auto',
+              width: '54px',
+              height: '54px',
+              padding: '0',
+              fontSize: '1.8rem',
+              lineHeight: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '10px'
+            }}
             aria-label="Adicionar convidado"
             title="Adicionar convidado"
             onClick={() => setShowAddGuestChoiceModal(true)}
