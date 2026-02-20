@@ -7,22 +7,32 @@ interface PreferencesModalProps {
   onClose: () => void;
 }
 
+interface Preferences {
+  notifications: boolean;
+  emailNotifications: boolean;
+  theme: string;
+  language: string;
+}
+
 export default function PreferencesModal({ onClose }: PreferencesModalProps) {
-  const [preferences, setPreferences] = useState({
+  const [preferences, setPreferences] = useState<Preferences>({
     notifications: true,
     emailNotifications: true,
     theme: 'light',
     language: 'pt-BR',
   });
 
-  const handleToggle = (key: string) => {
-    setPreferences({
-      ...preferences,
-      [key]: !preferences[key],
-    });
+  const handleToggle = (key: keyof Preferences) => {
+    const currentValue = preferences[key];
+    if (typeof currentValue === 'boolean') {
+      setPreferences({
+        ...preferences,
+        [key]: !currentValue,
+      });
+    }
   };
 
-  const handleSelectChange = (key: string, value: string) => {
+  const handleSelectChange = (key: keyof Preferences, value: string) => {
     setPreferences({
       ...preferences,
       [key]: value,
@@ -52,7 +62,7 @@ export default function PreferencesModal({ onClose }: PreferencesModalProps) {
         <div className={styles.content}>
           <div className={styles.section}>
             <h3>🔔 Notificações</h3>
-            
+
             <label className={styles.toggleOption}>
               <input
                 type="checkbox"
@@ -80,7 +90,7 @@ export default function PreferencesModal({ onClose }: PreferencesModalProps) {
 
           <div className={styles.section}>
             <h3>🎨 Aparência</h3>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="theme">Tema</label>
               <select
@@ -99,7 +109,7 @@ export default function PreferencesModal({ onClose }: PreferencesModalProps) {
 
           <div className={styles.section}>
             <h3>🌍 Idioma</h3>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="language">Idioma</label>
               <select
