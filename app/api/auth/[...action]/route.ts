@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { generateToken, setAuthCookie, clearAuthCookie, verifyToken } from '@/lib/auth';
 import * as bcrypt from 'bcryptjs';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: { action: string[] } }) {
     const action = params.action[0];
 

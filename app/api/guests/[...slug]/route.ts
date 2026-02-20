@@ -9,6 +9,8 @@ import { validateImportData, generateErrorCSV } from '@/lib/import-validation';
 import { correctGuestSchema } from '@/lib/validation-schemas';
 import { validateCorrectionRateLimit } from '@/lib/rate-limit';
 
+export const dynamic = 'force-dynamic';
+
 // --- SCHEMAS ---
 const GuestItemSchema = z.object({
     full_name: z.string().min(2).max(255),

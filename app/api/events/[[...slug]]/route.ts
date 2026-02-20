@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { generateCheckInReport } from '@/lib/report/generateCheckInReport';
 import { createAuditLog } from '@/lib/audit';
 
+export const dynamic = 'force-dynamic';
+
 const checkInSchema = z.object({
     guestId: z.string().nonempty(),
     isPaying: z.boolean().optional().default(true),
