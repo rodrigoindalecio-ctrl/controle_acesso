@@ -3,8 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { createAuditLog } from '@/lib/audit';
 import { z } from 'zod';
-
-const bcrypt = require('bcryptjs');
+import * as bcrypt from 'bcryptjs';
 
 const createUserSchema = z.object({
     name: z.string().min(2).max(120),
