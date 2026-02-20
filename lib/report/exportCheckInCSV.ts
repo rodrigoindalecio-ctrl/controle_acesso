@@ -6,22 +6,22 @@
 import { CheckInReport } from './generateCheckInReport';
 
 interface GuestForExport {
-  id: string;
+  id: string | number;
   fullName: string;
-  category?: string;
-  tableNumber?: string | null;
-  checkedInAt?: string | null;
-  undoAt?: string;
+  category?: string | null;
+  tableNumber?: string | number | null;
+  checkedInAt?: string | Date | null;
+  undoAt?: string | Date | null;
 }
 
 /**
  * Determina o status do convidado para o relatório
  */
 function getGuestStatus(guest: GuestForExport): string {
-  if (guest.undoAt && guest.undoAt.trim() !== '') {
+  if (guest.undoAt) {
     return 'Desfeito';
   }
-  if (guest.checkedInAt && guest.checkedInAt.trim() !== '') {
+  if (guest.checkedInAt) {
     return 'Entrou';
   }
   return 'Não entrou';
@@ -30,8 +30,8 @@ function getGuestStatus(guest: GuestForExport): string {
 /**
  * Formata timestamp ISO para formato HH:MM:SS PT-BR
  */
-function formatCheckInTime(isoString: string | null | undefined): string {
-  if (!isoString || isoString.trim() === '') {
+function formatCheckInTime(isoString: string | Date | null | undefined): string {
+  if (!isoString) {
     return '';
   }
   try {
@@ -52,8 +52,8 @@ function formatCheckInTime(isoString: string | null | undefined): string {
 /**
  * Escapa aspas duplas em valores CSV
  */
-function escapeCSV(value: string | null | undefined): string {
-  if (!value) return '';
+function escapeCSV(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) return '';
   const str = String(value);
   if (str.includes('"') || str.includes(';') || str.includes('\n')) {
     return `"${str.replace(/"/g, '""')}"`;
