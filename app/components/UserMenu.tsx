@@ -18,9 +18,12 @@ interface UserMenuProps {
   onLogout: () => void;
   eventId?: string;
   onImportComplete?: () => void;
+  onExport?: () => void;
+  onDeleteAll?: () => void;
+  isAdmin?: boolean;
 }
 
-export default function UserMenu({ user, onLogout }: UserMenuProps) {
+export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmin }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -111,6 +114,28 @@ export default function UserMenu({ user, onLogout }: UserMenuProps) {
               <span>ℹ️</span>
               <span>Sobre</span>
             </button>
+
+            <div className={styles.divider}></div>
+
+            {/* Ações do evento — só aparecem na página de evento */}
+            {onExport && (
+              <button
+                className={styles.menuItem}
+                onClick={() => { onExport(); setIsOpen(false); }}
+              >
+                <span>📤</span>
+                <span>Exportar Lista</span>
+              </button>
+            )}
+            {onDeleteAll && isAdmin && (
+              <button
+                className={`${styles.menuItem} ${styles.danger}`}
+                onClick={() => { onDeleteAll(); setIsOpen(false); }}
+              >
+                <span>🗑️</span>
+                <span>Excluir Todos</span>
+              </button>
+            )}
 
             <div className={styles.divider}></div>
 

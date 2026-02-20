@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './page.module.css';
+import btn from '@/lib/buttons.module.css';
 import Link from 'next/link';
 import EventModal, { EventFormData } from '@/app/components/EventModal';
 import ConfirmDialog from '@/app/components/ConfirmDialog';
@@ -296,14 +297,20 @@ export default function DashboardPage() {
               )}
 
               <div className={styles.quickAccessCards}>
-                <div className={styles.quickCard} onClick={() => setIsUsersModalOpen(true)}>
-                  <h3>👥 Usuários</h3>
-                  <p className={styles.cardSubtitle}>Gerenciar usuários do sistema</p>
-                </div>
-                <div className={styles.quickCard} onClick={() => setIsReportsOpen(true)}>
-                  <h3>📈 Relatórios</h3>
-                  <p className={styles.cardSubtitle}>Visualizar relatórios gerais</p>
-                </div>
+                <button
+                  type="button"
+                  className={`${btn.btn} ${btn['btn--secondary']} ${styles.quickAccessBtn}`}
+                  onClick={() => setIsUsersModalOpen(true)}
+                >
+                  👥 Usuários
+                </button>
+                <button
+                  type="button"
+                  className={`${btn.btn} ${btn['btn--secondary']} ${styles.quickAccessBtn}`}
+                  onClick={() => setIsReportsOpen(true)}
+                >
+                  📈 Relatórios
+                </button>
               </div>
 
               <section className={styles.eventsSection}>

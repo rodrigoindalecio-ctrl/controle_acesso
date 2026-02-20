@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, MutableRefObject } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import ImportGuestsModal from './ImportGuestsModal';
 import AddGuestModal from './AddGuestModal';
@@ -56,9 +56,11 @@ interface Props {
   eventDate?: string;
   eventDescription?: string;
   eventStatus?: string;
+  exportRef?: MutableRefObject<(() => void) | null>;
+  deleteAllRef?: MutableRefObject<(() => void) | null>;
 }
 
-export default function GuestManagement({ eventId, eventName, eventDate, eventDescription, eventStatus }: Props) {
+export default function GuestManagement({ eventId, eventName, eventDate, eventDescription, eventStatus, exportRef, deleteAllRef }: Props) {
   const { user } = useAuth();
   // Função padrão para check-in/desfazer check-in igual à página de colaboradores
   // Check-in admin: usa o mesmo fluxo do sistema (POST /api/events/[eventId]/check-in)
@@ -207,6 +209,14 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const [showExportModal, setShowExportModal] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const actionsMenuRef = useRef<HTMLDivElement>(null);
+
+  // Registra as funções de exportar e excluir todos no ref do pai (usado pelo UserMenu)
+  useEffect(() => {
+    if (exportRef) exportRef.current = () => setShowExportModal(true);
+    if (deleteAllRef) deleteAllRef.current = () => setDeleteAllConfirm(true);
+  });
   const [filters, setFilters] = useState({
     name: '',
     category: '',
@@ -218,20 +228,23 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const [hasEventAccess, setHasEventAccess] = useState<boolean | null>(null);
   const canManageEvent = user?.role === 'ADMIN' || hasEventAccess === true;
 
-  // Fechar dropdown ao clicar fora
+  // Fechar dropdown de categoria ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
         setShowCategoryDropdown(false);
       }
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target as Node)) {
+        setShowActionsMenu(false);
+      }
     };
-    if (showCategoryDropdown) {
+    if (showCategoryDropdown || showActionsMenu) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showCategoryDropdown]);
+  }, [showCategoryDropdown, showActionsMenu]);
 
   // Carregar convidados
   const fetchGuests = async (showLoading = true) => {
@@ -700,22 +713,8 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
           <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setShowTablesModal(true)}>Mesas</button>
         </div>
 
-        <div className={styles.filterBarGroupEnd}>
-          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-            onClick={() => setShowExportModal(true)}
-            disabled={guests.length === 0}
-            title="Exportar"
-          >Exportar</button>
-          {canManageEvent && (
-            <button
-              className={buttonStyles.btn + ' ' + buttonStyles['btn--danger'] + ' ' + styles.filterBarButton}
-              style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }}
-              onClick={handleDeleteAllClick}
-              disabled={guests.length === 0}
-              title="Excluir todos os convidados"
-            >🗑️ Excluir Todos</button>
-          )}
-        </div>
+
+
       </div>
 
       {/* Campo de busca por nome */}

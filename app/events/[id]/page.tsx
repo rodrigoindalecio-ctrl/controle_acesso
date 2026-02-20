@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
@@ -27,6 +27,10 @@ export default function EventPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Refs para acionar funções internas do GuestManagement pelo UserMenu
+  const exportRef = useRef<(() => void) | null>(null);
+  const deleteAllRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -109,7 +113,14 @@ export default function EventPage() {
           <h1 className={styles.title}>{event.name}</h1>
           <div className={styles.headerRight}>
             <div className={styles.userInfo}>
-              {user && <UserMenu user={user} onLogout={handleLogout} eventId={eventId} />}
+              {user && <UserMenu
+                user={user}
+                onLogout={handleLogout}
+                eventId={eventId}
+                onExport={() => exportRef.current?.()}
+                onDeleteAll={() => deleteAllRef.current?.()}
+                isAdmin={isAdmin}
+              />}
             </div>
           </div>
         </div>
@@ -126,6 +137,8 @@ export default function EventPage() {
                 eventDate={event.date}
                 eventDescription={event.description}
                 eventStatus={event.status}
+                exportRef={exportRef}
+                deleteAllRef={deleteAllRef}
                 key={refreshKey}
               />
             </>

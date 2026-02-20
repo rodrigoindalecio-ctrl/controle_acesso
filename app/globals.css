@@ -4,8 +4,9 @@
   --color-primary-dark: #5e1f2d;
   --color-primary: #7b2d3d;
   --color-primary-light: #9b4a5a;
-  --color-primary-pale: #f5e8eb;   /* Para hover states suaves */
-  
+  --color-primary-pale: #f5e8eb;
+  /* Para hover states suaves */
+
   /* Cores Neutras */
   --color-dark: #2d2d2d;
   --color-text: #4a4a4a;
@@ -13,26 +14,30 @@
   --color-border: #e0d5d8;
   --color-bg-light: #f8f5f6;
   --color-bg-lighter: #fcfafa;
-  
+
   /* Cores de Status — Dessaturadas, Premium */
-  --color-success: #6ba583;        /* Verde suave */
+  --color-success: #6ba583;
+  /* Verde suave */
   --color-success-light: #e8f5e9;
   --color-success-dark: #4a7c5e;
-  
-  --color-danger: #c97e7e;         /* Rosa queimado */
+
+  --color-danger: #c97e7e;
+  /* Rosa queimado */
   --color-danger-light: #ffebee;
   --color-danger-dark: #a64444;
-  
-  --color-warning: #d9b57a;        /* Dourado quente */
+
+  --color-warning: #d9b57a;
+  /* Dourado quente */
   --color-warning-light: #fef4e6;
-  
-  --color-info: #8ab4d8;           /* Azul suave */
+
+  --color-info: #8ab4d8;
+  /* Azul suave */
   --color-info-light: #e3f2fd;
-  
+
   /* Tipografia */
   --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   --font-serif: 'Playfair Display', 'Libre Baskerville', 'Georgia', serif;
-  
+
   /* Espaçamento */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -40,23 +45,31 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
-  
+
   /* Shadows — Profundidade Premium */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
-  
+
   /* Border Radius */
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 12px;
-  
+
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
+
+  /* Z-Index Scale */
+  --z-base: 1;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-overlay: 400;
+  --z-modal: 1000;
+  --z-toast: 1100;
 }
 
 /* ========== Reset e Base ========== */
@@ -79,7 +92,12 @@ body {
 }
 
 /* ========== Tipografia ========== */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-serif);
   font-weight: 700;
   color: var(--color-dark);
@@ -124,7 +142,9 @@ p {
 }
 
 /* ========== Formulários ========== */
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: inherit;
   border: none;
   outline: none;
@@ -368,21 +388,60 @@ a:hover {
 }
 
 /* Spacing Utilities */
-.mt-1 { margin-top: var(--spacing-sm); }
-.mt-2 { margin-top: var(--spacing-md); }
-.mt-3 { margin-top: var(--spacing-lg); }
-.mt-4 { margin-top: var(--spacing-xl); }
-.mt-5 { margin-top: var(--spacing-2xl); }
+.mt-1 {
+  margin-top: var(--spacing-sm);
+}
 
-.mb-1 { margin-bottom: var(--spacing-sm); }
-.mb-2 { margin-bottom: var(--spacing-md); }
-.mb-3 { margin-bottom: var(--spacing-lg); }
-.mb-4 { margin-bottom: var(--spacing-xl); }
-.mb-5 { margin-bottom: var(--spacing-2xl); }
+.mt-2 {
+  margin-top: var(--spacing-md);
+}
 
-.mx-auto { margin-left: auto; margin-right: auto; }
-.px-4 { padding-left: var(--spacing-xl); padding-right: var(--spacing-xl); }
-.py-4 { padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl); }
+.mt-3 {
+  margin-top: var(--spacing-lg);
+}
+
+.mt-4 {
+  margin-top: var(--spacing-xl);
+}
+
+.mt-5 {
+  margin-top: var(--spacing-2xl);
+}
+
+.mb-1 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-2 {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-3 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-xl);
+}
+
+.mb-5 {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.px-4 {
+  padding-left: var(--spacing-xl);
+  padding-right: var(--spacing-xl);
+}
+
+.py-4 {
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+}
 
 /* Grid Responsivo */
 .grid {
@@ -499,51 +558,77 @@ a:hover {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ========== Responsivo ========== */
 @media (max-width: 1024px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.35rem; }
-  
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.35rem;
+  }
+
   .grid-cols-3 {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-  
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
   .grid-cols-2,
   .grid-cols-3,
   .grid-cols-4 {
     grid-template-columns: 1fr;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-md);
   }
-  
+
   .container {
     padding: 0 16px;
   }
 }
 
 @media (max-width: 480px) {
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.25rem; }
-  h3 { font-size: 1.1rem; }
-  
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
   button,
   .btn-primary,
   .btn-secondary {
@@ -559,4 +644,3 @@ a:hover {
   font-size: 18px !important;
   border-radius: 12px !important;
 }
-
