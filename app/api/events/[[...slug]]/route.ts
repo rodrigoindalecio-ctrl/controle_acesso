@@ -1,13 +1,14 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import { z } from 'zod';
 import { generateCheckInReport } from '@/lib/report/generateCheckInReport';
 import { createAuditLog } from '@/lib/audit';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
 
 const checkInSchema = z.object({
     guestId: z.string().nonempty(),

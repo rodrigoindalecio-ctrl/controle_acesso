@@ -1,11 +1,12 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateToken, setAuthCookie, clearAuthCookie, verifyToken } from '@/lib/auth';
 import * as bcrypt from 'bcryptjs';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
 
 export async function GET(req: NextRequest, { params }: { params: { action: string[] } }) {
     const action = params.action[0];

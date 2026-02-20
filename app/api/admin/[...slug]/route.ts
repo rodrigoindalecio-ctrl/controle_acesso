@@ -1,13 +1,14 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
 import { createAuditLog } from '@/lib/audit';
 import { z } from 'zod';
 import * as bcrypt from 'bcryptjs';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
 
 const createUserSchema = z.object({
     name: z.string().min(2).max(120),
