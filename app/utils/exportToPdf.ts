@@ -36,13 +36,13 @@ export function generateEventReport(
     if (eventTitle === 'Evento') {
       console.warn('generateEventReport: stats.eventName ausente — usando fallback "Evento". Verifique se o nome do evento está sendo carregado da base de dados.');
     }
-    
+
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
     });
-    
+
     console.log('jsPDF instância criada com sucesso');
 
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -146,7 +146,7 @@ export function generateEventReport(
 
     // ===== PRESENÇA POR CATEGORIA =====
     const categoryStats = calculateCategoryStats(guests);
-    
+
     if (Object.keys(categoryStats).length > 0) {
       doc.setFontSize(12);
       doc.setFont('', 'bold');
@@ -203,12 +203,12 @@ export function generateEventReport(
     const tableRows = guests.map((guest) => {
       const checkInInfo = guest.checkedInAt
         ? new Date(guest.checkedInAt).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
         : 'Não entrou';
 
       const pagante = guest.isPaying === false ? 'Não' : (guest.checkedInAt ? 'Sim' : '—');
@@ -243,11 +243,11 @@ export function generateEventReport(
         fillColor: [245, 232, 235],
       },
       columnStyles: {
-        0: { cellWidth: 'auto', minWidth: 45 },
-        1: { cellWidth: 'auto', minWidth: 30 },
-        2: { cellWidth: 'auto', minWidth: 22 },
-        3: { cellWidth: 'auto', minWidth: 40 },
-        4: { cellWidth: 'auto', minWidth: 18, halign: 'center' },
+        0: { cellWidth: 45 },
+        1: { cellWidth: 30 },
+        2: { cellWidth: 22 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 18, halign: 'center' },
       },
       didDrawPage: (data: any) => {
         // Rodapé
