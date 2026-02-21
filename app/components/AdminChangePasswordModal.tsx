@@ -58,18 +58,18 @@ export default function AdminChangePasswordModal({
           <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar">✕</button>
         </header>
 
-        <form onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.content}>
             <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>
               Alterando senha do usuário: <strong>{userEmail}</strong>
             </p>
 
             {error && (
-              <div style={{ 
-                background: '#fee', 
-                border: '1px solid #fcc', 
-                borderRadius: '8px', 
-                padding: '10px 12px', 
+              <div style={{
+                background: '#fee',
+                border: '1px solid #fcc',
+                borderRadius: '8px',
+                padding: '10px 12px',
                 color: '#c33',
                 fontSize: '0.9rem'
               }}>

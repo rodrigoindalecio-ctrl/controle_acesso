@@ -48,7 +48,7 @@ export default function EditUserModal({
           <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar">✕</button>
         </header>
 
-        <form onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.content}>
             <div className={styles.field}>
               <label className={styles.label}>Nome</label>

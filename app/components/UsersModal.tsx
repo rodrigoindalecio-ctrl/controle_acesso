@@ -102,7 +102,7 @@ export default function UsersModal({ isOpen, onClose }: UsersModalProps) {
       params.set('entityType', 'User');
       params.set('limit', '50');
 
-      const res = await fetch(`/api/audit?${params.toString()}`, { credentials: 'include' });
+      const res = await fetch(`/api/admin/audit?${params.toString()}`, { credentials: 'include' });
       if (!res.ok) {
         const body = await res.json().catch(() => ({} as any));
         throw new Error(body.error || body.message || 'Erro ao carregar logs');
