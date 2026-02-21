@@ -48,7 +48,7 @@ export default function EventModal({
     name: '',
     date: '',
     description: '',
-    status: 'PENDING'
+    status: 'ACTIVE'
   });
 
   // Campos separados de data e hora (evita o picker nativo datetime-local ficar bloqueando)
@@ -74,7 +74,7 @@ export default function EventModal({
         setTimePart('18:00');
       }
     } else {
-      setFormData({ name: '', date: '', description: '', status: 'PENDING' });
+      setFormData({ name: '', date: '', description: '', status: 'ACTIVE' });
       setDatePart('');
       setTimePart('18:00');
     }
@@ -285,7 +285,7 @@ export default function EventModal({
             <button
               type="submit"
               className={`${btn.btn} ${btn['btn--primary']} ${isLoading ? btn['is-loading'] : ''}`}
-              disabled={isLoading || !formData.name || !formData.date}
+              disabled={isLoading || !formData.name || !datePart}
             >
               {isLoading ? (
                 <>
