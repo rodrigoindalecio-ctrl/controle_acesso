@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import CheckInSuccessOverlay from './CheckInSuccessOverlay';
 import styles from './AddGuestModal.module.css';
+import { enqueueAction } from '@/app/lib/offlineQueue';
 
 interface Table {
   id: string;
@@ -176,9 +177,9 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
       }
 
       const newGuest = data.guest || {
-        id: `guest-${Date.now()}`,
+        id: `temp-${Date.now()}`,
         fullName: fullName.trim(),
-        checkedInAt: null,
+        checkedInAt: isPresent ? new Date().toISOString() : null,
         category: trimmedCategory || 'outros',
         tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
         isManual: true,
@@ -200,6 +201,37 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
         onClose();
       }, 1500);
     } catch (err) {
+      if (!navigator.onLine || err instanceof TypeError) {
+        // Fallback offline
+        const trimmedCategory = typeof category === 'string' ? category.trim() : '';
+        const mockGuest = {
+          id: `temp-${Date.now()}`,
+          fullName: fullName.trim(),
+          checkedInAt: isPresent ? new Date().toISOString() : null,
+          category: trimmedCategory || 'outros',
+          tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
+          isManual: true,
+        };
+
+        enqueueAction('CREATE_GUEST' as any, `/api/events/${eventId}/guests/manual`, 'POST', {
+          fullName: fullName.trim(),
+          tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
+          category: trimmedCategory || 'outros',
+        });
+
+        setSuccess(true);
+        setFullName('');
+        setSuccessGuest(mockGuest);
+        setShowSuccessOverlay(true);
+        onGuestAdded?.(mockGuest);
+
+        setTimeout(() => {
+          setShowSuccessOverlay(false);
+          setSuccessGuest(null);
+          onClose();
+        }, 1500);
+        return;
+      }
       const errorMsg = err instanceof Error ? err.message : 'Erro ao adicionar convidado';
       setError(errorMsg);
     } finally {
@@ -218,19 +250,19 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
         </div>
 
         <form onSubmit={handleSubmit} className={styles.body}>
-                    <div className={styles.formGroup}>
-                      <label htmlFor="isPresent" style={{display:'flex',alignItems:'center',gap:8}}>
-                        <input
-                          id="isPresent"
-                          type="checkbox"
-                          checked={isPresent}
-                          onChange={e => setIsPresent(e.target.checked)}
-                          disabled={loading}
-                          style={{marginRight:8}}
-                        />
-                        Confirmar presença
-                      </label>
-                    </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="isPresent" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                id="isPresent"
+                type="checkbox"
+                checked={isPresent}
+                onChange={e => setIsPresent(e.target.checked)}
+                disabled={loading}
+                style={{ marginRight: 8 }}
+              />
+              Confirmar presença
+            </label>
+          </div>
           {error && <div className={styles.error}>{error}</div>}
           {success && <div className={styles.success}>✅ Convidado adicionado com sucesso!</div>}
 

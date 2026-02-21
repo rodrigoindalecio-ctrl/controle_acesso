@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef, MutableRefObject } from 'react';
+import { useEffect, useState, useRef, useCallback, MutableRefObject } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import ImportGuestsModal from './ImportGuestsModal';
 import AddGuestModal from './AddGuestModal';
@@ -13,6 +13,7 @@ import CheckInSuccessOverlay from './CheckInSuccessOverlay';
 import AttendanceDashboard from './AttendanceDashboard';
 import buttonStyles from '@/lib/buttons.module.css';
 import { statusTranslation, translateStatus } from '@/lib/statusUtils';
+import { enqueueAction, getOfflineQueue, removeActionFromQueue } from '@/app/lib/offlineQueue';
 
 interface Guest {
   id: string;
@@ -119,13 +120,24 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const handleConfirmCheckIn = async (isNonPaying: boolean) => {
     if (!selectedGuest) return;
     setCheckInLoading(true);
+
+    const checkInPayload = { guestId: selectedGuest.id, isPaying: !isNonPaying };
+    const checkInEndpoint = `/api/events/${eventId}/check-in`;
+    const checkInMethod = 'POST';
+
+    // Otimista
+    setGuests(guests => guests.map(g =>
+      g.id === selectedGuest.id ? { ...g, checkedInAt: new Date().toISOString(), isPaying: !isNonPaying } : g
+    ));
+
     try {
-      // Check-in: POST /api/events/{eventId}/check-in
-      const response = await fetch(`/api/events/${eventId}/check-in`, {
-        method: 'POST',
+      if (!navigator.onLine) throw new Error('Offline');
+
+      const response = await fetch(checkInEndpoint, {
+        method: checkInMethod,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ guestId: selectedGuest.id, isPaying: !isNonPaying }),
+        body: JSON.stringify(checkInPayload),
       });
       if (!response.ok) {
         let errorMsg = 'Erro ao confirmar presença';
@@ -135,28 +147,37 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
         } catch { }
         throw new Error(errorMsg);
       }
-      setGuests(guests => guests.map(g =>
-        g.id === selectedGuest.id ? { ...g, checkedInAt: new Date().toISOString(), isPaying: !isNonPaying } : g
-      ));
-      // Exibir overlay de sucesso verde
+    } catch (err) {
+      // Fallback para Offline Queue
+      enqueueAction('CHECK_IN', checkInEndpoint, checkInMethod, checkInPayload);
+      updatePendingCount();
+    } finally {
       setSuccessGuest({ ...selectedGuest, checkedInAt: new Date().toISOString() });
       setCheckInModalOpen(false);
       setSelectedGuest(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar presença');
-    } finally {
       setCheckInLoading(false);
     }
   };
 
   // Undo check-in (no modal)
   const handleUndoCheckIn = async (guestId: string) => {
+    const undoEndpoint = `/api/guests/${guestId}/attendance`;
+    const undoMethod = 'PATCH';
+    const undoPayload = { present: false };
+
+    // Otimista
+    setGuests(guests => guests.map(g =>
+      g.id === guestId ? { ...g, checkedInAt: undefined } : g
+    ));
+
     try {
-      const response = await fetch(`/api/guests/${guestId}/attendance`, {
-        method: 'PATCH',
+      if (!navigator.onLine) throw new Error('Offline');
+
+      const response = await fetch(undoEndpoint, {
+        method: undoMethod,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ present: false }),
+        body: JSON.stringify(undoPayload),
       });
       if (!response.ok) {
         let errorMsg = 'Erro ao desfazer presença';
@@ -166,13 +187,12 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
         } catch { }
         throw new Error(errorMsg);
       }
-      setGuests(guests => guests.map(g =>
-        g.id === guestId ? { ...g, checkedInAt: undefined } : g
-      ));
+    } catch (err) {
+      enqueueAction('UNDO_CHECK_IN', undoEndpoint, undoMethod, undoPayload);
+      updatePendingCount();
+    } finally {
       setSuccessMessage('Presença desfeita!');
       setTimeout(() => setSuccessMessage(''), 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar presença');
     }
   };
   const [showFilter, setShowFilter] = useState<string | null>(null);
@@ -211,6 +231,42 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
+  const [pendingSyncs, setPendingSyncs] = useState(0);
+
+  const updatePendingCount = useCallback(() => {
+    const count = getOfflineQueue().length;
+    setPendingSyncs(count);
+  }, []);
+
+  const processQueue = useCallback(async () => {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    const queue = getOfflineQueue();
+    if (queue.length === 0) return;
+
+    let hasSuccess = false;
+    for (const action of queue) {
+      try {
+        const res = await fetch(action.endpoint, {
+          method: action.method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: Object.keys(action.payload).length > 0 ? JSON.stringify(action.payload) : undefined,
+        });
+
+        if (res.ok || (res.status >= 400 && res.status < 500)) {
+          removeActionFromQueue(action.id);
+          if (res.ok) hasSuccess = true;
+        }
+      } catch {
+        break;
+      }
+    }
+
+    updatePendingCount();
+    if (hasSuccess) {
+      fetchGuests(false);
+    }
+  }, [eventId]);
 
   // Registra as funções de exportar e excluir todos no ref do pai (usado pelo UserMenu)
   useEffect(() => {
@@ -278,14 +334,23 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
 
   useEffect(() => {
     fetchGuests(true);
+    updatePendingCount();
 
-    // Polling: atualiza automaticamente a cada 7 segundos
+    // Polling: atualiza automaticamente a cada 10 segundos
     const interval = setInterval(() => {
-      fetchGuests(false);
-    }, 7000);
+      if (navigator.onLine) {
+        processQueue();
+        fetchGuests(false);
+      }
+    }, 10000);
 
-    return () => clearInterval(interval);
-  }, [eventId]);
+    window.addEventListener('online', processQueue);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('online', processQueue);
+    };
+  }, [eventId, processQueue, updatePendingCount]);
 
   // Carregar colaboradores
   const fetchCollaborators = async () => {
@@ -388,10 +453,19 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
     if (!editingGuest) return;
 
     setIsSavingGuest(true);
+    const editEndpoint = `/api/guests/${editingGuest.id}`;
+    const editMethod = 'PUT';
+
+    // Otimista
+    setGuests(guests.map(g => g.id === editingGuest.id ? { ...g, ...editingGuest } as Guest : g));
+
     try {
-      const response = await fetch(`/api/guests/${editingGuest.id}`, {
-        method: 'PUT',
+      if (!navigator.onLine) throw new Error('Offline');
+
+      const response = await fetch(editEndpoint, {
+        method: editMethod,
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(editingGuest)
       });
 
@@ -399,18 +473,14 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erro ao salvar');
       }
-
-      const data = await response.json();
-
-      // Atualizar lista
-      setGuests(guests.map(g => g.id === editingGuest.id ? data.guest : g));
+    } catch (err) {
+      enqueueAction('CREATE_GUEST' as any, editEndpoint, editMethod, editingGuest); // Usando CREATE_GUEST como genérico p/ salvar dados
+      updatePendingCount();
+    } finally {
       setEditingId(null);
       setEditingGuest(null);
-      setSuccessMessage('Convidado atualizado com sucesso');
+      setSuccessMessage('Convidado atualizado');
       setTimeout(() => setSuccessMessage(''), 2000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar');
-    } finally {
       setIsSavingGuest(false);
     }
   };
@@ -422,26 +492,32 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const handleConfirmDelete = async () => {
     if (!deleteConfirm) return;
 
+    const delEndpoint = `/api/guests/${deleteConfirm.id}`;
+    const delMethod = 'DELETE';
+
     setIsDeletingGuest(true);
+    // Otimista
+    setGuests(guests.filter(g => g.id !== deleteConfirm.id));
+
     try {
-      const response = await fetch(`/api/guests/${deleteConfirm.id}`, {
-        method: 'DELETE'
+      if (!navigator.onLine) throw new Error('Offline');
+
+      const response = await fetch(delEndpoint, {
+        method: delMethod,
+        credentials: 'include'
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erro ao deletar');
       }
-
-      // Remover da lista
-      setGuests(guests.filter(g => g.id !== deleteConfirm.id));
-      setDeleteConfirm(null);
-      setSuccessMessage('Convidado removido com sucesso');
-      setTimeout(() => setSuccessMessage(''), 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao deletar');
-      setDeleteConfirm(null);
+      enqueueAction('DELETE_GUEST', delEndpoint, delMethod, {});
+      updatePendingCount();
     } finally {
+      setDeleteConfirm(null);
+      setSuccessMessage('Convidado removido');
+      setTimeout(() => setSuccessMessage(''), 2000);
       setIsDeletingGuest(false);
     }
   };
@@ -487,6 +563,28 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
 
   return (
     <section className={styles.section}>
+      {pendingSyncs > 0 && (
+        <div style={{
+          background: '#fff9db',
+          border: '1px solid #ffec99',
+          color: '#856404',
+          padding: '10px 16px',
+          borderRadius: '12px',
+          marginBottom: '16px',
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+          animation: 'fadeIn 0.3s ease'
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>⏳</span>
+          <div>
+            <strong>Aguardando internet:</strong> {pendingSyncs} {pendingSyncs === 1 ? 'ação salva' : 'ações salvas'} localmente que serão sincronizadas automaticamente.
+          </div>
+        </div>
+      )}
+
       {/* Card de detalhes do evento */}
       <div className={styles.eventDetailsCard}>
         {isSmallScreen ? (
