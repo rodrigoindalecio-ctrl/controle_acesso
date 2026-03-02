@@ -34,7 +34,7 @@
 }
 
 .headerContent h1.title {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);
   font-size: 1.25rem;
   margin: 0;
   color: var(--color-dark);
@@ -107,7 +107,7 @@
 }
 
 .header h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);
   font-size: var(--font-size-2xl);
   color: var(--text-primary);
   margin: 0;

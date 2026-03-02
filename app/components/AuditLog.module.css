@@ -36,7 +36,7 @@
 }
 
 .entryContent[data-color='warning'] {
-  border-left-color: #7b2d3d;
+  border-left-color: var(--color-primary);
 }
 
 .entryContent[data-color='info'] {

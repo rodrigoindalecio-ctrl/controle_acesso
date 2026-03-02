@@ -101,8 +101,8 @@
 
 .eventSelector select:focus {
   outline: none;
-  border-color: var(--color-primary, #c9a55c);
-  box-shadow: 0 0 0 2px rgba(201, 165, 92, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(123, 45, 61, 0.15);
 }
 
 /* Grid de cards de estatísticas */
@@ -121,8 +121,8 @@
 }
 
 .statCard.highlight {
-  background: linear-gradient(135deg, var(--color-primary, #c9a55c) 0%, #b8944b 100%);
-  border-color: var(--color-primary, #c9a55c);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-color: var(--color-primary);
   color: white;
 }
 
@@ -159,7 +159,7 @@
   color: var(--color-dark, #333);
   margin: 0;
   padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-primary, #c9a55c);
+  border-bottom: 2px solid var(--color-primary);
 }
 
 /* Gráfico de barras simplificado */
@@ -194,7 +194,7 @@
 
 .bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary, #c9a55c) 0%, #b8944b 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
   display: flex;
@@ -293,7 +293,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #eee;
-  border-top-color: var(--color-primary, #c9a55c);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 12px;
@@ -332,8 +332,8 @@
 }
 
 .tab.active {
-  color: var(--color-primary, #c9a55c);
-  border-bottom-color: var(--color-primary, #c9a55c);
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 /* Responsivo */
@@ -369,8 +369,8 @@
 
   .tab.active {
     background: white;
-    color: var(--color-primary, #c9a55c);
-    border-color: var(--color-primary, #c9a55c);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
   }
 
   .barLabel {
@@ -442,8 +442,8 @@
 
 .mainNavBtn.active {
   background: white;
-  border-color: var(--color-primary, #c9a55c);
-  color: var(--color-primary, #c9a55c);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 /* ========== NO-SHOWS ========== */
@@ -596,12 +596,12 @@
 
 .printFilter:focus {
   outline: none;
-  border-color: var(--color-primary, #c9a55c);
+  border-color: var(--color-primary);
 }
 
 .printBtn {
   padding: 8px 16px;
-  background: linear-gradient(135deg, var(--color-primary, #c9a55c) 0%, #b8944b 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   border: none;
   border-radius: var(--radius-md, 6px);

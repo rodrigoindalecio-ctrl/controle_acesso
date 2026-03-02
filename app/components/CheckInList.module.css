@@ -55,7 +55,7 @@
   background: white;
   padding: 2rem;
   border-radius: 12px;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -66,13 +66,13 @@
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   color: #1a1a1a;
-  font-family: 'Playfair Display', serif;
+  font-family: 'var(--font-serif)', serif;
   letter-spacing: -0.5px;
 }
 
 .subtitle {
   font-size: 1rem;
-  color: #7b2d3d;
+  color: var(--color-primary);
   margin: 0;
   font-weight: 500;
   letter-spacing: 0.5px;
@@ -88,13 +88,13 @@
 
 .headerActions {
   display: flex;
-  background: var(--color-primary-dark, #5e1f2d);
+  background: var(--color-primary-dark, var(--color-primary-dark));
   align-items: center;
 }
 
 .fastModeToggle {
   padding: 0.6rem 1rem;
-  background: var(--color-primary, #7b2d3d);
+  background: var(--color-primary, var(--color-primary));
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -109,7 +109,7 @@
 
 
 .fastModeToggle:hover {
-  background: var(--color-primary-dark, #5e1f2d);
+  background: var(--color-primary-dark, var(--color-primary-dark));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.25);
   transform: translateY(-1px);
 }
@@ -117,7 +117,7 @@
 .soundToggle {
   padding: 0.6rem 0.75rem;
   background: #ffffff;
-  color: var(--color-primary, #7b2d3d);
+  color: var(--color-primary, var(--color-primary));
   border: 2px solid var(--color-border, #e0d5cc);
   border-radius: 12px;
   cursor: pointer;
@@ -134,9 +134,9 @@
 
 .soundToggle:hover {
   background: var(--color-primary-pale, #f4ebe3);
-  border-color: var(--color-primary, #7b2d3d);
+  border-color: var(--color-primary, var(--color-primary));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.15);
-  color: var(--color-primary-dark, #5e1f2d);
+  color: var(--color-primary-dark, var(--color-primary-dark));
 }
 
 .soundToggle:active {
@@ -196,7 +196,7 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary, #7b2d3d);
+  border-color: var(--color-primary, var(--color-primary));
   box-shadow: 0 0 0 3px rgba(123, 45, 61, 0.1);
 }
 
@@ -221,7 +221,7 @@
   padding: 0.6rem 1.2rem;
   background: #ffffff;
   color: #666;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
@@ -231,20 +231,20 @@
 
 .filterToggle button:hover {
   background: #fafaf9;
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
   color: #333;
 }
 
 .filterToggle button.active {
-  background: var(--color-primary, #7b2d3d);
+  background: var(--color-primary, var(--color-primary));
   color: white;
-  border-color: var(--color-primary, #7b2d3d);
+  border-color: var(--color-primary, var(--color-primary));
 }
 
 /* Add Guest button */
 .addGuestButton {
   padding: 0.6rem 1.2rem;
-  background: var(--color-primary, #7b2d3d);
+  background: var(--color-primary, var(--color-primary));
   color: white;
   border: none;
   border-radius: 8px;
@@ -256,7 +256,7 @@
 }
 
 .addGuestButton:hover {
-  background: var(--color-primary-dark, #5e1f2d);
+  background: var(--color-primary-dark, var(--color-primary-dark));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.25);
   transform: translateY(-1px);
 }
@@ -264,7 +264,7 @@
 /* Ver Mesas button */
 .viewTablesButton {
   padding: 0.6rem 1.2rem;
-  background: var(--color-primary, #7b2d3d);
+  background: var(--color-primary, var(--color-primary));
   color: white;
   border: none;
   border-radius: 8px;
@@ -276,7 +276,7 @@
 }
 
 .viewTablesButton:hover {
-  background: var(--color-primary-dark, #5e1f2d);
+  background: var(--color-primary-dark, var(--color-primary-dark));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.25);
   transform: translateY(-1px);
 }
@@ -284,7 +284,7 @@
 /* Export PDF button */
 .exportButton {
   padding: 0.6rem 1.2rem;
-  background: var(--color-primary, #7b2d3d);
+  background: var(--color-primary, var(--color-primary));
   color: white;
   border: none;
   border-radius: 8px;
@@ -296,7 +296,7 @@
 }
 
 .exportButton:hover {
-  background: var(--color-primary-dark, #5e1f2d);
+  background: var(--color-primary-dark, var(--color-primary-dark));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.25);
   transform: translateY(-1px);
 }
@@ -316,7 +316,7 @@
   padding: 1.5rem;
   border-radius: 12px;
   background: #ffffff;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   transition: all 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   position: relative;
@@ -324,7 +324,7 @@
 }
 
 .guestRow:hover {
-  border-color: var(--color-primary, #7b2d3d);
+  border-color: var(--color-primary, var(--color-primary));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.12);
   transform: translateY(-1px);
   z-index: 1;
@@ -351,7 +351,7 @@
 }
 
 .guestName {
-  font-family: 'Playfair Display', serif;
+  font-family: 'var(--font-serif)', serif;
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 0.6rem 0;
@@ -395,7 +395,7 @@
 .statusBadge_pending {
   background: #fafaf9;
   color: #999;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .nonPayingBadge {
@@ -410,7 +410,7 @@
 
 .guestCategory {
   font-size: 0.8rem;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-weight: 600;
   background: #f4ebe3;
   padding: 0.35rem 0.7rem;
@@ -430,7 +430,7 @@
 
 .badge {
   font-size: 0.8rem;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-weight: 600;
   background: #f4ebe3;
   padding: 0.35rem 0.7rem;
@@ -465,13 +465,13 @@
 }
 
 .checkInButton {
-  background: var(--color-primary, #7b2d3d);
+  background: var(--color-primary, var(--color-primary));
   color: white;
   box-shadow: 0 2px 6px rgba(123, 45, 61, 0.15);
 }
 
 .checkInButton:hover:not(:disabled) {
-  background: var(--color-primary-dark, #5e1f2d);
+  background: var(--color-primary-dark, var(--color-primary-dark));
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.3);
   transform: translateY(-1px);
 }
@@ -554,7 +554,7 @@
 .statCardLarge {
   padding: 1.5rem;
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
@@ -585,14 +585,14 @@
 
 .statDivider {
   height: 0.5px;
-  background: #e8dfd6;
+  background: var(--color-border);
   margin: 0.1rem 0;
 }
 
 .statValue {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--color-primary, #7b2d3d);
+  color: var(--color-primary, var(--color-primary));
   margin: 0;
   line-height: 1;
 }

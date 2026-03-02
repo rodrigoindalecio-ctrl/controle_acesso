@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e8dfd6;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header h3 { margin: 0; }
@@ -67,7 +67,7 @@
 .tableButton:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
 
 .tableButton.active {
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
   background: linear-gradient(135deg, rgba(123,45,61,0.04), rgba(123,45,61,0));
 }
 
@@ -88,7 +88,7 @@
 .loading, .empty, .error { padding: 12px; color: #666 }
 
 .actions { display:flex; justify-content:flex-end; gap:8px; padding: 12px; border-top: 1px solid #f0e9e2 }
-.closeBtn { background:#7b2d3d; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+.closeBtn { background:var(--color-primary); color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
 
 @media (max-width: 720px) {
   .body { flex-direction: column; }

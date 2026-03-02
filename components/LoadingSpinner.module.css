@@ -9,7 +9,7 @@
 
 .spinner {
   border: 4px solid #f5e8eb;
-  border-top-color: #7b2d3d;
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

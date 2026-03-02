@@ -1,6 +1,6 @@
 .card {
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.6rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -34,7 +34,7 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: #1a1a1a;
-  font-family: 'Playfair Display', serif;
+  font-family: 'var(--font-serif)', serif;
 }
 
 .chartContainer {

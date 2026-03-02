@@ -8,7 +8,7 @@
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   max-width: 600px;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   transition: all 0.2s ease;
 }
 
@@ -29,7 +29,7 @@
   margin-bottom: var(--spacing-lg);
   padding: 1.5rem;
   background: #fafaf9;
-  border: 2px dashed #e8dfd6;
+  border: 2px dashed var(--color-border);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
 }
@@ -46,16 +46,16 @@
   width: 100%;
   padding: 1.5rem;
   background: white;
-  border: 2px solid #e8dfd6;
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 16px;
-  color: #7b2d3d;
+  color: var(--color-primary);
   transition: all 0.2s ease;
 }
 
 .uploadButton:hover:not(:disabled) {
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
   background: #fafaf9;
   box-shadow: 0 2px 8px rgba(123, 45, 61, 0.1);
 }
@@ -110,7 +110,7 @@
   flex-shrink: 0;
   padding: 0.5rem 1rem;
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 12px;
@@ -119,8 +119,8 @@
 }
 
 .changeButton:hover:not(:disabled) {
-  border-color: #7b2d3d;
-  color: #7b2d3d;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
   background: #fafaf9;
 }
 
@@ -132,7 +132,7 @@
 .validateButton {
   width: 100%;
   padding: 1rem 1.5rem;
-  background: #7b2d3d;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -143,7 +143,7 @@
 }
 
 .validateButton:hover:not(:disabled) {
-  background: #7b2d3d;
+  background: var(--color-primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.2);
 }

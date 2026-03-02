@@ -7,7 +7,7 @@
 
 .header {
   background: white;
-  border-bottom: 1px solid #e8dfd6;
+  border-bottom: 1px solid var(--color-border);
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: sticky;
@@ -40,7 +40,7 @@
 
 .headerContent h1.title {
   flex: 1;
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-serif);
   font-size: var(--font-size-2xl);
   color: var(--text-primary);
   margin: 0;
@@ -113,7 +113,7 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .eventDetails {
@@ -130,7 +130,7 @@
 
 .detailGroup label {
   font-weight: 600;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-size: 0.75rem;
   text-transform: uppercase;
   margin-bottom: 0.5rem;

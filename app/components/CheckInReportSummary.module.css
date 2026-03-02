@@ -8,7 +8,7 @@
   padding: 0.5rem 1rem;
   background: #fff;
   border-radius: 8px;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   box-shadow: 0 1px 4px rgba(0,0,0,0.03);
   width: 100%;
 }
@@ -96,7 +96,7 @@
 
 .card:hover {
   box-shadow: 0 6px 16px rgba(123, 45, 61,0.12);
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
 }
 
 .cardValue {

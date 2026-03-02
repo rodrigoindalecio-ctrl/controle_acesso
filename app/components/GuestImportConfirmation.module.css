@@ -7,7 +7,7 @@
   border-radius: var(--radius-md);
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .header {
@@ -43,7 +43,7 @@
   gap: var(--spacing-md);
   border-left: 4px solid transparent;
   background: #fafaf9;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .summaryCard.created {
@@ -96,7 +96,7 @@
   border-radius: var(--radius-md);
   margin-bottom: var(--spacing-xl);
   text-align: center;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .message p {
@@ -252,7 +252,7 @@
 
 .closeButton {
   padding: 0.75rem 1.5rem;
-  background: #7b2d3d;
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -263,7 +263,7 @@
 }
 
 .closeButton:hover {
-  background: #7b2d3d;
+  background: var(--color-primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.2);
 }

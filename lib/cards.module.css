@@ -7,7 +7,7 @@
 /* BASE CARD */
 .card {
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -27,7 +27,7 @@
   padding: var(--spacing-md, 1rem);
   box-shadow: var(--shadow-sm);
   transition: background-color var(--transition-fast, 180ms) ease,
-              box-shadow var(--transition-fast, 180ms) ease;
+    box-shadow var(--transition-fast, 180ms) ease;
 }
 
 .cardSoft:hover {
@@ -41,7 +41,8 @@
   border: 2px solid var(--color-primary);
   border-radius: var(--radius-lg, 12px);
   padding: var(--spacing-lg, 1.5rem);
-  box-shadow: 0 4px 12px rgba(123, 45, 61, 0.12); /* premium glow */
+  box-shadow: 0 4px 12px rgba(123, 45, 61, 0.12);
+  /* premium glow */
   position: relative;
 }
 
@@ -52,9 +53,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(123, 45, 61, 0.03) 0%, 
-    rgba(123, 45, 61, 0) 100%);
+  background: linear-gradient(135deg,
+      rgba(123, 45, 61, 0.03) 0%,
+      rgba(123, 45, 61, 0) 100%);
   border-radius: var(--radius-lg, 12px);
   pointer-events: none;
 }
@@ -70,7 +71,8 @@
 
 /* Card base alias */
 .cardBase {
-  composes: card; /* CSS Modules: keep same styles as .card */
+  composes: card;
+  /* CSS Modules: keep same styles as .card */
 }
 
 /* cardSoft already exists as .cardSoft above; provide camelCase alias */
@@ -86,7 +88,7 @@
 /* cardOutline: no filled background, delicate border for long lists */
 .cardOutline {
   background: #ffffff;
-  border: 1px solid rgba(0,0,0,0.04);
+  border: 1px solid rgba(0, 0, 0, 0.04);
   border-radius: 12px;
   padding: var(--spacing-sm, 0.75rem);
   box-shadow: var(--shadow-sm);
@@ -96,7 +98,7 @@
 /* General checked-in marker for any card */
 .isCheckedIn {
   border-color: var(--color-success);
-  background: linear-gradient(135deg, var(--color-white) 0%, rgba(107,165,131,0.04) 100%);
+  background: linear-gradient(135deg, var(--color-white) 0%, rgba(107, 165, 131, 0.04) 100%);
 }
 
 /* GUEST ITEM CARD — For check-in lists */
@@ -121,15 +123,34 @@
 /* GUEST CARD CHECKED-IN STATE */
 .guestCard.isCheckedIn {
   border-color: var(--color-success);
-  background: linear-gradient(135deg, 
-    var(--color-white) 0%, 
-    rgba(107, 165, 131, 0.04) 100%);
+  background: linear-gradient(135deg,
+      var(--color-white) 0%,
+      rgba(107, 165, 131, 0.04) 100%);
 }
 
 .guestCard.isCheckedIn:hover {
   border-color: var(--color-success);
   box-shadow: 0 2px 8px rgba(107, 165, 131, 0.12);
 }
+
+/* EVENT CARD — with refined borders and shadows */
+.eventCard {
+  background: #fff;
+  border: 1.5px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(123, 45, 61, 0.08);
+  padding: 24px 20px;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.eventCard:hover {
+  box-shadow: 0 4px 12px rgba(123, 45, 61, 0.12);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
 
 /* STATS CARD — For summary/dashboard */
 .statCard {
@@ -145,7 +166,21 @@
   min-width: 220px;
   max-width: 340px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Premium top bar for Stat Cards */
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+}
+
 
 .statCard:hover {
   box-shadow: var(--shadow-md);
@@ -163,7 +198,7 @@
 
 .timelineCard:hover {
   background: var(--color-white);
-  border-left-color: var(--color-primary-dark, #5e1f2d);
+  border-left-color: var(--color-primary-dark, var(--color-primary-dark));
   box-shadow: var(--shadow-sm);
 }
 
@@ -220,6 +255,7 @@
 
 /* UTILITY: Disable hover on touch devices */
 @media (hover: none) {
+
   .card:hover,
   .cardSoft:hover,
   .cardHighlight:hover,

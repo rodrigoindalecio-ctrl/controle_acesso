@@ -139,16 +139,16 @@
   display: inline-grid;
   place-items: center;
   background: var(--color-white);
-  color: var(--color-primary, #7b2d3d);
+  color: var(--color-primary, var(--color-primary));
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg, 12px);
 }
 
 .btn--icon:hover:not(:disabled):not(.is-loading) {
   background: var(--color-primary-pale, #f5e8eb);
-  border-color: var(--color-primary, #7b2d3d);
+  border-color: var(--color-primary, var(--color-primary));
   box-shadow: var(--shadow-sm);
-  color: var(--color-primary-dark, #5e1f2d);
+  color: var(--color-primary-dark, var(--color-primary-dark));
 }
 
 .btn--icon:focus {

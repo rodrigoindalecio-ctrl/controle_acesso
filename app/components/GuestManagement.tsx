@@ -14,6 +14,7 @@ import AttendanceDashboard from './AttendanceDashboard';
 import buttonStyles from '@/lib/buttons.module.css';
 import { statusTranslation, translateStatus } from '@/lib/statusUtils';
 import { enqueueAction, getOfflineQueue, removeActionFromQueue } from '@/app/lib/offlineQueue';
+import { Search, Plus, Check, ListFilter, Layout, ChevronDown, ChevronUp, FileText, FileSpreadsheet, Edit2, Trash2, X, Users, Clock, BarChart3 } from 'lucide-react';
 
 interface Guest {
   id: string;
@@ -59,9 +60,10 @@ interface Props {
   eventStatus?: string;
   exportRef?: MutableRefObject<(() => void) | null>;
   deleteAllRef?: MutableRefObject<(() => void) | null>;
+  addGuestRef?: MutableRefObject<(() => void) | null>;
 }
 
-export default function GuestManagement({ eventId, eventName, eventDate, eventDescription, eventStatus, exportRef, deleteAllRef }: Props) {
+export default function GuestManagement({ eventId, eventName, eventDate, eventDescription, eventStatus, exportRef, deleteAllRef, addGuestRef }: Props) {
   const { user } = useAuth();
   // Função padrão para check-in/desfazer check-in igual à página de colaboradores
   // Check-in admin: usa o mesmo fluxo do sistema (POST /api/events/[eventId]/check-in)
@@ -272,6 +274,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   useEffect(() => {
     if (exportRef) exportRef.current = () => setShowExportModal(true);
     if (deleteAllRef) deleteAllRef.current = () => setDeleteAllConfirm(true);
+    if (addGuestRef) addGuestRef.current = () => setShowManualAddModal(true);
   });
   const [filters, setFilters] = useState({
     name: '',
@@ -578,7 +581,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
           boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           animation: 'fadeIn 0.3s ease'
         }}>
-          <span style={{ fontSize: '1.2rem' }}>⏳</span>
+          <Clock size={20} strokeWidth={1.5} />
           <div>
             <strong>Aguardando internet:</strong> {pendingSyncs} {pendingSyncs === 1 ? 'ação salva' : 'ações salvas'} localmente que serão sincronizadas automaticamente.
           </div>
@@ -595,7 +598,9 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             onClick={() => setDetailsExpanded(v => !v)}
           >
             <span className={styles.eventDetailsTitle}>{eventName || 'Evento'}</span>
-            <span className={styles.eventDetailsCaret}>{detailsExpanded ? '▲' : '▼'}</span>
+            <span className={styles.eventDetailsCaret}>
+              {detailsExpanded ? <ChevronUp size={18} strokeWidth={1.5} /> : <ChevronDown size={18} strokeWidth={1.5} />}
+            </span>
           </button>
         ) : (
           <>
@@ -715,9 +720,9 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                           {user?.role === 'ADMIN' && (
                             <button
                               onClick={() => handleRemoveCollaborator(c.id)}
-                              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#999', fontSize: '0.9rem', padding: '0 2px' }}
+                              style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#999', padding: '0 2px', display: 'flex', alignItems: 'center' }}
                             >
-                              ×
+                              <X size={14} strokeWidth={2} />
                             </button>
                           )}
                         </span>
@@ -742,10 +747,11 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             <button
               className={buttonStyles.btn + ' ' + (filters.category ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton}
               onClick={() => setShowCategoryDropdown(prev => !prev)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
             >
+              <ListFilter size={16} strokeWidth={1.5} />
               {filters.category ? `${filters.category}` : 'Categoria'}
-              <span style={{ fontSize: '0.6rem' }}>{showCategoryDropdown ? '▲' : '▼'}</span>
+              <ChevronDown size={12} strokeWidth={2} style={{ transform: showCategoryDropdown ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
             {showCategoryDropdown && (
               <div style={{
@@ -803,12 +809,12 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             )}
           </div>
 
-          <button className={buttonStyles.btn + ' ' + (filters.status === 'pendente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setFilters(f => ({ ...f, status: 'pendente' }))}>Pendentes ({guests.filter(g => !g.checkedInAt).length})</button>
-          <button className={buttonStyles.btn + ' ' + (filters.status === 'presente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setFilters(f => ({ ...f, status: 'presente' }))}>✓ Presentes ({guests.filter(g => g.checkedInAt).length})</button>
+          <button className={buttonStyles.btn + ' ' + (filters.status === 'pendente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={() => setFilters(f => ({ ...f, status: 'pendente' }))}>Pendentes ({guests.filter(g => !g.checkedInAt).length})</button>
+          <button className={buttonStyles.btn + ' ' + (filters.status === 'presente' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={() => setFilters(f => ({ ...f, status: 'presente' }))}><Check size={16} strokeWidth={2} /> Presentes ({guests.filter(g => g.checkedInAt).length})</button>
           <button className={buttonStyles.btn + ' ' + (filters.status === '' ? buttonStyles['btn--primary'] : buttonStyles['btn--secondary']) + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setFilters(f => ({ ...f, status: '' }))}>Todos ({guests.length})</button>
 
-          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setShowStatsModal(true)}>Estatísticas</button>
-          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0 }} onClick={() => setShowTablesModal(true)}>Mesas</button>
+          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={() => setShowStatsModal(true)}><BarChart3 size={16} strokeWidth={1.5} /> Estatísticas</button>
+          <button className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.filterBarButton} style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={() => setShowTablesModal(true)}><Layout size={16} strokeWidth={1.5} /> Mesas</button>
         </div>
 
 
@@ -839,7 +845,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
               onChange={e => setFilters({ ...filters, name: e.target.value })}
               style={{
                 width: '100%',
-                padding: '0.8rem 1rem',
+                padding: '0.8rem 1rem 0.8rem 2.8rem',
                 borderRadius: '10px',
                 border: '1px solid #d1d5db',
                 fontSize: '1rem',
@@ -847,6 +853,11 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                 boxSizing: 'border-box',
                 boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
               }}
+            />
+            <Search
+              size={20}
+              strokeWidth={1.5}
+              style={{ position: 'absolute', left: '1rem', color: '#9ca3af' }}
             />
           </div>
           <button
@@ -868,7 +879,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             title="Adicionar convidado"
             onClick={() => setShowAddGuestChoiceModal(true)}
           >
-            +
+            <Plus size={32} strokeWidth={1.5} />
           </button>
         </div>
       </div>
@@ -903,6 +914,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                     setShowImportModal(true);
                   }}
                 >
+                  <FileSpreadsheet size={20} strokeWidth={1.5} />
                   XLSX
                 </button>
               )}
@@ -920,6 +932,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                   setShowManualAddModal(true);
                 }}
               >
+                <Edit2 size={20} strokeWidth={1.5} />
                 Manual
               </button>
             </div>
@@ -967,7 +980,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                   setShowExportModal(false);
                 }}
               >
-                <span style={{ fontSize: '1.5rem' }}>📄</span>
+                <FileText size={24} strokeWidth={1.5} />
                 <span>PDF</span>
               </button>
               <button

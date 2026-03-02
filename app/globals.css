@@ -91,6 +91,14 @@ body {
   min-height: 100vh;
 }
 
+/* Ajuste para não cobrir conteúdo com a Bottom Navigation em mobile */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 80px !important;
+  }
+}
+
+
 /* ========== Tipografia ========== */
 h1,
 h2,
@@ -140,6 +148,15 @@ p {
   font-size: 1rem;
   line-height: 1.6;
 }
+
+.title-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
 
 /* ========== Formulários ========== */
 input,

@@ -7,7 +7,7 @@
   padding: 1.5rem;
   background: white;
   border-radius: 12px;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -49,7 +49,7 @@
   height: 24px;
   position: relative;
   overflow: hidden;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .bar {

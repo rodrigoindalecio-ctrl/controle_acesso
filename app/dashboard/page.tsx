@@ -12,7 +12,11 @@ import ConfirmDialog from '@/app/components/ConfirmDialog';
 import UserMenu from '@/app/components/UserMenu';
 import ReportsModal from '@/app/components/ReportsModal';
 import UsersModal from '@/app/components/UsersModal';
+import { Users, BarChart3, Plus, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { translateStatus } from '@/lib/statusUtils';
+import BottomNavigation from '@/app/components/BottomNavigation';
+import UserProfileModal from '@/app/components/UserProfileModal';
+
 
 interface User {
   userId: string;
@@ -54,6 +58,7 @@ export default function DashboardPage() {
   const [isDeletingEvent, setIsDeletingEvent] = useState(false);
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
 
   useEffect(() => {
@@ -298,21 +303,26 @@ export default function DashboardPage() {
                   className={`${btn.btn} ${btn['btn--secondary']} ${styles.quickAccessBtn}`}
                   onClick={() => setIsUsersModalOpen(true)}
                 >
-                  👥 Usuários
+                  <Users size={18} strokeWidth={1.5} style={{ marginRight: '8px' }} />
+                  Usuários
                 </button>
                 <button
                   type="button"
                   className={`${btn.btn} ${btn['btn--secondary']} ${styles.quickAccessBtn}`}
                   onClick={() => setIsReportsOpen(true)}
                 >
-                  📈 Relatórios
+                  <BarChart3 size={18} strokeWidth={1.5} style={{ marginRight: '8px' }} />
+                  Relatórios
                 </button>
               </div>
 
               <section className={styles.eventsSection}>
                 <div className={styles.sectionHeader}>
                   <h3>Todos os Eventos</h3>
-                  <button onClick={handleCreateClick} className={styles.createButton}>+ Criar Evento</button>
+                  <button onClick={handleCreateClick} className={styles.createButton}>
+                    <Plus size={18} strokeWidth={1.5} />
+                    Criar Evento
+                  </button>
                 </div>
 
                 {error && <div className={styles.error}>{error}</div>}
@@ -320,7 +330,10 @@ export default function DashboardPage() {
                 {events.length === 0 ? (
                   <div className={styles.emptyStateElegant}>
                     <h3 className={styles.emptyTitle}>Nenhum evento cadastrado</h3>
-                    <button className={styles.emptyAction} onClick={handleCreateClick}>+ Criar Evento</button>
+                    <button className={styles.emptyAction} onClick={handleCreateClick}>
+                      <Plus size={20} strokeWidth={1.5} />
+                      Criar Evento
+                    </button>
                   </div>
                 ) : (
                   <div className={styles.eventsList}>
@@ -336,11 +349,19 @@ export default function DashboardPage() {
                           <p className={styles.eventDate}>{new Date(event.date).toLocaleDateString('pt-BR')}</p>
                         </Link>
                         <div className={styles.menuWrapper}>
-                          <button className={styles.menuButton} onClick={() => setSelectedEvent(selectedEvent?.id === event.id ? null : event)}>⋮</button>
+                          <button className={styles.menuButton} onClick={() => setSelectedEvent(selectedEvent?.id === event.id ? null : event)}>
+                            <MoreVertical size={18} strokeWidth={1.5} />
+                          </button>
                           {selectedEvent?.id === event.id && (
                             <div className={styles.menuDropdown}>
-                              <button className={styles.menuItem} onClick={(e) => handleEditClick(e, event)}>✏️ Editar</button>
-                              <button className={styles.menuItemDanger} onClick={(e) => handleDeleteClick(e, event.id, event.name)}>🗑️ Excluir</button>
+                              <button className={styles.menuItem} onClick={(e) => handleEditClick(e, event)}>
+                                <Edit2 size={16} strokeWidth={1.5} style={{ marginRight: '8px' }} />
+                                Editar
+                              </button>
+                              <button className={styles.menuItemDanger} onClick={(e) => handleDeleteClick(e, event.id, event.name)}>
+                                <Trash2 size={16} strokeWidth={1.5} style={{ marginRight: '8px' }} />
+                                Excluir
+                              </button>
                             </div>
                           )}
                         </div>
@@ -413,6 +434,20 @@ export default function DashboardPage() {
         isOpen={isUsersModalOpen}
         onClose={() => setIsUsersModalOpen(false)}
       />
+
+      {isProfileOpen && (
+        <UserProfileModal
+          user={user}
+          onClose={() => setIsProfileOpen(false)}
+        />
+      )}
+
+      <BottomNavigation
+        onOpenReports={() => setIsReportsOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenAdd={handleCreateClick}
+      />
     </div>
   );
 }
+

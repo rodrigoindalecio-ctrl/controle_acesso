@@ -35,7 +35,7 @@
 
 .eventCard {
   background: #fff;
-  border: 1.5px solid #e8dfd6;
+  border: 1.5px solid var(--color-border);
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(123, 45, 61, 0.08);
   padding: 24px 20px 20px 20px;
@@ -66,7 +66,7 @@
 .menuButton {
   background: none;
   border: none;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-size: 1.6rem;
   padding: 2px 6px;
   border-radius: 6px;
@@ -81,7 +81,7 @@
 .menuButton:hover,
 .menuButton:focus {
   background: #f5e8eb;
-  color: #5e1f2d;
+  color: var(--color-primary-dark);
   outline: none;
 }
 
@@ -91,7 +91,7 @@
   right: 0;
   min-width: 140px;
   background: #fff;
-  border: 1.5px solid #e8dfd6;
+  border: 1.5px solid var(--color-border);
   border-radius: 10px;
   box-shadow: 0 6px 24px rgba(123, 45, 61, 0.13);
   z-index: 20;
@@ -116,7 +116,7 @@
 .menuItem {
   background: none;
   border: none;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-size: 1rem;
   padding: 10px 18px 10px 16px;
   text-align: left;
@@ -131,7 +131,7 @@
 .menuItem:hover,
 .menuItem:focus {
   background: #f5e8eb;
-  color: #5e1f2d;
+  color: var(--color-primary-dark);
   outline: none;
 }
 
@@ -266,7 +266,7 @@
 /* mantém compatibilidade se .quickCard ainda for usado em outros lugares */
 .quickCard {
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -281,7 +281,7 @@
 .quickCard:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.12);
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
 }
 
 .quickCard h3 {
@@ -309,7 +309,7 @@
 
 .quickStatCard {
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
   display: flex;
@@ -329,7 +329,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #7b2d3d 0%, #9b4a5a 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
 }
 
 .quickStatCard:hover {
@@ -340,7 +340,7 @@
 .quickStatValue {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #7b2d3d;
+  color: var(--color-primary);
   line-height: 1.2;
   margin-bottom: 0.25rem;
 }
@@ -395,7 +395,7 @@
 
 /* Welcome Banner */
 .welcomeBanner {
-  background: linear-gradient(135deg, #7b2d3d 0%, #9b4a5a 50%, #7b2d3d 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 50%, var(--color-primary) 100%);
   border-radius: 16px;
   padding: 28px 32px;
   margin-bottom: 0;
@@ -609,7 +609,7 @@
 .statCard {
   /* Align dashboard stat cards with the global card design */
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
@@ -802,7 +802,7 @@
   padding: 1.5rem;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
@@ -892,7 +892,7 @@
 }
 
 .createButton {
-  background: #7b2d3d;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   padding: 10px 18px;
@@ -905,7 +905,7 @@
 }
 
 .createButton:hover {
-  background: #5e1f2d;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.35);
 }
@@ -943,7 +943,7 @@
 .emptyTitle {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #7b2d3d;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -954,7 +954,7 @@
 }
 
 .emptyAction {
-  background: #7b2d3d;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   padding: 12px 28px;
@@ -967,7 +967,7 @@
 }
 
 .emptyAction:hover {
-  background: #5e1f2d;
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.25);
 }
@@ -1035,7 +1035,7 @@
 }
 
 .eventCard:hover {
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
   box-shadow: 0 12px 28px rgba(123, 45, 61, 0.18), 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-6px);
 }
@@ -1120,7 +1120,7 @@
 }
 
 .calendarIcon {
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-size: 1.1em;
   display: inline-flex;
 }
@@ -1141,8 +1141,8 @@
 
 .actionBtn {
   background: #fff;
-  border: 1.5px solid #7b2d3d;
-  color: #7b2d3d;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
   padding: 0.5rem 1.2rem;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -1156,8 +1156,8 @@
 
 .actionBtn:hover {
   background: #f5e8eb;
-  color: #5e1f2d;
-  border-color: #5e1f2d;
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
 }
 
 .actionBtn.danger {
@@ -1173,7 +1173,7 @@
 
 .actionBtn {
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
   border-radius: var(--radius-sm);
   font-size: 1rem;
@@ -1183,9 +1183,9 @@
 }
 
 .actionBtn:hover {
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
   background: #fafaf9;
-  color: #7b2d3d;
+  color: var(--color-primary);
 }
 
 .actionBtn.danger:hover {

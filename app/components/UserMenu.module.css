@@ -10,7 +10,7 @@
   width: 40px;
   height: 40px;
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
   padding: 0;
@@ -19,14 +19,14 @@
 }
 
 .hamburgerButton:hover {
-  background: #fafaf9;
-  border-color: #7b2d3d;
+  background: var(--color-bg-light);
+  border-color: var(--color-primary);
 }
 
 .hamburgerButton span {
   width: 20px;
   height: 2px;
-  background: #333;
+  background: var(--color-dark);
   border-radius: 1px;
   transition: all 0.3s ease;
 }
@@ -37,7 +37,7 @@
   right: 0;
   margin-top: 8px;
   background: white;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   min-width: 240px;
@@ -59,26 +59,26 @@
 
 .userInfo {
   padding: 16px;
-  border-bottom: 1px solid #e8dfd6;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .userEmail {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-dark);
   margin: 0 0 4px 0;
   word-break: break-all;
 }
 
 .userRole {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .divider {
   height: 1px;
-  background: #e8dfd6;
+  background: var(--color-border);
   margin: 0;
 }
 
@@ -99,8 +99,8 @@
 }
 
 .menuItem:hover {
-  background: #fafaf9;
-  color: #7b2d3d;
+  background: var(--color-bg-light);
+  color: var(--color-primary);
 }
 
 .menuItem span:first-child {
@@ -109,12 +109,12 @@
 }
 
 .menuItem.logout {
-  color: #c97e7e;
+  color: var(--color-danger);
 }
 
 .menuItem.logout:hover {
-  background: rgba(201, 126, 126, 0.08);
-  color: #a64444;
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
 }
 
 /* Responsivo */

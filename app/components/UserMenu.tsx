@@ -6,6 +6,7 @@ import ChangePasswordModal from './ChangePasswordModal';
 import UserProfileModal from './UserProfileModal';
 import PreferencesModal from './PreferencesModal';
 import AboutModal from './AboutModal';
+import { User as UserIcon, Lock, Settings, HelpCircle, Info, Download, Trash2, LogOut } from 'lucide-react';
 
 interface User {
   userId: string;
@@ -79,7 +80,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
               className={styles.menuItem}
               onClick={() => handleMenuClick('profile')}
             >
-              <span>👤</span>
+              <UserIcon size={18} strokeWidth={1.5} />
               <span>Perfil</span>
             </button>
 
@@ -87,7 +88,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
               className={styles.menuItem}
               onClick={() => handleMenuClick('password')}
             >
-              <span>🔐</span>
+              <Lock size={18} strokeWidth={1.5} />
               <span>Editar Senha</span>
             </button>
 
@@ -95,7 +96,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
               className={styles.menuItem}
               onClick={() => handleMenuClick('preferences')}
             >
-              <span>⚙️</span>
+              <Settings size={18} strokeWidth={1.5} />
               <span>Preferências</span>
             </button>
 
@@ -103,7 +104,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
               className={styles.menuItem}
               onClick={() => handleMenuClick('help')}
             >
-              <span>❓</span>
+              <HelpCircle size={18} strokeWidth={1.5} />
               <span>Ajuda & Suporte</span>
             </button>
 
@@ -111,19 +112,19 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
               className={styles.menuItem}
               onClick={() => handleMenuClick('about')}
             >
-              <span>ℹ️</span>
+              <Info size={18} strokeWidth={1.5} />
               <span>Sobre</span>
             </button>
 
             <div className={styles.divider}></div>
-  
+
             {/* Ações do evento — só aparecem na página de evento */}
             {onExport && (
               <button
                 className={styles.menuItem}
                 onClick={() => { onExport(); setIsOpen(false); }}
               >
-                <span>📤</span>
+                <Download size={18} strokeWidth={1.5} />
                 <span>Exportar Lista</span>
               </button>
             )}
@@ -132,7 +133,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
                 className={`${styles.menuItem} ${styles.danger}`}
                 onClick={() => { onDeleteAll(); setIsOpen(false); }}
               >
-                <span>🗑️</span>
+                <Trash2 size={18} strokeWidth={1.5} />
                 <span>Excluir Todos</span>
               </button>
             )}
@@ -143,7 +144,7 @@ export default function UserMenu({ user, onLogout, onExport, onDeleteAll, isAdmi
               className={`${styles.menuItem} ${styles.logout}`}
               onClick={handleLogout}
             >
-              <span>🚪</span>
+              <LogOut size={18} strokeWidth={1.5} />
               <span>Sair</span>
             </button>
           </div>

@@ -65,7 +65,7 @@
   padding: 16px;
   background: #fafafa;
   border-radius: 8px;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .checkboxLabel {
@@ -109,7 +109,7 @@
 }
 
 .btnCancel {
-  background: #e8dfd6;
+  background: var(--color-border);
   color: var(--color-dark, #333);
 }
 

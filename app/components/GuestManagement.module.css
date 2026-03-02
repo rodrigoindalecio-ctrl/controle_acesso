@@ -243,11 +243,11 @@
 }
 
 .table th {
-  border-bottom: 3px solid #d6a35a;
+  border-bottom: 3px solid var(--color-primary);
 }
 
 .table th:nth-child(5) {
-  border-bottom: 3px solid #d6a35a !important;
+  border-bottom: 3px solid var(--color-primary) !important;
 }
 
 /* Ensure status column always has bottom border except last row */
@@ -307,10 +307,10 @@
   }
 
   .table th {
-    background: #f7f7f7;
+    background: var(--color-bg-light);
     font-weight: 600;
-    color: #333;
-    border-bottom: 3px solid #d6a35a;
+    color: var(--color-dark);
+    border-bottom: 3px solid var(--color-primary);
   }
 
   .table tr:last-child td {
@@ -351,13 +351,13 @@
   }
 
   .statusBadge[data-status="present"] {
-    background: #d1fae5;
-    color: #065f46;
+    background: var(--color-success-light);
+    color: var(--color-success-dark);
   }
 
   .statusBadge[data-status="absent"] {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--color-danger-light);
+    color: var(--color-danger-dark);
   }
 
   .buttonGroup {
@@ -456,7 +456,7 @@
   top: calc(100% + 6px);
   right: 0;
   background: #fff;
-  border: 1px solid var(--color-border, #e8dfd6);
+  border: 1px solid var(--color-border, var(--color-border));
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.13);
   z-index: 200;
@@ -496,7 +496,7 @@
 
 .actionsDropdownItem:hover:not(:disabled) {
   background: var(--color-primary-pale, #f5e8eb);
-  color: var(--color-primary, #7b2d3d);
+  color: var(--color-primary, var(--color-primary));
 }
 
 .actionsDropdownItem:disabled {
@@ -543,7 +543,7 @@
 
 .eventDetailsSubtitle {
   font-size: 1.02rem;
-  color: #7b2d3d;
+  color: var(--color-primary);
   margin: 0 0 16px 0;
 }
 
@@ -560,7 +560,7 @@
 
 .eventDetailsLabel {
   font-weight: bold;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-size: 0.95rem;
   letter-spacing: 0.02em;
 }
@@ -588,7 +588,7 @@
 }
 
 .eventDetailsTitle {
-  font-family: 'Playfair Display', serif;
+  font-family: 'var(--font-serif)', serif;
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0;
@@ -599,20 +599,20 @@
 
 .eventDetailsCaret {
   flex-shrink: 0;
-  color: #7b2d3d;
+  color: var(--color-primary);
   font-size: 0.9rem;
 }
 
 .eventDetailsHint {
   margin-top: 6px;
   font-size: 0.9rem;
-  color: #7b2d3d;
+  color: var(--color-primary);
 }
 
 .eventDetailsSubtitleMobile {
   margin-top: 8px;
   font-size: 0.95rem;
-  color: #7b2d3d;
+  color: var(--color-primary);
 }
 
 @media (max-width: 900px) {

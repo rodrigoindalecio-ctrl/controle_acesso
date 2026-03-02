@@ -218,12 +218,12 @@
 }
 
 .dropdown::-webkit-scrollbar-thumb {
-  background: #7b2d3d;
+  background: var(--color-primary);
   border-radius: 3px;
 }
 
 .dropdown::-webkit-scrollbar-thumb:hover {
-  background: #5e1f2d;
+  background: var(--color-primary-dark);
 }
 
 /* Responsividade */

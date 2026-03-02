@@ -9,6 +9,9 @@ import GuestManagement from '@/app/components/GuestManagement';
 import UserMenu from '@/app/components/UserMenu';
 import styles from './checkin.module.css';
 import buttonStyles from '@/lib/buttons.module.css';
+import BottomNavigation from '@/app/components/BottomNavigation';
+import UserProfileModal from '@/app/components/UserProfileModal';
+import ReportsModal from '@/app/components/ReportsModal';
 
 export default function CheckInPage() {
   const router = useRouter();
@@ -20,7 +23,11 @@ export default function CheckInPage() {
   const [eventDate, setEventDate] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [eventStatus, setEventStatus] = useState('');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isReportsOpen, setIsReportsOpen] = useState(false);
+  const [eventsForReports, setEventsForReports] = useState<any[]>([]);
   const exportRef = useRef<(() => void) | null>(null);
+  const addGuestRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -46,6 +53,18 @@ export default function CheckInPage() {
     if (eventId) {
       fetchEventData();
     }
+
+    // Load events for reports modal
+    const loadAllEvents = async () => {
+      try {
+        const res = await fetch('/api/events');
+        if (res.ok) {
+          const data = await res.json();
+          setEventsForReports(data.events || []);
+        }
+      } catch (err) { }
+    };
+    loadAllEvents();
   }, [eventId]);
 
   if (authLoading) {
@@ -97,6 +116,7 @@ export default function CheckInPage() {
           eventDescription={eventDescription}
           eventStatus={eventStatus}
           exportRef={exportRef}
+          addGuestRef={addGuestRef}
         />
       </main>
 
@@ -105,7 +125,27 @@ export default function CheckInPage() {
           <p>&copy; 2026 Controle de Acesso - Todos os direitos reservados</p>
         </div>
       </footer>
+
+      <ReportsModal
+        isOpen={isReportsOpen}
+        onClose={() => setIsReportsOpen(false)}
+        events={eventsForReports.length > 0 ? eventsForReports : (eventId ? [{ id: eventId, name: eventName }] : []) as any}
+      />
+
+      {isProfileOpen && (
+        <UserProfileModal
+          user={user!}
+          onClose={() => setIsProfileOpen(false)}
+        />
+      )}
+
+      <BottomNavigation
+        onOpenReports={() => setIsReportsOpen(true)}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onOpenAdd={() => addGuestRef.current?.()}
+      />
     </div>
   );
 }
+
 

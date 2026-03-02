@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e8dfd6;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .header h3 {
@@ -96,7 +96,7 @@
 .input:focus,
 .select:focus {
   outline: none;
-  border-color: #7b2d3d;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(123, 45, 61, 0.1);
 }
 
@@ -139,13 +139,13 @@
 }
 
 .submitBtn {
-  background: #7b2d3d;
+  background: var(--color-primary);
   color: white;
   box-shadow: 0 2px 8px rgba(123, 45, 61, 0.2);
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #5e1f2d;
+  background: var(--color-primary-dark);
   box-shadow: 0 4px 12px rgba(123, 45, 61, 0.3);
   transform: translateY(-1px);
 }

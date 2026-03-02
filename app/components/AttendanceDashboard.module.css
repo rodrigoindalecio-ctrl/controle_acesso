@@ -2,7 +2,7 @@
   background: white;
   padding: 1rem 1.2rem;
   border-radius: 10px;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   margin: 1.2rem auto;
   max-width: 420px;
@@ -59,12 +59,12 @@
 
 .counter {
   background: white;
-  border-left: 3px solid #7b2d3d;
+  border-left: 3px solid var(--color-primary);
   padding: 0.7rem 0.5rem;
   border-radius: 8px;
   text-align: center;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
   min-height: 48px;
 }
 
@@ -184,7 +184,7 @@
 .paymentSection {
   margin-top: 1.2rem;
   padding-top: 1rem;
-  border-top: 1px solid #e8dfd6;
+  border-top: 1px solid var(--color-border);
 }
 
 .paymentTitle {

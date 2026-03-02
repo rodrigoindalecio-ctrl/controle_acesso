@@ -46,7 +46,7 @@
 
 .header {
   padding: 1.5rem;
-  border-bottom: 1px solid #e8dfd6;
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -107,7 +107,7 @@
   padding: 1rem;
   border-radius: 8px;
   background: #fafaf9;
-  border: 1px solid #e8dfd6;
+  border: 1px solid var(--color-border);
 }
 
 .timelineItem_recent {
