@@ -9,10 +9,12 @@ export interface JWTPayload {
   userId: string;
   email: string;
   name: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'USER' | 'TEMP_STAFF';
+  eventId?: number; // Restricted to this event if present
   iat?: number;
   exp?: number;
 }
+
 
 export const generateToken = (payload: Omit<JWTPayload, 'iat' | 'exp'>) => {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
@@ -55,7 +57,7 @@ export const getTokenFromCookies = async () => {
 export const verifyAuth = async (request: NextRequest): Promise<JWTPayload | null> => {
   try {
     const token = request.cookies.get('auth-token')?.value;
-    
+
     if (!token) {
       return null;
     }

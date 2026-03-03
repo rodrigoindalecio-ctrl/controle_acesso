@@ -34,6 +34,10 @@ export async function GET(req: NextRequest, { params }: { params: { slug?: strin
 
     // 1. GET /api/events
     if (slug.length === 0) {
+        if (payload.role === 'TEMP_STAFF') {
+            const event = await prisma.event.findUnique({ where: { id: Number(payload.eventId) } });
+            return NextResponse.json({ events: event ? [{ ...event, date: event.date.toISOString() }] : [] });
+        }
         const events = await prisma.event.findMany({
             where: payload.role === 'ADMIN' ? {} : { users: { some: { userId: Number(payload.userId) } } },
             orderBy: { date: 'asc' }
@@ -48,7 +52,11 @@ export async function GET(req: NextRequest, { params }: { params: { slug?: strin
     if (slug.length === 1) {
         const event = await prisma.event.findUnique({ where: { id: eventId }, include: { users: true } });
         if (!event) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 });
-        if (payload.role !== 'ADMIN' && !event.users.some(ue => ue.userId === Number(payload.userId))) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+        if (payload.role === 'TEMP_STAFF') {
+            if (Number(payload.eventId) !== eventId) return NextResponse.json({ error: 'Acesso negado: Evento incorreto' }, { status: 403 });
+        } else if (payload.role !== 'ADMIN' && !event.users.some(ue => ue.userId === Number(payload.userId))) {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+        }
         return NextResponse.json({ event: { ...event, date: event.date.toISOString() } });
     }
 
@@ -61,6 +69,9 @@ export async function GET(req: NextRequest, { params }: { params: { slug?: strin
 
     // 4. GET /api/events/[id]/guests
     if (slug.length === 2 && slug[1] === 'guests') {
+        if (payload.role === 'TEMP_STAFF' && Number(payload.eventId) !== eventId) {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+        }
         const guests = await prisma.guest.findMany({ where: { eventId }, orderBy: { fullName: 'asc' } });
         const stats = { total: guests.length, checkedIn: guests.filter(g => g.checkedInAt).length };
         return NextResponse.json({ guests, stats });
@@ -130,6 +141,9 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
 
     // 3. POST /api/events/[id]/check-in
     if (slug.length === 2 && slug[1] === 'check-in') {
+        if (payload.role === 'TEMP_STAFF' && Number(payload.eventId) !== eventId) {
+            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+        }
         const { guestId, isPaying } = checkInSchema.parse(await req.json());
         await prisma.$transaction([
             prisma.guest.update({ where: { id: guestId }, data: { checkedInAt: new Date(), checkedInBy: payload.userId, isPaying } }),

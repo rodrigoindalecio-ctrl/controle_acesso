@@ -119,3 +119,14 @@ model ImportJob {
   @@unique([userId, eventId, idempotencyKey])
   @@map("import_jobs")
 }
+
+model QuickAccess {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  eventId   Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("quick_access")
+}
+

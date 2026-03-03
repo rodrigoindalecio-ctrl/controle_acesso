@@ -12,6 +12,9 @@ import buttonStyles from '@/lib/buttons.module.css';
 import BottomNavigation from '@/app/components/BottomNavigation';
 import UserProfileModal from '@/app/components/UserProfileModal';
 import ReportsModal from '@/app/components/ReportsModal';
+import QuickAccessModal from '@/app/components/QuickAccessModal';
+import { QrCode } from 'lucide-react';
+
 
 interface Event {
   id: number;
@@ -33,6 +36,7 @@ export default function EventPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isReportsOpen, setIsReportsOpen] = useState(false);
+  const [isQuickAccessOpen, setIsQuickAccessOpen] = useState(false);
   const [eventsForReports, setEventsForReports] = useState<any[]>([]);
 
   // Refs para acionar funções internas do GuestManagement pelo UserMenu
@@ -125,6 +129,16 @@ export default function EventPage() {
               <span className={styles.backIcon}>←</span>
               <span className={styles.backText}>Dashboard</span>
             </button>
+            {isAdmin && (
+              <button
+                className={buttonStyles.btn + ' ' + buttonStyles['btn--secondary'] + ' ' + styles.quickAccessButton}
+                onClick={() => setIsQuickAccessOpen(true)}
+                title="Acesso Rápido (Ajudantes)"
+              >
+                <QrCode size={18} strokeWidth={1.5} />
+                <span className={styles.btnText}>Ajudante</span>
+              </button>
+            )}
           </div>
           <h1 className={styles.title}>{event.name}</h1>
           <div className={styles.headerRight}>
@@ -181,6 +195,12 @@ export default function EventPage() {
           onClose={() => setIsProfileOpen(false)}
         />
       )}
+
+      <QuickAccessModal
+        isOpen={isQuickAccessOpen}
+        onClose={() => setIsQuickAccessOpen(false)}
+        eventId={eventId}
+      />
 
       <BottomNavigation
         onOpenReports={() => setIsReportsOpen(true)}

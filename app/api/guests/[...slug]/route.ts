@@ -53,7 +53,11 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
         const event = await prisma.event.findUnique({ where: { id: Number(eventId) }, select: { id: true, name: true } });
         if (!event) return NextResponse.json({ message: 'Evento não encontrado' }, { status: 404 });
 
-        if (auth.role !== 'ADMIN') {
+        if (auth.role === 'TEMP_STAFF') {
+            if (Number(auth.eventId) !== Number(eventId)) {
+                return NextResponse.json({ message: 'Acesso negado: Evento incorreto' }, { status: 403 });
+            }
+        } else if (auth.role !== 'ADMIN') {
             const ue = await prisma.userEvent.findUnique({ where: { userId_eventId: { userId: Number(auth.userId), eventId: Number(eventId) } } });
             if (!ue) return NextResponse.json({ message: 'Acesso negado' }, { status: 403 });
         }
@@ -211,7 +215,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
         const guest = await prisma.guest.findUnique({ where: { id } });
         if (!guest) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 });
 
-        if (auth.role !== 'ADMIN') {
+        if (auth.role === 'TEMP_STAFF') {
+            if (Number(auth.eventId) !== Number(guest.eventId)) {
+                return NextResponse.json({ error: 'Acesso negado: Evento incorreto' }, { status: 403 });
+            }
+        } else if (auth.role !== 'ADMIN') {
             const ue = await prisma.userEvent.findUnique({ where: { userId_eventId: { userId: Number(auth.userId), eventId: guest.eventId } } });
             if (!ue) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
         }
