@@ -1005,7 +1005,6 @@
   background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
   color: #166534;
   padding: 6px 14px 6px 10px;
-  /* padding-right reduzido */
   border-radius: 20px;
   font-size: 0.95rem;
   font-weight: 600;
@@ -1018,6 +1017,8 @@
   gap: 6px;
   position: relative;
   margin-left: auto;
+  margin-right: 24px;
+  /* Espaço para o menu de 3 pontinhos */
   margin-bottom: 0;
   margin-top: 0;
 }

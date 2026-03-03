@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, LogOut, Check, X, Users, Loader2 } from 'lucide-react';
+import { Search, LogOut, Check, X, Users, Loader2, LayoutGrid } from 'lucide-react';
 import styles from './page.module.css';
+import TablesModal from '@/app/components/TablesModal';
 
 interface Guest {
     id: string;
@@ -23,6 +24,7 @@ export default function AssistantDashboard() {
     const [user, setUser] = useState<{ name: string, eventId: number } | null>(null);
     const [eventName, setEventName] = useState('');
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const [isTablesModalOpen, setIsTablesModalOpen] = useState(false);
 
     const checkAuth = useCallback(async () => {
         try {
@@ -72,6 +74,8 @@ export default function AssistantDashboard() {
             if (eventId) {
                 await fetchEventName(eventId);
                 await fetchGuests(eventId);
+            } else {
+                setLoading(false);
             }
         };
         init();
@@ -152,9 +156,19 @@ export default function AssistantDashboard() {
                         <h1 className={styles.title}>{eventName}</h1>
                         <p className={styles.helperName}>Ajudante: {user?.name}</p>
                     </div>
-                    <button onClick={handleLogout} className={styles.logoutBtn} title="Sair">
-                        <LogOut size={20} />
-                    </button>
+                    <div className={styles.headerActions}>
+                        <button
+                            onClick={() => setIsTablesModalOpen(true)}
+                            className={styles.tablesBtn}
+                            title="Visualizar Mesas"
+                        >
+                            <LayoutGrid size={20} />
+                            <span>Mesas</span>
+                        </button>
+                        <button onClick={handleLogout} className={styles.logoutBtn} title="Sair">
+                            <LogOut size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className={styles.searchContainer}>
@@ -167,6 +181,16 @@ export default function AssistantDashboard() {
                         className={styles.searchInput}
                         autoFocus
                     />
+                    {searchTerm && (
+                        <button
+                            className={styles.clearSearchBtn}
+                            onClick={() => setSearchTerm('')}
+                            title="Limpar busca"
+                            type="button"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -196,14 +220,10 @@ export default function AssistantDashboard() {
 
                                 <div className={styles.actions}>
                                     {guest.checkedInAt ? (
-                                        <button
-                                            onClick={() => handleUndo(guest.id)}
-                                            disabled={!!processingId}
-                                            className={styles.undoBtn}
-                                        >
-                                            {processingId === guest.id ? <Loader2 className={styles.btnSpinner} /> : <X size={20} />}
-                                            <span>Desfazer</span>
-                                        </button>
+                                        <div className={styles.checkedInStatus}>
+                                            <Check size={18} />
+                                            <span>Presente</span>
+                                        </div>
                                     ) : (
                                         <button
                                             onClick={() => handleCheckIn(guest.id)}
@@ -224,6 +244,14 @@ export default function AssistantDashboard() {
                     )}
                 </div>
             </main>
+
+            {user && (
+                <TablesModal
+                    isOpen={isTablesModalOpen}
+                    onClose={() => setIsTablesModalOpen(false)}
+                    eventId={String(user.eventId)}
+                />
+            )}
         </div>
     );
 }

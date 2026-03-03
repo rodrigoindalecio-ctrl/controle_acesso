@@ -85,7 +85,8 @@ async function handleMe(req: NextRequest) {
             userId: payload.userId,
             email: payload.email,
             name: payload.name,
-            role: payload.role
+            role: payload.role,
+            eventId: payload.eventId
         }
     });
 }

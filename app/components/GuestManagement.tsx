@@ -835,51 +835,33 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
           boxSizing: 'border-box'
         }}
       >
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
-          <div style={{ flex: '1 1 auto', display: 'flex', minWidth: 0 }}>
+        <div className={styles.searchRow}>
+          <div className={styles.searchGroup}>
+            <Search className={styles.searchIcon} size={18} strokeWidth={1.5} />
             <input
               type="text"
+              placeholder="Buscar por nome ou mesa..."
               className={styles.searchInput}
-              placeholder="Buscar por nome..."
               value={filters.name}
-              onChange={e => setFilters({ ...filters, name: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '0.8rem 1rem 0.8rem 2.8rem',
-                borderRadius: '10px',
-                border: '1px solid #d1d5db',
-                fontSize: '1rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)'
-              }}
+              onChange={(e) => setFilters({ ...filters, name: e.target.value })}
             />
-            <Search
-              size={20}
-              strokeWidth={1.5}
-              style={{ position: 'absolute', left: '1rem', color: '#9ca3af' }}
-            />
+            {filters.name && (
+              <button
+                className={styles.clearSearchBtn}
+                onClick={() => setFilters({ ...filters, name: '' })}
+                title="Limpar busca"
+                type="button"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
           <button
-            type="button"
-            className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
-            style={{
-              flex: '0 0 auto',
-              width: '54px',
-              height: '54px',
-              padding: '0',
-              fontSize: '1.8rem',
-              lineHeight: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '10px'
-            }}
-            aria-label="Adicionar convidado"
-            title="Adicionar convidado"
-            onClick={() => setShowAddGuestChoiceModal(true)}
+            className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.addBtn}
+            onClick={() => setShowManualAddModal(true)}
+            title="Adicionar Novo Convidado"
           >
-            <Plus size={32} strokeWidth={1.5} />
+            <Plus size={20} />
           </button>
         </div>
       </div>

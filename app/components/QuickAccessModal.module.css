@@ -28,18 +28,22 @@
 
 .closeBtn {
     position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
+    top: 12px;
+    right: 12px;
     background: var(--color-bg-light);
     border: none;
     border-radius: 50%;
-    padding: 8px;
+    width: 36px;
+    height: 36px;
     cursor: pointer;
     color: var(--color-text-muted);
     transition: all var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10;
+    padding: 0;
+    line-height: 1;
 }
 
 .closeBtn:hover {
