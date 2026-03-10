@@ -26,6 +26,46 @@ export interface ImportValidationResult {
 }
 
 /**
+ * Mapeia cabeçalhos em português para nomes de campos internos
+ */
+export function mapPortugueseHeaders(row: Record<string, any>): Record<string, any> {
+  const mapped: Record<string, any> = {};
+  
+  const fieldMaps: Record<string, string[]> = {
+    full_name: ['Nome Completo', 'Nome', 'Convidado', 'Convidados', 'fullName', 'full_name'],
+    category: ['Categoria', 'Tipo', 'Grupo', 'category'],
+    table_number: ['Mesa', 'Mesa Número', 'Assento', 'Lugar', 'tableNumber', 'table_number', 'table'],
+    phone: ['Telefone', 'Celular', 'Contato', 'phone', 'whatsapp'],
+    notes: ['Observação', 'Observações', 'Notas', 'Recado', 'notes']
+  };
+
+  const keys = Object.keys(row);
+  
+  for (const [internalKey, variations] of Object.entries(fieldMaps)) {
+    const foundKey = keys.find(k => 
+      variations.some(v => v.toLowerCase() === k.toLowerCase().trim())
+    );
+    
+    if (foundKey) {
+      mapped[internalKey] = row[foundKey];
+    }
+  }
+
+  // Garantir que campos originais não mapeados ainda existam, se necessário
+  for (const key of keys) {
+    const isMapped = Object.keys(fieldMaps).some(ik => {
+      const variations = fieldMaps[ik];
+      return variations.some(v => v.toLowerCase() === key.toLowerCase().trim());
+    });
+    if (!isMapped) {
+      mapped[key] = row[key];
+    }
+  }
+
+  return mapped;
+}
+
+/**
  * Valida uma linha de convidado importado
  */
 export function validateGuestRow(
@@ -109,11 +149,14 @@ export function validateImportData(
   const nameCount = new Map<string, number>();
   const duplicates: ImportValidationResult['duplicates'] = [];
 
-  csvData.forEach((row, index) => {
+  csvData.forEach((originalRow, index) => {
     const rowNumber = index + 2; // +2 porque header é linha 1, dados começam em 2
+    
+    // Mapear cabeçalhos (ex: "Nome Completo" -> "full_name")
+    const row = mapPortugueseHeaders(originalRow);
 
     // Ignorar linhas vazias
-    if (!row.full_name || !row.full_name.trim()) {
+    if (!row.full_name || !row.full_name.toString().trim()) {
       return;
     }
 
