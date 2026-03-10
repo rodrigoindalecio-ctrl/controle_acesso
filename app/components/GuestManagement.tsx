@@ -274,7 +274,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   useEffect(() => {
     if (exportRef) exportRef.current = () => setShowExportModal(true);
     if (deleteAllRef) deleteAllRef.current = () => setDeleteAllConfirm(true);
-    if (addGuestRef) addGuestRef.current = () => setShowManualAddModal(true);
+    if (addGuestRef) addGuestRef.current = () => setShowAddGuestChoiceModal(true);
   });
   const [filters, setFilters] = useState({
     name: '',
@@ -858,7 +858,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
           </div>
           <button
             className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.addBtn}
-            onClick={() => setShowManualAddModal(true)}
+            onClick={() => setShowAddGuestChoiceModal(true)}
             title="Adicionar Novo Convidado"
           >
             <Plus size={20} />
@@ -885,37 +885,73 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             <p style={{ color: '#666', marginBottom: '1.25rem', textAlign: 'center' }}>
               Como você deseja adicionar?
             </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {canManageEvent && (
-                <button
-                  type="button"
-                  className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
-                  style={{ minWidth: '140px' }}
-                  onClick={() => {
-                    setShowAddGuestChoiceModal(false);
-                    setShowImportModal(true);
-                  }}
-                >
-                  <FileSpreadsheet size={20} strokeWidth={1.5} />
-                  XLSX
-                </button>
-              )}
+            <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+              <button
+                type="button"
+                className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
+                style={{
+                  minWidth: '160px',
+                  height: '100px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  borderRadius: '16px',
+                  fontSize: '1.1rem',
+                  boxShadow: '0 4px 12px rgba(123, 45, 61, 0.2)',
+                  transition: 'transform 0.2s, box-shadow 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(123, 45, 61, 0.3)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(123, 45, 61, 0.2)';
+                }}
+                onClick={() => {
+                  setShowAddGuestChoiceModal(false);
+                  setShowImportModal(true);
+                }}
+              >
+                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <FileSpreadsheet size={28} strokeWidth={1.5} />
+                </div>
+                <span>Planilha XLSX</span>
+              </button>
 
               <button
                 type="button"
-                className={
-                  buttonStyles.btn +
-                  ' ' +
-                  (canManageEvent ? buttonStyles['btn--secondary'] : buttonStyles['btn--primary'])
-                }
-                style={{ minWidth: '140px' }}
+                className={buttonStyles.btn + ' ' + buttonStyles['btn--secondary']}
+                style={{
+                  minWidth: '160px',
+                  height: '100px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  borderRadius: '16px',
+                  fontSize: '1.1rem',
+                  border: '2px solid #7b2d3d',
+                  color: '#7b2d3d',
+                  background: 'white',
+                  transition: 'transform 0.2s, background 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.background = '#fcf8f9';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'white';
+                }}
                 onClick={() => {
                   setShowAddGuestChoiceModal(false);
                   setShowManualAddModal(true);
                 }}
               >
-                <Edit2 size={20} strokeWidth={1.5} />
-                Manual
+                <div style={{ background: '#f5e8eb', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Edit2 size={28} strokeWidth={1.5} />
+                </div>
+                <span>Manual</span>
               </button>
             </div>
           </div>
