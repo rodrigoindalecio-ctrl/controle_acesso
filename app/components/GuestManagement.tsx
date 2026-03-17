@@ -274,7 +274,15 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   useEffect(() => {
     if (exportRef) exportRef.current = () => setShowExportModal(true);
     if (deleteAllRef) deleteAllRef.current = () => setDeleteAllConfirm(true);
-    if (addGuestRef) addGuestRef.current = () => setShowAddGuestChoiceModal(true);
+    if (addGuestRef) {
+      addGuestRef.current = () => {
+        if (canManageEvent) {
+          setShowAddGuestChoiceModal(true);
+        } else {
+          setShowManualAddModal(true);
+        }
+      };
+    }
   });
   const [filters, setFilters] = useState({
     name: '',
@@ -878,7 +886,13 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
           </div>
           <button
             className={buttonStyles.btn + ' ' + buttonStyles['btn--primary'] + ' ' + styles.addBtn}
-            onClick={() => setShowAddGuestChoiceModal(true)}
+            onClick={() => {
+              if (canManageEvent) {
+                setShowAddGuestChoiceModal(true);
+              } else {
+                setShowManualAddModal(true);
+              }
+            }}
             title="Adicionar Novo Convidado"
           >
             <Plus size={20} />
@@ -906,38 +920,40 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
               Como você deseja adicionar?
             </p>
             <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1.5rem' }}>
-              <button
-                type="button"
-                className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
-                style={{
-                  minWidth: '160px',
-                  height: '100px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.75rem',
-                  borderRadius: '16px',
-                  fontSize: '1.1rem',
-                  boxShadow: '0 4px 12px rgba(123, 45, 61, 0.2)',
-                  transition: 'transform 0.2s, box-shadow 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(123, 45, 61, 0.3)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(123, 45, 61, 0.2)';
-                }}
-                onClick={() => {
-                  setShowAddGuestChoiceModal(false);
-                  setShowImportModal(true);
-                }}
-              >
-                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <FileSpreadsheet size={28} strokeWidth={1.5} />
-                </div>
-                <span>Planilha XLSX</span>
-              </button>
+              {canManageEvent && (
+                <button
+                  type="button"
+                  className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
+                  style={{
+                    minWidth: '160px',
+                    height: '100px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                    borderRadius: '16px',
+                    fontSize: '1.1rem',
+                    boxShadow: '0 4px 12px rgba(123, 45, 61, 0.2)',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(123, 45, 61, 0.3)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(123, 45, 61, 0.2)';
+                  }}
+                  onClick={() => {
+                    setShowAddGuestChoiceModal(false);
+                    setShowImportModal(true);
+                  }}
+                >
+                  <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <FileSpreadsheet size={28} strokeWidth={1.5} />
+                  </div>
+                  <span>Planilha XLSX</span>
+                </button>
+              )}
 
               <button
                 type="button"
