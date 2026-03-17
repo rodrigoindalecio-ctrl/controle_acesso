@@ -20,9 +20,12 @@ export type GuestCreatePayload = {
   tableNumber?: string;
 };
 
+import { saveGuestsToCache, getGuestsFromCache } from '@/app/lib/offline-cache';
+
 export function useEventGuests(eventId: string) {
-  const [guests, setGuests] = useState<Guest[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Use cached guests as initial state if available
+  const [guests, setGuests] = useState<Guest[]>(() => getGuestsFromCache(eventId) || []);
+  const [loading, setLoading] = useState(!getGuestsFromCache(eventId));
   const [error, setError] = useState<string | null>(null);
   const [pendingSyncs, setPendingSyncs] = useState<number>(0);
 
@@ -31,15 +34,24 @@ export function useEventGuests(eventId: string) {
 
   // Fetch guests list
   const fetchGuests = useCallback(async () => {
-    setLoading(true);
+    // Only show loading if we don't have cache
+    const cache = getGuestsFromCache(eventId);
+    if (!cache) setLoading(true);
+
     try {
       const res = await fetch(`/api/events/${eventId}/guests`);
       if (!res.ok) throw new Error('Erro ao buscar convidados');
       const data = await res.json();
       setGuests(data.guests || []);
+      saveGuestsToCache(eventId, data.guests || []); // Update cache
       setError(null);
     } catch (err: any) {
-      setError(err.message || 'Erro desconhecido');
+      if (getGuestsFromCache(eventId)) {
+        // We have cache, just use it silently and don't error out hard
+        setError('Rodando em modo offline');
+      } else {
+        setError(err.message || 'Erro desconhecido');
+      }
     } finally {
       setLoading(false);
     }

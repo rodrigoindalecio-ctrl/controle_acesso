@@ -16,6 +16,7 @@ import { Users, BarChart3, Plus, MoreVertical, Edit2, Trash2 } from 'lucide-reac
 import { translateStatus } from '@/lib/statusUtils';
 import BottomNavigation from '@/app/components/BottomNavigation';
 import UserProfileModal from '@/app/components/UserProfileModal';
+import { useConnectivity } from '@/app/lib/context/ConnectivityContext';
 
 
 interface User {
@@ -60,6 +61,7 @@ export default function DashboardPage() {
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const { triggerEventSync } = useConnectivity();
 
   useEffect(() => {
     checkAuth();
@@ -91,7 +93,15 @@ export default function DashboardPage() {
       const response = await fetch('/api/events');
       if (response.ok) {
         const data = await response.json();
-        setEvents(data.events || []);
+        const eventsList = data.events || [];
+        setEvents(eventsList);
+        
+        // Background sync: Prefetch guests for active events "as early as possible"
+        eventsList.forEach((e: any) => {
+          if (e.status === 'ACTIVE' || e.status === 'DASHBOARD') {
+            triggerEventSync(e.id);
+          }
+        });
       }
     } catch (error) {
       console.error('Erro ao carregar eventos:', error);

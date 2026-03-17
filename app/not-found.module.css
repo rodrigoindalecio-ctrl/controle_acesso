@@ -1,0 +1,107 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #fcfafa 0%, #f5e8eb 100%);
+  font-family: var(--font-primary);
+}
+
+.card {
+  text-align: center;
+  background: white;
+  padding: 60px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(123, 45, 61, 0.1);
+  max-width: 500px;
+  width: 100%;
+  border: 1px solid rgba(123, 45, 61, 0.05);
+}
+
+.logo {
+  margin-bottom: 30px;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 8rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #7b2d3d 0%, #d4af37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.errorTitle {
+  background: linear-gradient(135deg, #c97e7e 0%, #a64444 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.subtitle {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: #5e1f2d;
+  margin-bottom: 15px;
+}
+
+.message {
+  color: #4a4a4a;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.errorCode {
+  font-family: monospace;
+  font-size: 0.85rem;
+  background: #fdf2f2;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #a64444;
+  border: 1px dashed rgba(166, 68, 68, 0.2);
+}
+
+.button {
+  display: inline-block;
+  background: linear-gradient(135deg, #7b2d3d 0%, #5e1f2d 100%);
+  color: white;
+  padding: 15px 35px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(123, 45, 61, 0.2);
+  border: none;
+  cursor: pointer;
+}
+
+.secondaryButton {
+  background: white;
+  color: #7b2d3d;
+  border: 1px solid #7b2d3d;
+  box-shadow: none;
+}
+
+.button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(123, 45, 61, 0.3);
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 40px 20px;
+  }
+  .title {
+    font-size: 6rem;
+  }
+  .subtitle {
+    font-size: 1.5rem;
+  }
+}

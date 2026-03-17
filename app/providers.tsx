@@ -2,11 +2,14 @@
 
 import React, { ReactNode } from 'react';
 import { ToastProvider } from './lib/context/ToastContext';
+import { ConnectivityProvider } from './lib/context/ConnectivityContext';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ToastProvider>
-      {children}
-    </ToastProvider>
+    <ConnectivityProvider>
+      <ToastProvider>
+        {children}
+      </ToastProvider>
+    </ConnectivityProvider>
   );
 }

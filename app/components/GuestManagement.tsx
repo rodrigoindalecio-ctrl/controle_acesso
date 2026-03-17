@@ -926,15 +926,17 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
           <div
             className={styles.statsModal}
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '420px', padding: '2rem' }}
+            style={{ maxWidth: '420px' }}
           >
-            <button className={styles.closeBtn} onClick={() => setShowAddGuestChoiceModal(false)}>Fechar</button>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#222', marginBottom: '0.75rem', textAlign: 'center' }}>
-              Adicionar convidado
-            </h2>
-            <p style={{ color: '#666', marginBottom: '1.25rem', textAlign: 'center' }}>
-              Como você deseja adicionar?
-            </p>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Adicionar convidado</h2>
+              <button className={styles.closeBtn} onClick={() => setShowAddGuestChoiceModal(false)} aria-label="Fechar">✕</button>
+            </div>
+            
+            <div style={{ padding: '2rem' }}>
+              <p style={{ color: '#666', marginBottom: '1.25rem', textAlign: 'center' }}>
+                Como você deseja adicionar?
+              </p>
             <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1.5rem' }}>
               {canManageEvent && (
                 <button
@@ -1008,7 +1010,8 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
 
 
@@ -1016,8 +1019,13 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       {showStatsModal && (
         <div className={styles.statsModalOverlay} onClick={() => setShowStatsModal(false)}>
           <div className={styles.statsModal} onClick={e => e.stopPropagation()}>
-            <button className={styles.closeBtn} onClick={() => setShowStatsModal(false)}>Fechar</button>
-            <AttendanceDashboard eventId={eventId} />
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>📊 Estatísticas de Presença</h2>
+              <button className={styles.closeBtn} onClick={() => setShowStatsModal(false)} aria-label="Fechar">✕</button>
+            </div>
+            <div style={{ padding: '1rem' }}>
+              <AttendanceDashboard eventId={eventId} />
+            </div>
           </div>
         </div>
       )}
@@ -1025,10 +1033,13 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       {/* Modal de Exportação */}
       {showExportModal && (
         <div className={styles.statsModalOverlay} onClick={() => setShowExportModal(false)}>
-          <div className={styles.statsModal} onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', padding: '2rem' }}>
-            <button className={styles.closeBtn} onClick={() => setShowExportModal(false)}>Fechar</button>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#222', marginBottom: '1.5rem', textAlign: 'center' }}>Exportar Lista</h2>
-            <p style={{ color: '#666', marginBottom: '1.5rem', textAlign: 'center' }}>Escolha o formato de exportação:</p>
+          <div className={styles.statsModal} onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Exportar Lista</h2>
+              <button className={styles.closeBtn} onClick={() => setShowExportModal(false)} aria-label="Fechar">✕</button>
+            </div>
+            <div style={{ padding: '2rem' }}>
+              <p style={{ color: '#666', marginBottom: '1.5rem', textAlign: 'center' }}>Escolha o formato de exportação:</p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button
                 className={buttonStyles.btn + ' ' + buttonStyles['btn--primary']}
@@ -1098,7 +1109,8 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Listagem visual dos convidados dentro do container original */}
       <div className={styles.tableWrapper} style={{ maxWidth: '1100px', margin: '0 auto', marginTop: '1.5rem' }}>

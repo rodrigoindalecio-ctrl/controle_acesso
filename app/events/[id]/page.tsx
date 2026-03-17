@@ -129,7 +129,7 @@ export default function EventPage() {
               <span className={styles.backIcon}>←</span>
               <span className={styles.backText}>Dashboard</span>
             </button>
-            {isAdmin && (
+            {event && (
               <button
                 className={buttonStyles.btn + ' ' + buttonStyles['btn--secondary'] + ' ' + styles.quickAccessButton}
                 onClick={() => setIsQuickAccessOpen(true)}
@@ -159,7 +159,7 @@ export default function EventPage() {
       <main className={styles.mainContent}>
 
         <div className={styles.content}>
-          {isAdmin && event && (
+          {event && (
             <>
               <GuestManagement
                 eventId={eventId}

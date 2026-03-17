@@ -258,7 +258,7 @@ export default function ReportsModal({ isOpen, onClose, events }: ReportsModalPr
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>📈 Relatórios</h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose}>×</button>
+          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Fechar">✕</button>
         </div>
 
         <div className={styles.content}>

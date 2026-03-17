@@ -259,7 +259,7 @@ export default function UsersModal({ isOpen, onClose }: UsersModalProps) {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
           <h2>👥 Usuários</h2>
-          <button type="button" className={styles.closeBtn} onClick={onClose}>×</button>
+          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Fechar">✕</button>
         </div>
 
         <div className={styles.content}>

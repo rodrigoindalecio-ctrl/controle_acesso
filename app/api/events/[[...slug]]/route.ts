@@ -26,6 +26,22 @@ const normalizeEmail = (email: unknown) => {
     return email.trim().toLowerCase();
 };
 
+function getClientMeta(req: NextRequest) {
+    return {
+        ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown',
+        userAgent: req.headers.get('user-agent') || 'unknown'
+    };
+}
+
+async function checkEventAccess(eventId: number, payload: any) {
+    if (payload.role === 'ADMIN') return true;
+    if (payload.role === 'TEMP_STAFF') return Number(payload.eventId) === eventId;
+    const assignment = await prisma.userEvent.findUnique({
+        where: { userId_eventId: { userId: Number(payload.userId), eventId } }
+    });
+    return !!assignment;
+}
+
 export async function GET(req: NextRequest, { params }: { params: { slug?: string[] } }) {
     const slug = params.slug || [];
     const token = req.cookies.get('auth-token')?.value;
@@ -49,15 +65,13 @@ export async function GET(req: NextRequest, { params }: { params: { slug?: strin
     const eventId = Number(slug[0]);
     if (isNaN(eventId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
 
+    const hasAccess = await checkEventAccess(eventId, payload);
+    if (!hasAccess) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+
     // 2. GET /api/events/[id]
     if (slug.length === 1) {
-        const event = await prisma.event.findUnique({ where: { id: eventId }, include: { users: true } });
+        const event = await prisma.event.findUnique({ where: { id: eventId } });
         if (!event) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 });
-        if (payload.role === 'TEMP_STAFF') {
-            if (Number(payload.eventId) !== eventId) return NextResponse.json({ error: 'Acesso negado: Evento incorreto' }, { status: 403 });
-        } else if (payload.role !== 'ADMIN' && !event.users.some(ue => ue.userId === Number(payload.userId))) {
-            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
-        }
         return NextResponse.json({ event: { ...event, date: event.date.toISOString() } });
     }
 
@@ -126,6 +140,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
         const event = await prisma.event.create({ data: { name, date: new Date(date), description, status } });
         await prisma.userEvent.create({ data: { userId: Number(payload.userId), eventId: event.id } });
         
+        const meta = getClientMeta(req);
         await createAuditLog({
             userId: payload.userId,
             role: payload.role,
@@ -134,14 +149,20 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
             entityId: String(event.id),
             after: event,
             justification: `Criação do evento "${event.name}"`,
-            ip: 'unknown',
-            userAgent: 'unknown'
+            ip: meta.ip,
+            userAgent: meta.userAgent
         });
 
         return NextResponse.json({ success: true, event }, { status: 201 });
     }
 
     const eventId = Number(slug[0]);
+    if (isNaN(eventId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
+    const hasAccess = await checkEventAccess(eventId, payload);
+    if (!hasAccess) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+
+    const meta = getClientMeta(req);
 
     // 2. POST /api/events/[id]/collaborators
     if (slug.length === 2 && slug[1] === 'collaborators') {
@@ -155,9 +176,6 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
 
     // 3. POST /api/events/[id]/check-in
     if (slug.length === 2 && slug[1] === 'check-in') {
-        if (payload.role === 'TEMP_STAFF' && Number(payload.eventId) !== eventId) {
-            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
-        }
         const { guestId, isPaying, isStaff } = checkInSchema.parse(await req.json());
         await prisma.$transaction([
             prisma.guest.update({ where: { id: guestId }, data: { checkedInAt: new Date(), checkedInBy: payload.userId, isPaying, isStaff } }),
@@ -173,7 +191,7 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
             prisma.guest.update({ where: { id: guestId }, data: { checkedInAt: null, undoAt: new Date(), undoBy: payload.userId, undoReason } as any }),
             prisma.event.update({ where: { id: eventId }, data: { updated_at: new Date(), lastChangeType: 'UNCHECK' } })
         ]);
-        await createAuditLog({ userId: payload.userId, role: payload.role, action: 'UNCHECK', entityType: 'Guest', entityId: guestId, before: {}, after: {}, justification: undoReason, ip: 'unknown', userAgent: 'unknown' });
+        await createAuditLog({ userId: payload.userId, role: payload.role, action: 'UNCHECK', entityType: 'Guest', entityId: guestId, before: {}, after: {}, justification: undoReason, ip: meta.ip, userAgent: meta.userAgent });
         return NextResponse.json({ success: true });
     }
 
@@ -207,6 +225,12 @@ export async function PUT(req: NextRequest, { params }: { params: { slug?: strin
 
     if (slug.length === 1) {
         const eventId = Number(slug[0]);
+        if (isNaN(eventId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
+        const hasAccess = await checkEventAccess(eventId, payload);
+        if (!hasAccess) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+
+        const meta = getClientMeta(req);
         const body = await req.json();
         const oldEvent = await prisma.event.findUnique({ where: { id: eventId } });
         const updated = await prisma.event.update({ where: { id: eventId }, data: { ...body, date: body.date ? new Date(body.date) : undefined } });
@@ -220,8 +244,8 @@ export async function PUT(req: NextRequest, { params }: { params: { slug?: strin
             before: oldEvent || {},
             after: updated,
             justification: 'Edição de detalhes do evento',
-            ip: 'unknown',
-            userAgent: 'unknown'
+            ip: meta.ip,
+            userAgent: meta.userAgent
         });
 
         return NextResponse.json({ success: true, event: updated });
@@ -237,6 +261,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug?: st
     if (!payload || payload.role !== 'ADMIN') return NextResponse.json({ error: 'Apenas ADMIN' }, { status: 403 });
 
     const eventId = Number(slug[0]);
+    if (isNaN(eventId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+
+    const hasAccess = await checkEventAccess(eventId, payload);
+    if (!hasAccess) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+
+    const meta = getClientMeta(req);
 
     if (slug.length === 1) {
         const oldEvent = await prisma.event.findUnique({ where: { id: eventId } });
@@ -251,8 +281,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug?: st
             entityId: String(eventId),
             before: oldEvent || {},
             justification: `Exclusão do evento "${oldEvent?.name}"`,
-            ip: 'unknown',
-            userAgent: 'unknown'
+            ip: meta.ip,
+            userAgent: meta.userAgent
         });
 
         return NextResponse.json({ success: true }, { status: 204 });
@@ -269,8 +299,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug?: st
             entityType: 'Event',
             entityId: String(eventId),
             justification: `Remoção do colaborador ID ${userId} do evento`,
-            ip: 'unknown',
-            userAgent: 'unknown'
+            ip: meta.ip,
+            userAgent: meta.userAgent
         });
 
         return NextResponse.json({ success: true });
@@ -288,8 +318,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug?: st
             entityType: 'Event',
             entityId: String(eventId),
             justification: `Exclusão em massa de ${count} convidados do evento`,
-            ip: 'unknown',
-            userAgent: 'unknown'
+            ip: meta.ip,
+            userAgent: meta.userAgent
         });
 
         return NextResponse.json({ success: true });

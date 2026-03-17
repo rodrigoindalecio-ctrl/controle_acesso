@@ -5,7 +5,7 @@ import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
     const auth = await verifyAuth(req);
-    if (!auth || auth.role !== 'ADMIN') {
+    if (!auth) {
         return NextResponse.json({ message: 'Não autorizado' }, { status: 401 });
     }
 
@@ -14,6 +14,16 @@ export async function POST(req: NextRequest) {
 
         if (!eventId) {
             return NextResponse.json({ message: 'eventId é obrigatório' }, { status: 400 });
+        }
+
+        // Se não for ADMIN, verifica se tem acesso ao evento
+        if (auth.role !== 'ADMIN') {
+            const assignment = await prisma.userEvent.findUnique({
+                where: { userId_eventId: { userId: Number(auth.userId), eventId: Number(eventId) } }
+            });
+            if (!assignment) {
+                return NextResponse.json({ message: 'Acesso negado ao evento' }, { status: 403 });
+            }
         }
 
         // Generate a random token

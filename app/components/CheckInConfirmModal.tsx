@@ -32,7 +32,10 @@ export default function CheckInConfirmModal({
   return (
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <h2>Confirmar Entrada</h2>
+        <div className={styles.header}>
+          <h2>Confirmar Entrada</h2>
+          <button className={styles.closeBtn} onClick={onCancel} aria-label="Fechar">✕</button>
+        </div>
         <p className={styles.guestName}>{guestName}</p>
 
         <div className={styles.checkboxContainer}>
