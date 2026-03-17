@@ -17,6 +17,7 @@ interface ConvidadoImpressao {
   mesa: string;
   presente: boolean;
   crianca: boolean;
+  isStaff?: boolean;
 }
 
 interface EventReport {
@@ -33,6 +34,7 @@ interface EventReport {
     taxaComparecimento: number;
     criancas: number;
     pagantes: number;
+    staff: number;
   };
   distribuicao: {
     categorias: Array<{ nome: string; total: number; checkedIn: number; taxa: number }>;
@@ -384,6 +386,10 @@ export default function ReportsModal({ isOpen, onClose, events }: ReportsModalPr
                           <div className={styles.statValue}>{report.resumo.pagantes}</div>
                           <div className={styles.statLabel}>Pagantes (presentes)</div>
                         </div>
+                        <div className={styles.statCard}>
+                          <div className={styles.statValue}>{report.resumo.staff}</div>
+                          <div className={styles.statLabel}>Staffs (presentes)</div>
+                        </div>
                       </div>
                     </>
                   )}
@@ -563,7 +569,11 @@ export default function ReportsModal({ isOpen, onClose, events }: ReportsModalPr
                                       ${filteredList.map((c, i) => `
                                         <tr>
                                           <td>${i + 1}</td>
-                                          <td>${c.nome}${c.crianca ? ' <span class="child">(criança)</span>' : ''}</td>
+                                          <td>
+                                            ${c.nome}
+                                            ${c.crianca ? ' <span class="child">(criança)</span>' : ''}
+                                            ${c.isStaff ? ' <span class="child" style="color:#2980b9">(staff)</span>' : ''}
+                                          </td>
                                           <td>${c.categoria}</td>
                                           <td>${c.mesa}</td>
                                           <td class="status ${c.presente ? 'presente' : 'ausente'}">${c.presente ? '✓ Presente' : '○ Ausente'}</td>
@@ -611,6 +621,7 @@ export default function ReportsModal({ isOpen, onClose, events }: ReportsModalPr
                                   <td>
                                     {c.nome}
                                     {c.crianca && <span className={styles.childBadge}> (criança)</span>}
+                                    {c.isStaff && <span className={styles.childBadge} style={{ backgroundColor: '#e3f2fd', color: '#1976d2' }}> (staff)</span>}
                                   </td>
                                   <td>{c.categoria}</td>
                                   <td>{c.mesa}</td>

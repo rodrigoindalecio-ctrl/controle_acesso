@@ -20,7 +20,8 @@ const GuestItemSchema = z.object({
     category: z.string().max(50).optional(),
     phone: z.string().max(20).optional(),
     notes: z.string().max(1000).optional(),
-    table_number: z.string().max(20).optional()
+    table_number: z.string().max(20).optional(),
+    is_staff: z.boolean().optional().default(false),
 }).passthrough();
 
 const ConfirmBodySchema = z.object({
@@ -70,9 +71,17 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
             { header: 'Nome Completo', key: 'fullName', width: 35 },
             { header: 'Categoria', key: 'category', width: 18 },
             { header: 'Mesa', key: 'tableNumber', width: 10 },
-            { header: 'Status', key: 'status', width: 14 }
+            { header: 'Status', key: 'status', width: 14 },
+            { header: 'Staff', key: 'isStaff', width: 8 }
         ];
-        guests.forEach((g, i) => ws.addRow({ qtd: i + 1, fullName: g.fullName, category: g.category, tableNumber: g.tableNumber, status: g.checkedInAt ? 'check-in' : 'faltante' }));
+        guests.forEach((g, i) => ws.addRow({ 
+            qtd: i + 1, 
+            fullName: g.fullName, 
+            category: g.category, 
+            tableNumber: g.tableNumber, 
+            status: g.checkedInAt ? 'check-in' : 'faltante',
+            isStaff: g.isStaff ? 'Sim' : 'Não'
+        }));
 
         const buffer = await workbook.xlsx.writeBuffer();
         return new NextResponse(Buffer.from(buffer), {
@@ -90,9 +99,11 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
         ws.columns = [
             { header: 'Nome Completo', key: 'fullName', width: 35 },
             { header: 'Categoria', key: 'category', width: 20 },
-            { header: 'Mesa', key: 'tableNumber', width: 12 }
+            { header: 'Mesa', key: 'tableNumber', width: 12 },
+            { header: 'Staff (Sim/Não)', key: 'isStaff', width: 15 }
         ];
-        ws.addRow({ fullName: 'Exemplo', category: 'VIP', tableNumber: '1' });
+        ws.addRow({ fullName: 'Exemplo', category: 'VIP', tableNumber: '1', isStaff: 'Não' });
+        ws.addRow({ fullName: 'Exemplo Staff', category: 'Fotografia', tableNumber: '', isStaff: 'Sim' });
         const buffer = await workbook.xlsx.writeBuffer();
         return new NextResponse(Buffer.from(buffer), {
             headers: {
@@ -208,7 +219,8 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
                         notes: g.notes || null,
                         tableNumber: g.table_number || null,
                         eventId: Number(eventId),
-                        isManual: false
+                        isManual: false,
+                        isStaff: !!g.is_staff
                     }));
 
                     const result = await tx.guest.createMany({
@@ -254,7 +266,7 @@ export async function PUT(req: NextRequest, { params }: { params: { slug: string
     // PUT /api/guests/[id]
     if (slug.length === 1) {
         const id = slug[0];
-        const { fullName, category, tableNumber, isPaying, isChild, childAge } = await req.json();
+        const { fullName, category, tableNumber, isPaying, isChild, childAge, isStaff } = await req.json();
         const guest = await prisma.guest.findUnique({ where: { id } });
         if (!guest) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 });
 
@@ -265,7 +277,15 @@ export async function PUT(req: NextRequest, { params }: { params: { slug: string
 
         const updated = await prisma.guest.update({
             where: { id },
-            data: { fullName, category, tableNumber, isPaying, isChild, childAge }
+            data: { 
+                fullName, 
+                category, 
+                tableNumber, 
+                isPaying: !!isPaying, 
+                isChild: !!isChild, 
+                childAge: childAge ? Number(childAge) : null, 
+                isStaff: !!isStaff 
+            }
         });
         return NextResponse.json({ success: true, guest: updated });
     }
@@ -281,7 +301,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
     // PATCH /api/guests/[id]/attendance
     if (slug.length === 2 && slug[1] === 'attendance') {
         const id = slug[0];
-        const { present, isPaying = true } = await req.json();
+        const { present, isPaying = true, isStaff = false } = await req.json();
         const guest = await prisma.guest.findUnique({ where: { id } });
         if (!guest) return NextResponse.json({ error: 'Não encontrado' }, { status: 404 });
 
@@ -295,7 +315,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { slug: stri
         }
 
         await prisma.$transaction([
-            prisma.guest.update({ where: { id }, data: { checkedInAt: present ? new Date() : null, isPaying: present ? isPaying : true } }),
+            prisma.guest.update({ 
+                where: { id }, 
+                data: { 
+                    checkedInAt: present ? new Date() : null, 
+                    isPaying: present ? (isStaff ? false : !!isPaying) : true,
+                    isStaff: present ? !!isStaff : false
+                } 
+            }),
             prisma.event.update({ where: { id: guest.eventId }, data: { updated_at: new Date(), lastChangeType: present ? 'CHECKIN' : 'UNDO' } })
         ]);
         return NextResponse.json({ success: true });

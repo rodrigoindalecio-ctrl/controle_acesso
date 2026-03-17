@@ -9,6 +9,7 @@ interface Guest {
   checkedInAt: string | null;
   category?: string;
   tableNumber?: string | null;
+  isStaff?: boolean;
 }
 
 interface CheckInSuccessOverlayProps {
@@ -37,6 +38,7 @@ export default function CheckInSuccessOverlay({ guest, onClose }: CheckInSuccess
 
   // Check if guest is a special category (Padrinho/Madrinha)
   const isSpecialGuest = (): boolean => {
+    if (guest.isStaff) return true;
     const category = guest.category?.toLowerCase().trim() || '';
     return ['padrinho', 'padrinhos', 'madrinha', 'madrinhas'].includes(category);
   };
@@ -57,8 +59,11 @@ export default function CheckInSuccessOverlay({ guest, onClose }: CheckInSuccess
     return 'unknown';
   };
 
-  // Generate welcome message based on category
+  // Generate welcome message based on category and staff status
   const getWelcomeMessage = (): string => {
+    if (guest.isStaff) {
+      return `Bom trabalho, ${guest.fullName}!`;
+    }
     const category = guest.category?.toLowerCase() || '';
     const gender = detectGender(guest.fullName);
 
@@ -78,7 +83,7 @@ export default function CheckInSuccessOverlay({ guest, onClose }: CheckInSuccess
   return (
     <div className={`${styles.overlay} ${specialGuest ? styles.overlayGolden : ''}`} role="status" aria-live="polite">
       <div className={styles.content}>
-        <div className={styles.icon}>{specialGuest ? '⭐' : '✅'}</div>
+        <div className={styles.icon}>{guest.isStaff ? '🛠️' : (specialGuest ? '⭐' : '✅')}</div>
         <h1 className={`${styles.title} ${specialGuest ? styles.titleGolden : ''}`}>{getWelcomeMessage()}</h1>
 
         {guest.tableNumber && (

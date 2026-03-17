@@ -24,12 +24,14 @@ const GuestCheckInList: React.FC<GuestCheckInListProps> = ({ guests, onCheckIn, 
                 <span className={styles.statusBadge + ' ' + (guest.checkedInAt ? styles.statusBadge_checkedIn : styles.statusBadge_pending)}>
                   {guest.checkedInAt ? '✓ Presente' : 'Pendente'}
                 </span>
+                {guest.isStaff === true && <span className={styles.badge} style={{ backgroundColor: '#2980b9' }}>Staff</span>}
                 {guest.isManual === true && <span className={styles.badge}>Manual</span>}
               </div>
 
               <div className={styles.guestMeta}>
                 {guest.category && <span className={styles.guestCategory}>{guest.category}</span>}
                 {guest.tableNumber && <span className={styles.guestTable}>Mesa {guest.tableNumber}</span>}
+                {guest.isStaff === true && <span className={styles.badge} style={{ backgroundColor: '#2980b9' }}>Staff</span>}
                 {guest.isManual === true && <span className={styles.badge}>Manual</span>}
               </div>
             </div>

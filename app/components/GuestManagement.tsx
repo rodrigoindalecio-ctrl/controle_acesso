@@ -27,6 +27,7 @@ interface Guest {
   childAge?: number;
   checkedInAt?: string;
   isManual: boolean;
+  isStaff: boolean;
 }
 
 type Collaborator = {
@@ -51,6 +52,7 @@ interface EditingGuest {
   isPaying: boolean;
   isChild: boolean;
   childAge?: number;
+  isStaff: boolean;
 }
 
 interface Props {
@@ -121,17 +123,27 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   };
 
   // Confirm check-in with modal
-  const handleConfirmCheckIn = async (isNonPaying: boolean) => {
+  const handleConfirmCheckIn = async (isNonPaying: boolean, isStaff: boolean) => {
     if (!selectedGuest) return;
     setCheckInLoading(true);
-
-    const checkInPayload = { guestId: selectedGuest.id, isPaying: !isNonPaying };
+    
+    // De acordo com o que o usuário pediu, se for Staff ele é separado de pagante e não pagante
+    const checkInPayload = { 
+      guestId: selectedGuest.id, 
+      isPaying: !isNonPaying && !isStaff,
+      isStaff: isStaff
+    };
     const checkInEndpoint = `/api/events/${eventId}/check-in`;
     const checkInMethod = 'POST';
 
     // Otimista
     setGuests(guests => guests.map(g =>
-      g.id === selectedGuest.id ? { ...g, checkedInAt: new Date().toISOString(), isPaying: !isNonPaying } : g
+      g.id === selectedGuest.id ? { 
+        ...g, 
+        checkedInAt: new Date().toISOString(), 
+        isPaying: !isNonPaying && !isStaff,
+        isStaff: isStaff
+      } : g
     ));
 
     try {
@@ -479,7 +491,8 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       tableNumber: guest.tableNumber || '',
       isPaying: guest.isPaying,
       isChild: guest.isChild,
-      childAge: guest.childAge
+      childAge: guest.childAge,
+      isStaff: guest.isStaff
     });
   };
 
@@ -500,7 +513,10 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
         method: editMethod,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(editingGuest)
+        body: JSON.stringify({
+          ...editingGuest,
+          isStaff: editingGuest.isStaff
+        })
       });
 
       if (!response.ok) {

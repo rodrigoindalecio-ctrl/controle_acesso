@@ -191,10 +191,19 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
     // 3. GET /api/reports/event/[id]
     if (slug[0] === 'event' && slug.length === 2) {
         const eventId = Number(slug[1]);
-        const event = await prisma.event.findUnique({ where: { id: eventId }, select: { id: true, name: true, date: true, status: true } });
+        const event = await prisma.event.findUnique({
+            where: { id: eventId },
+            select: { id: true, name: true, date: true, status: true, users: { select: { userId: true } } }
+        });
         if (!event) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 });
 
-        const guests = await prisma.guest.findMany({ where: { eventId }, select: { id: true, fullName: true, category: true, tableNumber: true, checkedInAt: true, isChild: true, isPaying: true } });
+        // Access check
+        if (payload.role !== 'ADMIN') {
+            const hasAccess = event.users.some(u => u.userId === Number(payload.userId));
+            if (!hasAccess) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+        }
+
+        const guests = await prisma.guest.findMany({ where: { eventId }, select: { id: true, fullName: true, category: true, tableNumber: true, checkedInAt: true, isChild: true, isPaying: true, isStaff: true } });
 
         const total = guests.length;
         const checkedIn = guests.filter(g => g.checkedInAt !== null);
@@ -233,7 +242,8 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
             .map(([hora, quantidade]) => ({ hora, quantidade }));
 
         const criancas = guests.filter(g => g.isChild).length;
-        const pagantes = guests.filter(g => g.isPaying && g.checkedInAt).length;
+        const staff = guests.filter(g => g.isStaff && g.checkedInAt).length;
+        const pagantes = guests.filter(g => g.isPaying && !g.isStaff && g.checkedInAt).length;
 
         const listaConvidados = guests
             .map(g => ({
@@ -242,13 +252,14 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
                 categoria: g.category || 'Outros',
                 mesa: g.tableNumber || '-',
                 presente: g.checkedInAt !== null,
-                crianca: g.isChild
+                crianca: g.isChild,
+                isStaff: g.isStaff
             }))
             .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
         return NextResponse.json({
             evento: event,
-            resumo: { total, presentes, ausentes, taxaComparecimento, criancas, pagantes },
+            resumo: { total, presentes, ausentes, taxaComparecimento, criancas, pagantes, staff },
             distribuicao: {
                 categorias: Object.entries(categorias).map(([nome, dados]) => ({ nome, ...dados, taxa: dados.total > 0 ? Math.round((dados.checkedIn / dados.total) * 100) : 0 })),
                 mesas: Object.entries(mesas).map(([nome, dados]) => ({ nome, ...dados, taxa: dados.total > 0 ? Math.round((dados.checkedIn / dados.total) * 100) : 0 }))

@@ -6,7 +6,7 @@ import styles from './CheckInConfirmModal.module.css';
 interface CheckInConfirmModalProps {
   guestName: string;
   isOpen: boolean;
-  onConfirm: (isNonPaying: boolean) => void;
+  onConfirm: (isNonPaying: boolean, isStaff: boolean) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -19,12 +19,14 @@ export default function CheckInConfirmModal({
   isLoading = false,
 }: CheckInConfirmModalProps) {
   const [isNonPaying, setIsNonPaying] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
 
   if (!isOpen) return null;
 
   const handleConfirm = () => {
-    onConfirm(isNonPaying);
+    onConfirm(isNonPaying, isStaff);
     setIsNonPaying(false); // Reset para próximo uso
+    setIsStaff(false);
   };
 
   return (
@@ -38,11 +40,30 @@ export default function CheckInConfirmModal({
             <input
               type="checkbox"
               checked={isNonPaying}
-              onChange={(e) => setIsNonPaying(e.target.checked)}
+              onChange={(e) => {
+                setIsNonPaying(e.target.checked);
+                if (e.target.checked) setIsStaff(false);
+              }}
               disabled={isLoading}
               className={styles.checkbox}
             />
             <span>Convidado não Pagante</span>
+          </label>
+        </div>
+
+        <div className={styles.checkboxContainer}>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={isStaff}
+              onChange={(e) => {
+                setIsStaff(e.target.checked);
+                if (e.target.checked) setIsNonPaying(false);
+              }}
+              disabled={isLoading}
+              className={styles.checkbox}
+            />
+            <span>Convidado Staff</span>
           </label>
         </div>
 

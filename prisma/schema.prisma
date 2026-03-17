@@ -59,6 +59,7 @@ model Guest {
   isChild      Boolean    @default(false)
   childAge     Int?
   isPaying     Boolean    @default(true)
+  isStaff      Boolean    @default(false)
   
   eventId      Int
   event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)

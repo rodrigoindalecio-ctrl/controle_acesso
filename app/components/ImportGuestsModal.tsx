@@ -132,7 +132,8 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
       category: guest.category,
       phone: guest.phone,
       notes: guest.notes,
-      table_number: guest.table_number
+      table_number: guest.table_number,
+      is_staff: guest.is_staff === 'Sim' || guest.is_staff === true
     });
 
     const guests = [...(validateResult.data.valid || []), ...(validateResult.data.duplicates || [])]

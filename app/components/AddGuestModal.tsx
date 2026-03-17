@@ -40,6 +40,7 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPresent, setIsPresent] = useState(true); // checkbox marcado por padrão
+  const [isStaff, setIsStaff] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -118,18 +119,6 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
     }
 
     setLoading(true);
-    // Só confirma presença se o checkbox estiver marcado
-    if (!isPresent) {
-      setSuccess(true);
-      setFullName('');
-      setTableNumber('');
-      setCategory('');
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-      setLoading(false);
-      return;
-    }
 
     try {
       const trimmedCategory = typeof category === 'string' ? category.trim() : '';
@@ -141,6 +130,8 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
           fullName: fullName.trim(),
           tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
           category: trimmedCategory || 'outros',
+          isStaff: isStaff,
+          isPresent: isPresent,
         }),
       });
 
@@ -183,6 +174,7 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
         category: trimmedCategory || 'outros',
         tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
         isManual: true,
+        isStaff: isStaff,
       };
 
       setSuccess(true);
@@ -190,16 +182,23 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
       setTableNumber('');
       setCategory('');
       setIsPresent(true);
+      setIsStaff(false);
 
-      setSuccessGuest(newGuest);
-      setShowSuccessOverlay(true);
       onGuestAdded?.(newGuest);
 
-      setTimeout(() => {
-        setShowSuccessOverlay(false);
-        setSuccessGuest(null);
-        onClose();
-      }, 1500);
+      if (isPresent) {
+        setSuccessGuest(newGuest);
+        setShowSuccessOverlay(true);
+        setTimeout(() => {
+          setShowSuccessOverlay(false);
+          setSuccessGuest(null);
+          onClose();
+        }, 1500);
+      } else {
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      }
     } catch (err) {
       if (!navigator.onLine || err instanceof TypeError) {
         // Fallback offline
@@ -211,25 +210,34 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
           category: trimmedCategory || 'outros',
           tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
           isManual: true,
+          isStaff: isStaff,
         };
 
         enqueueAction('CREATE_GUEST' as any, `/api/events/${eventId}/guests/manual`, 'POST', {
           fullName: fullName.trim(),
           tableNumber: tableNumber && tableNumber !== '' ? tableNumber : null,
           category: trimmedCategory || 'outros',
+          isStaff: isStaff,
+          isPresent: isPresent,
         });
 
         setSuccess(true);
         setFullName('');
-        setSuccessGuest(mockGuest);
-        setShowSuccessOverlay(true);
         onGuestAdded?.(mockGuest);
 
-        setTimeout(() => {
-          setShowSuccessOverlay(false);
-          setSuccessGuest(null);
-          onClose();
-        }, 1500);
+        if (isPresent) {
+          setSuccessGuest(mockGuest);
+          setShowSuccessOverlay(true);
+          setTimeout(() => {
+            setShowSuccessOverlay(false);
+            setSuccessGuest(null);
+            onClose();
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            onClose();
+          }, 1500);
+        }
         return;
       }
       const errorMsg = err instanceof Error ? err.message : 'Erro ao adicionar convidado';
@@ -263,6 +271,27 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
               Confirmar presença
             </label>
           </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="isStaff" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                id="isStaff"
+                type="checkbox"
+                checked={isStaff}
+                onChange={e => {
+                  const checked = e.target.checked;
+                  setIsStaff(checked);
+                  if (checked) {
+                    setTableNumber('');
+                    setCategory('');
+                  }
+                }}
+                disabled={loading}
+                style={{ marginRight: 8 }}
+              />
+              É Staff / Equipe de trabalho
+            </label>
+          </div>
           {error && <div className={styles.error}>{error}</div>}
           {success && <div className={styles.success}>✅ Convidado adicionado com sucesso!</div>}
 
@@ -280,47 +309,61 @@ export default function AddGuestModal({ eventId, isOpen, onClose, onGuestAdded }
             />
           </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="tableNumber">Mesa</label>
-            <select
-              id="tableNumber"
-              value={tableNumber}
-              onChange={(e) => setTableNumber(e.target.value)}
-              disabled={loading || loadingTables}
-              className={styles.select}
-              aria-label="Selecionar mesa"
-            >
-              {tables.length === 0 && (
-                <option value="">Carregando mesas...</option>
-              )}
-              {tables.map((table) => (
-                <option key={table.id} value={table.name}>
-                  {table.name}
-                </option>
-              ))}
-              {tables.length > 0 && (
-                <option value="">Sem mesa atribuída</option>
-              )}
-            </select>
-          </div>
+          {!isStaff && (
+            <div className={styles.formGroup}>
+              <label htmlFor="tableNumber">Mesa</label>
+              <select
+                id="tableNumber"
+                value={tableNumber}
+                onChange={(e) => setTableNumber(e.target.value)}
+                disabled={loading || loadingTables}
+                className={styles.select}
+                aria-label="Selecionar mesa"
+              >
+                {tables.length === 0 && (
+                  <option value="">Carregando mesas...</option>
+                )}
+                {tables.map((table) => (
+                  <option key={table.id} value={table.name}>
+                    {table.name}
+                  </option>
+                ))}
+                {tables.length > 0 && (
+                  <option value="">Sem mesa atribuída</option>
+                )}
+              </select>
+            </div>
+          )}
 
           <div className={styles.formGroup}>
-            <label htmlFor="category">Categoria</label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              disabled={loading || loadingTables}
-              className={styles.select}
-              aria-label="Selecionar categoria"
-            >
-              <option value="">Sem categoria</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            <label htmlFor="category">{isStaff ? 'Tipo de Staff / Equipe' : 'Categoria'}</label>
+            {isStaff ? (
+              <input
+                id="category"
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Ex: Fotógrafo, Celebrante, Recreação..."
+                disabled={loading}
+                className={styles.input}
+              />
+            ) : (
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={loading || loadingTables}
+                className={styles.select}
+                aria-label="Selecionar categoria"
+              >
+                <option value="">Sem categoria</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className={styles.actions}>

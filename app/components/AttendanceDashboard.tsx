@@ -13,6 +13,7 @@ interface Guest {
   checkedInAt?: string;
   isChild: boolean;
   isPaying?: boolean;
+  isStaff?: boolean;
 }
 
 export default function AttendanceDashboard({ eventId }: { eventId: string }) {
@@ -48,10 +49,11 @@ export default function AttendanceDashboard({ eventId }: { eventId: string }) {
   const absent = guests.filter(g => !g.checkedInAt).length;
   const percentage = guests.length > 0 ? Math.round((checkedIn / guests.length) * 100) : 0;
 
-  // Pagantes e não pagantes (apenas entre os presentes)
+  // Pagantes, não pagantes e staff (apenas entre os presentes)
   const presentGuests = guests.filter(g => g.checkedInAt);
-  const paying = presentGuests.filter(g => g.isPaying === true).length;
-  const nonPaying = presentGuests.filter(g => g.isPaying === false).length;
+  const paying = presentGuests.filter(g => g.isPaying === true && !g.isStaff).length;
+  const nonPaying = presentGuests.filter(g => g.isPaying === false && !g.isStaff).length;
+  const staff = presentGuests.filter(g => g.isStaff === true).length;
 
   if (loading) {
     return <LoadingSpinner message="Carregando dados de presença..." size="large" />;
@@ -96,8 +98,8 @@ export default function AttendanceDashboard({ eventId }: { eventId: string }) {
 
       {/* Pagantes e Não Pagantes */}
       <div className={styles.paymentSection}>
-        <h4 className={styles.paymentTitle}>Presentes por Pagamento</h4>
-        <div className={styles.paymentGrid}>
+        <h4 className={styles.paymentTitle}>Resumo de Presença</h4>
+        <div className={styles.paymentGrid} style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
           <div className={styles.paymentItem}>
             <span className={styles.paymentLabel}>Pagantes</span>
             <span className={styles.paymentValue} style={{ color: 'var(--color-success)' }}>{paying}</span>
@@ -105,6 +107,10 @@ export default function AttendanceDashboard({ eventId }: { eventId: string }) {
           <div className={styles.paymentItem}>
             <span className={styles.paymentLabel}>Não Pagantes</span>
             <span className={styles.paymentValue} style={{ color: 'var(--color-primary)' }}>{nonPaying}</span>
+          </div>
+          <div className={styles.paymentItem}>
+            <span className={styles.paymentLabel}>Staff</span>
+            <span className={styles.paymentValue} style={{ color: '#2980b9' }}>{staff}</span>
           </div>
         </div>
       </div>

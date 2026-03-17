@@ -53,10 +53,12 @@ export default function BottomNavigation({
                     </button>
                 )}
 
-                <button className={styles.item} onClick={onOpenReports}>
-                    <BarChart3 className={styles.icon} size={24} strokeWidth={1.5} />
-                    <span className={styles.label}>Relatórios</span>
-                </button>
+                {user.role === 'ADMIN' && (
+                    <button className={styles.item} onClick={onOpenReports}>
+                        <BarChart3 className={styles.icon} size={24} strokeWidth={1.5} />
+                        <span className={styles.label}>Relatórios</span>
+                    </button>
+                )}
 
                 <button className={styles.item} onClick={onOpenProfile}>
                     <User className={styles.icon} size={24} strokeWidth={1.5} />

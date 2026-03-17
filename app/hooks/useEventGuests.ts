@@ -11,6 +11,7 @@ export interface Guest {
   isManual?: boolean;
   isChild?: boolean;
   childAge?: number;
+  isStaff?: boolean;
 }
 
 export type GuestCreatePayload = {
@@ -162,9 +163,9 @@ export function useEventGuests(eventId: string) {
   }, [fetchSync, updatePendingCount]);
 
   // Actions
-  const checkInGuest = useCallback(async (id: string, isPaying: boolean = true) => {
-    setGuests((prev) => prev.map(g => g.id === id ? { ...g, checkedInAt: new Date().toISOString(), isPaying } : g));
-    await dispatchAction('CHECK_IN', `/api/guests/${id}/attendance`, 'PATCH', { present: true, isPaying });
+  const checkInGuest = useCallback(async (id: string, isPaying: boolean = true, isStaff: boolean = false) => {
+    setGuests((prev) => prev.map(g => g.id === id ? { ...g, checkedInAt: new Date().toISOString(), isPaying, isStaff } : g));
+    await dispatchAction('CHECK_IN', `/api/guests/${id}/attendance`, 'PATCH', { present: true, isPaying, isStaff });
   }, [dispatchAction]);
 
   const undoCheckIn = useCallback(async (id: string) => {

@@ -9,6 +9,7 @@ interface GuestReport {
   checkedInAt: string | null;
   checkedInBy?: string;
   isPaying?: boolean | null;
+  isStaff?: boolean | null;
 }
 
 interface EventStats {
@@ -123,20 +124,22 @@ export function generateEventReport(
 
     yPosition = statsBoxY + lineHeight * 4 + statsBoxPadding * 2 + 8;
 
-    // Add paying/non-paying summary if available
-    // Calcular pagantes/não pagantes presentes
-    const presentPaying = guests.filter(g => g.checkedInAt && g.isPaying === true).length;
-    const presentNonPaying = guests.filter(g => g.checkedInAt && g.isPaying === false).length;
-    // Box destacado para pagantes/não pagantes presentes
+    // Add paying/non-paying/staff summary if available
+    // Calcular pagantes/não pagantes/staff presentes
+    const presentPaying = guests.filter(g => g.checkedInAt && g.isPaying === true && !g.isStaff).length;
+    const presentNonPaying = guests.filter(g => g.checkedInAt && g.isPaying === false && !g.isStaff).length;
+    const presentStaff = guests.filter(g => g.checkedInAt && g.isStaff === true).length;
+    
+    // Box destacado para resumo de presença
     doc.setFillColor(245, 232, 235);
     doc.setDrawColor(123, 45, 61);
     doc.setLineWidth(1);
     doc.rect(margin, yPosition, pageWidth - margin * 2, 15, 'FD');
-
+ 
     doc.setFont('', 'bold');
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setTextColor(123, 45, 61);
-    const payingSummary = `${presentPaying} convidados Pagantes e ${presentNonPaying} não pagantes`;
+    const payingSummary = `${presentPaying} Pagantes  |  ${presentNonPaying} Não Pagantes  |  ${presentStaff} Staffs`;
     doc.text(payingSummary, pageWidth / 2, yPosition + 9, { align: 'center' });
 
     doc.setTextColor(0, 0, 0);
@@ -211,7 +214,7 @@ export function generateEventReport(
         })
         : 'Não entrou';
 
-      const pagante = guest.isPaying === false ? 'Não' : (guest.checkedInAt ? 'Sim' : '—');
+      const pagante = guest.isStaff ? 'STAFF' : (guest.isPaying === false ? 'Não' : (guest.checkedInAt ? 'Sim' : '—'));
 
       return [
         guest.fullName,
@@ -224,7 +227,7 @@ export function generateEventReport(
 
     autoTable(doc, {
       startY: yPosition,
-      head: [['Nome', 'Categoria', 'Mesa', 'Status / Data e Hora', 'Pagante']],
+      head: [['Nome', 'Categoria', 'Mesa', 'Status / Data e Hora', 'Pag/Tipo']],
       body: tableRows,
       margin: { left: margin, right: margin },
       theme: 'striped',

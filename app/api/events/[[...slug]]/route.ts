@@ -13,6 +13,7 @@ import { createAuditLog } from '@/lib/audit';
 const checkInSchema = z.object({
     guestId: z.string().nonempty(),
     isPaying: z.boolean().optional().default(true),
+    isStaff: z.boolean().optional().default(false),
 });
 
 const undoCheckInSchema = z.object({
@@ -157,9 +158,9 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
         if (payload.role === 'TEMP_STAFF' && Number(payload.eventId) !== eventId) {
             return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
         }
-        const { guestId, isPaying } = checkInSchema.parse(await req.json());
+        const { guestId, isPaying, isStaff } = checkInSchema.parse(await req.json());
         await prisma.$transaction([
-            prisma.guest.update({ where: { id: guestId }, data: { checkedInAt: new Date(), checkedInBy: payload.userId, isPaying } }),
+            prisma.guest.update({ where: { id: guestId }, data: { checkedInAt: new Date(), checkedInBy: payload.userId, isPaying, isStaff } }),
             prisma.event.update({ where: { id: eventId }, data: { updated_at: new Date(), lastChangeType: 'CHECKIN' } })
         ]);
         return NextResponse.json({ success: true });
@@ -178,8 +179,18 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
 
     // 5. POST /api/events/[id]/guests/manual
     if (slug.length === 3 && slug[1] === 'guests' && slug[2] === 'manual') {
-        const { fullName, category, tableNumber } = await req.json();
-        const guest = await prisma.guest.create({ data: { fullName: fullName.trim(), category, tableNumber, eventId, isManual: true, checkedInAt: new Date() } });
+        const { fullName, category, tableNumber, isStaff, isPresent = true } = await req.json();
+        const guest = await prisma.guest.create({ 
+            data: { 
+                fullName: fullName.trim(), 
+                category, 
+                tableNumber, 
+                eventId, 
+                isManual: true, 
+                checkedInAt: isPresent ? new Date() : null, 
+                isStaff: !!isStaff 
+            } 
+        });
         await prisma.event.update({ where: { id: eventId }, data: { updated_at: new Date(), lastChangeType: 'CREATE' } });
         return NextResponse.json({ success: true, guest }, { status: 201 });
     }
