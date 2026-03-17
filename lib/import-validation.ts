@@ -18,9 +18,8 @@ export interface ImportValidationResult {
     data: Record<string, any>;
     errors: string[];
   }>;
-  duplicates: Array<{
+  duplicates: Array<GuestImportData & {
     row: number;
-    name: string;
     count: number;
   }>;
 }
@@ -182,8 +181,8 @@ export function validateImportData(
     const nameLower = validatedGuest.full_name.toLowerCase();
     if (existingNames.has(nameLower)) {
       duplicates.push({
+        ...validatedGuest,
         row: rowNumber,
-        name: validatedGuest.full_name,
         count: 1
       });
       return;
@@ -195,10 +194,11 @@ export function validateImportData(
 
     if (count > 1) {
       duplicates.push({
+        ...validatedGuest,
         row: rowNumber,
-        name: validatedGuest.full_name,
         count
       });
+      return; // DO NOT add to valid if it is a duplicate in the same file
     }
 
     valid.push(validatedGuest);
@@ -227,7 +227,7 @@ export function generateErrorCSV(
   });
 
   duplicates.forEach(item => {
-    csv += `${item.row},"${item.name}","Duplicado (${item.count}x neste arquivo)"\n`;
+    csv += `${item.row},"${item.full_name}","Duplicado (${item.count}x neste arquivo)"\n`;
   });
 
   return csv;

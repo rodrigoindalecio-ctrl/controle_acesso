@@ -151,26 +151,101 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
             if (!ue) return NextResponse.json({ message: 'Acesso negado' }, { status: 403 });
         }
 
-        const results = await prisma.$transaction(async (tx) => {
-            const list = [];
-            for (const g of guests) {
-                const existing = await tx.guest.findFirst({ where: { eventId: Number(eventId), fullName: { equals: g.full_name } } });
-                if (existing && duplicateStrategy === 'ignore') continue;
-                if (existing && duplicateStrategy === 'update') {
-                    await tx.guest.update({ where: { id: existing.id }, data: { category: g.category, phone: g.phone, notes: g.notes, tableNumber: g.table_number } });
-                    list.push({ name: g.full_name, action: 'updated' });
-                } else {
-                    await tx.guest.create({ data: { fullName: g.full_name, category: g.category || 'Convidado', phone: g.phone, notes: g.notes, tableNumber: g.table_number, eventId: Number(eventId) } });
-                    list.push({ name: g.full_name, action: 'created' });
+        const summary = { created: 0, updated: 0, skipped: 0, failed: 0 };
+        
+        try {
+            const results = await prisma.$transaction(async (tx) => {
+                const list = [];
+                
+                // Fetch all existing guests for this event once to avoid N+1 queries in transaction
+                const existingGuests = await tx.guest.findMany({
+                    where: { eventId: Number(eventId) },
+                    select: { id: true, fullName: true }
+                });
+                
+                const existingMap = new Map(existingGuests.map(g => [g.fullName.toLowerCase(), g.id]));
+
+                for (const g of guests) {
+                    const nameLower = g.full_name.toLowerCase();
+                    const existingId = existingMap.get(nameLower);
+
+                    if (existingId && duplicateStrategy === 'ignore') {
+                        summary.skipped++;
+                        continue;
+                    }
+
+                    if (existingId && duplicateStrategy === 'update') {
+                        await tx.guest.update({
+                            where: { id: existingId },
+                            data: {
+                                category: g.category,
+                                phone: g.phone,
+                                notes: g.notes,
+                                tableNumber: g.table_number
+                            }
+                        });
+                        list.push({ name: g.full_name, action: 'updated' });
+                        summary.updated++;
+                    } else if (existingId && duplicateStrategy === 'mark') {
+                        // For 'mark', if it already exists, we can't create another one with same name
+                        // unless we change the name to "Name (Copy)" or something.
+                        // But usually 'mark' in this context means "import as duplicate" if possible.
+                        // Since DB doesn't allow it, we'll prefix name or just skip/update.
+                        // Given the constraints, let's just treat it as update or skip with a flag.
+                        // For now, let's append "(Duplicado)" to the name to allow creation.
+                        await tx.guest.create({
+                            data: {
+                                fullName: `${g.full_name} (Duplicado)`,
+                                category: g.category || 'Convidado',
+                                phone: g.phone,
+                                notes: g.notes,
+                                tableNumber: g.table_number,
+                                eventId: Number(eventId)
+                            }
+                        });
+                        list.push({ name: g.full_name, action: 'created' });
+                        summary.created++;
+                    } else {
+                        // Guest doesn't exist, create it
+                        await tx.guest.create({
+                            data: {
+                                fullName: g.full_name,
+                                category: g.category || 'Convidado',
+                                phone: g.phone,
+                                notes: g.notes,
+                                tableNumber: g.table_number,
+                                eventId: Number(eventId)
+                            }
+                        });
+                        list.push({ name: g.full_name, action: 'created' });
+                        summary.created++;
+                    }
                 }
-            }
-            return list;
-        });
+                return list;
+            }, {
+                timeout: 30000 // Increase timeout to 30s for large imports
+            });
 
-        const meta = getClientMeta(req);
-        await createAuditLog({ userId: auth.userId, role: auth.role, action: 'IMPORT_GUESTS', entityType: 'Event', entityId: String(eventId), justification: `Importação de ${results.length} convidados`, ip: meta.ip, userAgent: meta.userAgent });
+            const meta = getClientMeta(req);
+            await createAuditLog({
+                userId: auth.userId,
+                role: auth.role,
+                action: 'IMPORT_GUESTS',
+                entityType: 'Event',
+                entityId: String(eventId),
+                justification: `Importação de ${results.length} convidados (${summary.created} novos, ${summary.updated} atualizados)`,
+                ip: meta.ip,
+                userAgent: meta.userAgent
+            });
 
-        return NextResponse.json({ success: true, results });
+            return NextResponse.json({ success: true, results, summary });
+        } catch (error) {
+            console.error('Erro na transação de importação:', error);
+            return NextResponse.json({ 
+                error: 'Erro ao processar importação no banco de dados',
+                details: error instanceof Error ? error.message : 'Erro desconhecido'
+            }, { status: 500 });
+        }
     }
 
     return NextResponse.json({ error: 'Not Found' }, { status: 404 });
