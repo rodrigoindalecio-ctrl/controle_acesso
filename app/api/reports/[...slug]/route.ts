@@ -27,59 +27,123 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
 
     // 2. GET /api/reports/consolidated
     if (slug[0] === 'consolidated') {
-        let events;
-        if (payload.role === 'ADMIN') {
-            events = await prisma.event.findMany({ include: { guests: { select: { id: true, fullName: true, checkedInAt: true, category: true } } }, orderBy: { date: 'desc' } });
-        } else {
-            const userEvents = await prisma.userEvent.findMany({ where: { userId: Number(payload.userId) }, select: { eventId: true } });
-            events = await prisma.event.findMany({ where: { id: { in: userEvents.map(ue => ue.eventId) } }, include: { guests: { select: { id: true, fullName: true, checkedInAt: true, category: true } } }, orderBy: { date: 'desc' } });
-        }
+        const isAdmin = payload.role === 'ADMIN';
+        const userId = Number(payload.userId);
+
+        // Filter events by user access
+        const eventFilter = isAdmin ? {} : { users: { some: { userId } } };
+
+        // 1. Get Event Summary (Stats only, no large data fetch)
+        const events = await prisma.event.findMany({
+            where: eventFilter,
+            select: {
+                id: true,
+                name: true,
+                date: true,
+                status: true,
+                _count: {
+                    select: {
+                        guests: true
+                    }
+                }
+            },
+            orderBy: { date: 'desc' }
+        });
+
+        // 2. Get Presence counts in bulk
+        const presenceStats = await prisma.guest.groupBy({
+            by: ['eventId'],
+            where: {
+                eventId: { in: events.map(e => e.id) },
+                checkedInAt: { not: null }
+            },
+            _count: true
+        });
+
+        const presenceMap = new Map(presenceStats.map(s => [s.eventId, s._count]));
 
         const comparativo = events.map(event => {
-            const total = event.guests.length;
-            const presentes = event.guests.filter(g => g.checkedInAt !== null).length;
+            const total = event._count.guests;
+            const presentes = presenceMap.get(event.id) || 0;
             const ausentes = total - presentes;
             const taxa = total > 0 ? Math.round((presentes / total) * 100) : 0;
             return { id: event.id, nome: event.name, data: event.date, status: event.status, total, presentes, ausentes, taxa };
         }).sort((a, b) => b.taxa - a.taxa);
 
+        // 3. Get Monthly History (Aggregate directly in DB if possible, or grouped here)
         const historicoMap: Record<string, { eventos: number; convidados: number; presentes: number }> = {};
         events.forEach(event => {
             const date = new Date(event.date);
             const mesAno = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
             if (!historicoMap[mesAno]) historicoMap[mesAno] = { eventos: 0, convidados: 0, presentes: 0 };
             historicoMap[mesAno].eventos++;
-            historicoMap[mesAno].convidados += event.guests.length;
-            historicoMap[mesAno].presentes += event.guests.filter(g => g.checkedInAt !== null).length;
+            historicoMap[mesAno].convidados += event._count.guests;
+            historicoMap[mesAno].presentes += presenceMap.get(event.id) || 0;
         });
 
         const historicoMensal = Object.entries(historicoMap)
             .map(([mesAno, dados]) => {
                 const [ano, mes] = mesAno.split('-');
                 const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                return { mesAno, label: `${meses[parseInt(mes) - 1]}/${ano}`, ...dados, taxa: dados.convidados > 0 ? Math.round((dados.presentes / dados.convidados) * 100) : 0 };
+                return { 
+                    mesAno, 
+                    label: `${meses[parseInt(mes) - 1]}/${ano}`, 
+                    ...dados, 
+                    taxa: dados.convidados > 0 ? Math.round((dados.presentes / dados.convidados) * 100) : 0 
+                };
             }).sort((a, b) => a.mesAno.localeCompare(b.mesAno));
 
-        const noShows = events.map(event => {
-            const ausentes = event.guests.filter(g => g.checkedInAt === null).map(g => ({ id: g.id, nome: g.fullName, categoria: g.category || 'Outros' }));
-            return { eventoId: event.id, eventoNome: event.name, eventoData: event.date, totalConvidados: event.guests.length, totalAusentes: ausentes.length, ausentes };
-        }).filter(e => e.totalAusentes > 0);
-
-        const auditLogs = await prisma.auditLog.findMany({
-            where: payload.role === 'ADMIN' ? {} : { userId: String(payload.userId) },
-            orderBy: { created_at: 'desc' },
-            take: 500
+        // 4. Get No-Shows (This part still needs detail, so we fetch only ABSENT guests)
+        // We limit this to the most recent 5 events to avoid massive payloads
+        const recentEvents = events.slice(0, 5);
+        const noShowsRaw = await prisma.guest.findMany({
+            where: {
+                eventId: { in: recentEvents.map(e => e.id) },
+                checkedInAt: null
+            },
+            select: { id: true, fullName: true, category: true, eventId: true }
         });
 
+        const noShows = recentEvents.map(event => {
+            const ausentes = noShowsRaw
+                .filter(g => g.eventId === event.id)
+                .map(g => ({ id: g.id, nome: g.fullName, categoria: g.category || 'Outros' }));
+            
+            return { 
+                eventoId: event.id, 
+                eventoNome: event.name, 
+                eventoData: event.date, 
+                totalConvidados: event._count.guests, 
+                totalAusentes: ausentes.length, 
+                ausentes 
+            };
+        }).filter(e => e.totalAusentes > 0);
+
+        // 5. Audit Log Stats (Better pagination/limit)
+        const auditLogs = await prisma.auditLog.findMany({
+            where: isAdmin ? {} : { userId: String(payload.userId) },
+            orderBy: { created_at: 'desc' },
+            take: 200 // Reduced from 500 for dashboard
+        });
+
+        // Map users for logs
         const userIds = [...new Set(auditLogs.map(log => Number(log.userId)))];
-        const users = await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, name: true, email: true } });
+        const users = await prisma.user.findMany({ 
+            where: { id: { in: userIds } }, 
+            select: { id: true, name: true, email: true } 
+        });
         const userMap = new Map(users.map(u => [u.id, u]));
 
         const atividadeMap: Record<string, any> = {};
         auditLogs.forEach(log => {
             if (!atividadeMap[log.userId]) {
                 const user = userMap.get(Number(log.userId));
-                atividadeMap[log.userId] = { userId: log.userId, nome: user?.name || 'Desconhecido', email: user?.email || '', checkins: 0, unchecks: 0, edicoes: 0, criacoes: 0, exclusoes: 0, importacoes: 0, total: 0 };
+                atividadeMap[log.userId] = { 
+                    userId: log.userId, 
+                    nome: user?.name || 'Desconhecido', 
+                    email: user?.email || '', 
+                    checkins: 0, unchecks: 0, edicoes: 0, criacoes: 0, exclusoes: 0, importacoes: 0, total: 0 
+                };
             }
             atividadeMap[log.userId].total++;
             switch (log.action) {
@@ -94,13 +158,20 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
 
         const atividadeUsuarios = Object.values(atividadeMap).sort((a: any, b: any) => b.total - a.total);
 
-        const acoesCriticas = ['DELETE_GUEST', 'DELETE_EVENT', 'DELETE_USER', 'UNCHECK', 'EDIT_USER'];
+        const acoesCriticas = ['DELETE_GUEST', 'DELETE_EVENT', 'DELETE_USER', 'UNCHECK', 'EDIT_USER', 'IMPORT_GUESTS'];
         const logsCriticos = auditLogs
             .filter(log => acoesCriticas.includes(log.action))
-            .slice(0, 50)
+            .slice(0, 30) // Only top 30 critical logs
             .map(log => {
                 const user = userMap.get(Number(log.userId));
-                return { id: log.id, acao: log.action, tipo: log.entityType, usuario: user?.name || 'Desconhecido', justificativa: log.justification || null, data: log.created_at };
+                return { 
+                    id: log.id, 
+                    acao: log.action, 
+                    tipo: log.entityType, 
+                    usuario: user?.name || 'Desconhecido', 
+                    justificativa: log.justification || null, 
+                    data: log.created_at 
+                };
             });
 
         const resumoAcoes: Record<string, number> = {};
@@ -108,7 +179,9 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
 
         const auditoria = {
             logsCriticos,
-            resumoAcoes: Object.entries(resumoAcoes).map(([acao, quantidade]) => ({ acao, quantidade })).sort((a, b) => b.quantidade - a.quantidade),
+            resumoAcoes: Object.entries(resumoAcoes)
+                .map(([acao, quantidade]) => ({ acao, quantidade }))
+                .sort((a, b) => b.quantidade - a.quantidade),
             totalAcoes: auditLogs.length
         };
 

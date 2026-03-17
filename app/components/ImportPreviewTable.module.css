@@ -5,3 +5,26 @@
 .table td { padding:8px; border-top:1px solid #f1f1f1 }
 .row:nth-child(even) { background:#fff }
 .note { font-size:0.9rem; color:#666; padding-top:8px }
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.novo {
+  background: #E6FFFA;
+  color: #2C7A7B;
+}
+
+.duplicado {
+  background: #FFFAF0;
+  color: #B7791F;
+}
+
+.inválido {
+  background: #FFF5F5;
+  color: #C53030;
+}

@@ -37,7 +37,11 @@ export default function ImportPreviewTable({ data }: Props) {
                 <td>{r.full_name}</td>
                 <td>{r.category || '—'}</td>
                 <td>{r.table_number || '—'}</td>
-                <td>{r.status}</td>
+                <td>
+                  <span className={`${styles.badge} ${styles[r.status.toLowerCase()]}`}>
+                    {r.status}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

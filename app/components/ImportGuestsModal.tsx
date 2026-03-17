@@ -258,17 +258,87 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
                       <button className={styles.secondaryBtn} onClick={downloadErrorCSV}>Baixar CSV de erros/duplicados</button>
                     )}
 
-                    <div className={styles.strategyRow}>
-                      <label>
-                        <input type="radio" name="strategy" value="ignore" checked={strategy === 'ignore'} onChange={() => setStrategy('ignore')} /> Ignorar duplicados
-                      </label>
-                      <label>
-                        <input type="radio" name="strategy" value="update" checked={strategy === 'update'} onChange={() => setStrategy('update')} /> Atualizar convidados existentes
-                      </label>
-                      <label>
-                        <input type="radio" name="strategy" value="mark" checked={strategy === 'mark'} onChange={() => setStrategy('mark')} /> Marcar duplicados
-                      </label>
-                    </div>
+                    {/* Sugestão de Duplicados Inteligente */}
+                    {validateResult.summary.duplicates > 0 ? (
+                      <div 
+                        style={{ 
+                          background: '#fff9f0', 
+                          border: '1px solid #ffcc80', 
+                          padding: '1.25rem', 
+                          borderRadius: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '1rem'
+                        }}
+                      >
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                          <div style={{ background: '#ffa726', color: 'white', padding: '6px', borderRadius: '50%', display: 'flex' }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          </div>
+                          <div>
+                            <h4 style={{ margin: 0, fontSize: '1rem', color: '#663c00', fontWeight: 'bold' }}>
+                              Detectamos {validateResult.summary.duplicates} convidados já cadastrados
+                            </h4>
+                            <p style={{ margin: '4px 0 0', fontSize: '0.9rem', color: '#8d5d00' }}>
+                              Escolha como deseja prosseguir com eles:
+                            </p>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => setStrategy('ignore')}
+                            style={{
+                              flex: 1,
+                              padding: '0.75rem',
+                              borderRadius: '12px',
+                              border: strategy === 'ignore' ? '2px solid #7b2d3d' : '2px solid #ddd',
+                              background: strategy === 'ignore' ? '#fcf8f9' : 'white',
+                              color: strategy === 'ignore' ? '#7b2d3d' : '#666',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.95rem' }}>Manter atuais</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 'normal', opacity: 0.8 }}>Ignora os dados da planilha</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setStrategy('update')}
+                            style={{
+                              flex: 1,
+                              padding: '0.75rem',
+                              borderRadius: '12px',
+                              border: strategy === 'update' ? '2px solid #7b2d3d' : '2px solid #ddd',
+                              background: strategy === 'update' ? '#fcf8f9' : 'white',
+                              color: strategy === 'update' ? '#7b2d3d' : '#666',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.95rem' }}>Atualizar dados</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 'normal', opacity: 0.8 }}>Sobrescreve com a planilha</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Se não houver duplicados, não precisa mostrar as opções, mas mantemos o estado 'ignore' por padrão
+                      <div style={{ padding: '0.5rem', color: '#666', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Nenhum duplicado detectado. Pronto para importar.
+                      </div>
+                    )}
 
                     <div className={styles.confirmRow}>
                       <button className={styles.cancelBtn} onClick={() => setValidateResult(null)}>Voltar</button>

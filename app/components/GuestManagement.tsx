@@ -234,6 +234,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
   const [pendingSyncs, setPendingSyncs] = useState(0);
+  const lastUpdateRef = useRef<string | null>(null);
 
   const updatePendingCount = useCallback(() => {
     const count = getOfflineQueue().length;
@@ -328,6 +329,14 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       const loadedGuests = data.guests || [];
       setGuests(loadedGuests);
       setFilteredGuests(loadedGuests);
+      
+      // Update the reference with the current timestamp from the server if available
+      if (data.updatedAt) {
+        lastUpdateRef.current = data.updatedAt;
+      } else {
+        // Fallback: use current time if server doesn't return it
+        lastUpdateRef.current = new Date().toISOString();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar convidados');
     } finally {
@@ -335,15 +344,30 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
     }
   };
 
+  const checkUpdates = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/events/${eventId}/sync`);
+      if (!res.ok) return;
+      const { updatedAt } = await res.json();
+      
+      // If the server's update time is different from our local record, something changed
+      if (updatedAt && updatedAt !== lastUpdateRef.current) {
+        await fetchGuests(false);
+      }
+    } catch (err) {
+      console.error('Erro ao verificar atualizações:', err);
+    }
+  }, [eventId]);
+
   useEffect(() => {
     fetchGuests(true);
     updatePendingCount();
 
-    // Polling: atualiza automaticamente a cada 10 segundos
+    // Polling inteligente: verifica se houve mudança antes de baixar tudo
     const interval = setInterval(() => {
       if (navigator.onLine) {
         processQueue();
-        fetchGuests(false);
+        checkUpdates();
       }
     }, 10000);
 

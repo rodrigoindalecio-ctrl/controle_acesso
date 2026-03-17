@@ -154,10 +154,8 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
         const summary = { created: 0, updated: 0, skipped: 0, failed: 0 };
         
         try {
-            const results = await prisma.$transaction(async (tx) => {
-                const list = [];
-                
-                // Fetch all existing guests for this event once to avoid N+1 queries in transaction
+            await prisma.$transaction(async (tx) => {
+                // Fetch all existing guests for this event once to avoid N+1 queries
                 const existingGuests = await tx.guest.findMany({
                     where: { eventId: Number(eventId) },
                     select: { id: true, fullName: true }
@@ -165,65 +163,62 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
                 
                 const existingMap = new Map(existingGuests.map(g => [g.fullName.toLowerCase(), g.id]));
 
+                const toUpdate: any[] = [];
+                const toCreate: any[] = [];
+
                 for (const g of guests) {
                     const nameLower = g.full_name.toLowerCase();
                     const existingId = existingMap.get(nameLower);
 
-                    if (existingId && duplicateStrategy === 'ignore') {
-                        summary.skipped++;
-                        continue;
-                    }
-
-                    if (existingId && duplicateStrategy === 'update') {
-                        await tx.guest.update({
-                            where: { id: existingId },
-                            data: {
-                                category: g.category,
-                                phone: g.phone,
-                                notes: g.notes,
-                                tableNumber: g.table_number
-                            }
-                        });
-                        list.push({ name: g.full_name, action: 'updated' });
-                        summary.updated++;
-                    } else if (existingId && duplicateStrategy === 'mark') {
-                        // For 'mark', if it already exists, we can't create another one with same name
-                        // unless we change the name to "Name (Copy)" or something.
-                        // But usually 'mark' in this context means "import as duplicate" if possible.
-                        // Since DB doesn't allow it, we'll prefix name or just skip/update.
-                        // Given the constraints, let's just treat it as update or skip with a flag.
-                        // For now, let's append "(Duplicado)" to the name to allow creation.
-                        await tx.guest.create({
-                            data: {
-                                fullName: `${g.full_name} (Duplicado)`,
-                                category: g.category || 'Convidado',
-                                phone: g.phone,
-                                notes: g.notes,
-                                tableNumber: g.table_number,
-                                eventId: Number(eventId)
-                            }
-                        });
-                        list.push({ name: g.full_name, action: 'created' });
-                        summary.created++;
+                    if (existingId) {
+                        if (duplicateStrategy === 'ignore') {
+                            summary.skipped++;
+                            continue;
+                        }
+                        if (duplicateStrategy === 'update') {
+                            toUpdate.push({ id: existingId, ...g });
+                        } else if (duplicateStrategy === 'mark') {
+                            toCreate.push({ ...g, full_name: `${g.full_name} (Duplicado)` });
+                        }
                     } else {
-                        // Guest doesn't exist, create it
-                        await tx.guest.create({
-                            data: {
-                                fullName: g.full_name,
-                                category: g.category || 'Convidado',
-                                phone: g.phone,
-                                notes: g.notes,
-                                tableNumber: g.table_number,
-                                eventId: Number(eventId)
-                            }
-                        });
-                        list.push({ name: g.full_name, action: 'created' });
-                        summary.created++;
+                        toCreate.push(g);
                     }
                 }
-                return list;
+
+                // 1. Process Updates (sequential but likely fewer/necessary)
+                for (const item of toUpdate) {
+                    await tx.guest.update({
+                        where: { id: item.id },
+                        data: {
+                            category: item.category,
+                            phone: item.phone,
+                            notes: item.notes,
+                            tableNumber: item.table_number
+                        }
+                    });
+                    summary.updated++;
+                }
+
+                // 2. Process Creations in Bulk - This is the major performance gain
+                if (toCreate.length > 0) {
+                    const createData = toCreate.map(g => ({
+                        fullName: g.full_name,
+                        category: g.category || 'Convidado',
+                        phone: g.phone || null,
+                        notes: g.notes || null,
+                        tableNumber: g.table_number || null,
+                        eventId: Number(eventId),
+                        isManual: false
+                    }));
+
+                    const result = await tx.guest.createMany({
+                        data: createData,
+                        skipDuplicates: true // Safety measure
+                    });
+                    summary.created = result.count;
+                }
             }, {
-                timeout: 30000 // Increase timeout to 30s for large imports
+                timeout: 60000 // 1 minute for very large files
             });
 
             const meta = getClientMeta(req);
@@ -233,12 +228,12 @@ export async function POST(req: NextRequest, { params }: { params: { slug: strin
                 action: 'IMPORT_GUESTS',
                 entityType: 'Event',
                 entityId: String(eventId),
-                justification: `Importação de ${results.length} convidados (${summary.created} novos, ${summary.updated} atualizados)`,
+                justification: `Importação em massa: ${summary.created} criados, ${summary.updated} atualizados, ${summary.skipped} ignorados.`,
                 ip: meta.ip,
                 userAgent: meta.userAgent
             });
 
-            return NextResponse.json({ success: true, results, summary });
+            return NextResponse.json({ success: true, summary });
         } catch (error) {
             console.error('Erro na transação de importação:', error);
             return NextResponse.json({ 

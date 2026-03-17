@@ -69,12 +69,12 @@ export async function GET(req: NextRequest, { params }: { params: { slug?: strin
 
     // 4. GET /api/events/[id]/guests
     if (slug.length === 2 && slug[1] === 'guests') {
-        if (payload.role === 'TEMP_STAFF' && Number(payload.eventId) !== eventId) {
-            return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
-        }
-        const guests = await prisma.guest.findMany({ where: { eventId }, orderBy: { fullName: 'asc' } });
+        const [event, guests] = await Promise.all([
+            prisma.event.findUnique({ where: { id: eventId }, select: { updated_at: true } }),
+            prisma.guest.findMany({ where: { eventId }, orderBy: { fullName: 'asc' } })
+        ]);
         const stats = { total: guests.length, checkedIn: guests.filter(g => g.checkedInAt).length };
-        return NextResponse.json({ guests, stats });
+        return NextResponse.json({ guests, stats, updatedAt: event?.updated_at });
     }
 
     // 5. GET /api/events/[id]/checkin-report
@@ -124,6 +124,19 @@ export async function POST(req: NextRequest, { params }: { params: { slug?: stri
         const { name, date, description, status } = await req.json();
         const event = await prisma.event.create({ data: { name, date: new Date(date), description, status } });
         await prisma.userEvent.create({ data: { userId: Number(payload.userId), eventId: event.id } });
+        
+        await createAuditLog({
+            userId: payload.userId,
+            role: payload.role,
+            action: 'CREATE_EVENT',
+            entityType: 'Event',
+            entityId: String(event.id),
+            after: event,
+            justification: `Criação do evento "${event.name}"`,
+            ip: 'unknown',
+            userAgent: 'unknown'
+        });
+
         return NextResponse.json({ success: true, event }, { status: 201 });
     }
 
@@ -184,7 +197,22 @@ export async function PUT(req: NextRequest, { params }: { params: { slug?: strin
     if (slug.length === 1) {
         const eventId = Number(slug[0]);
         const body = await req.json();
+        const oldEvent = await prisma.event.findUnique({ where: { id: eventId } });
         const updated = await prisma.event.update({ where: { id: eventId }, data: { ...body, date: body.date ? new Date(body.date) : undefined } });
+        
+        await createAuditLog({
+            userId: payload.userId,
+            role: payload.role,
+            action: 'EDIT_EVENT',
+            entityType: 'Event',
+            entityId: String(eventId),
+            before: oldEvent || {},
+            after: updated,
+            justification: 'Edição de detalhes do evento',
+            ip: 'unknown',
+            userAgent: 'unknown'
+        });
+
         return NextResponse.json({ success: true, event: updated });
     }
     return NextResponse.json({ error: 'Not Found' }, { status: 404 });
@@ -200,20 +228,59 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug?: st
     const eventId = Number(slug[0]);
 
     if (slug.length === 1) {
+        const oldEvent = await prisma.event.findUnique({ where: { id: eventId } });
         await prisma.userEvent.deleteMany({ where: { eventId } });
         await prisma.event.delete({ where: { id: eventId } });
+
+        await createAuditLog({
+            userId: payload.userId,
+            role: payload.role,
+            action: 'DELETE_EVENT',
+            entityType: 'Event',
+            entityId: String(eventId),
+            before: oldEvent || {},
+            justification: `Exclusão do evento "${oldEvent?.name}"`,
+            ip: 'unknown',
+            userAgent: 'unknown'
+        });
+
         return NextResponse.json({ success: true }, { status: 204 });
     }
 
     if (slug.length === 2 && slug[1] === 'collaborators') {
         const { userId } = await req.json();
         await prisma.userEvent.delete({ where: { userId_eventId: { userId: Number(userId), eventId } } });
+        
+        await createAuditLog({
+            userId: payload.userId,
+            role: payload.role,
+            action: 'DELETE_USER',
+            entityType: 'Event',
+            entityId: String(eventId),
+            justification: `Remoção do colaborador ID ${userId} do evento`,
+            ip: 'unknown',
+            userAgent: 'unknown'
+        });
+
         return NextResponse.json({ success: true });
     }
 
     if (slug.length === 2 && slug[1] === 'guests') {
+        const count = await prisma.guest.count({ where: { eventId } });
         await prisma.guest.deleteMany({ where: { eventId } });
         await prisma.event.update({ where: { id: eventId }, data: { updated_at: new Date(), lastChangeType: 'DELETE' } });
+        
+        await createAuditLog({
+            userId: payload.userId,
+            role: payload.role,
+            action: 'DELETE_GUEST',
+            entityType: 'Event',
+            entityId: String(eventId),
+            justification: `Exclusão em massa de ${count} convidados do evento`,
+            ip: 'unknown',
+            userAgent: 'unknown'
+        });
+
         return NextResponse.json({ success: true });
     }
 
