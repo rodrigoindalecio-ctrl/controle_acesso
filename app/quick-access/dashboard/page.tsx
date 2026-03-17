@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Search, LogOut, Check, X, Users, Loader2, LayoutGrid } from 'lucide-react';
 import styles from './page.module.css';
 import TablesModal from '@/app/components/TablesModal';
+import { useToast } from '@/app/lib/context/ToastContext';
 
 interface Guest {
     id: string;
@@ -17,6 +18,7 @@ interface Guest {
 
 export default function AssistantDashboard() {
     const router = useRouter();
+    const toast = useToast();
     const [guests, setGuests] = useState<Guest[]>([]);
     const [filteredGuests, setFilteredGuests] = useState<Guest[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -106,7 +108,7 @@ export default function AssistantDashboard() {
                 ));
             }
         } catch (err) {
-            alert('Erro ao realizar check-in');
+            toast.error('Erro ao realizar check-in');
         } finally {
             setProcessingId(null);
         }
@@ -128,7 +130,7 @@ export default function AssistantDashboard() {
                 ));
             }
         } catch (err) {
-            alert('Erro ao desfazer check-in');
+            toast.error('Erro ao desfazer check-in');
         } finally {
             setProcessingId(null);
         }

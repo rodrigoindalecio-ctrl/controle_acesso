@@ -279,7 +279,7 @@ export function generateEventReport(
     console.log('PDF salvo com sucesso');
   } catch (error) {
     console.error('Erro ao gerar PDF:', error);
-    alert('Erro ao gerar PDF. Verifique o console para mais detalhes.');
+    throw error;
   }
 }
 

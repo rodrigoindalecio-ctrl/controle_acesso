@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, Copy, QrCode, CheckCircle2, Loader2, Link as LinkIcon } from 'lucide-react';
 import styles from './QuickAccessModal.module.css';
+import { useToast } from '@/app/lib/context/ToastContext';
 
 interface QuickAccessModalProps {
     isOpen: boolean;
@@ -11,6 +12,7 @@ interface QuickAccessModalProps {
 }
 
 export default function QuickAccessModal({ isOpen, onClose, eventId }: QuickAccessModalProps) {
+    const toast = useToast();
     const [loading, setLoading] = useState(false);
     const [accessUrl, setAccessUrl] = useState('');
     const [copied, setCopied] = useState(false);
@@ -28,7 +30,7 @@ export default function QuickAccessModal({ isOpen, onClose, eventId }: QuickAcce
                 setAccessUrl(data.url);
             }
         } catch (err) {
-            alert('Erro ao gerar link');
+            toast.error('Erro ao gerar link');
         } finally {
             setLoading(false);
         }
@@ -37,6 +39,7 @@ export default function QuickAccessModal({ isOpen, onClose, eventId }: QuickAcce
     const copyToClipboard = () => {
         navigator.clipboard.writeText(accessUrl);
         setCopied(true);
+        toast.success('Link copiado para a área de transferência!');
         setTimeout(() => setCopied(false), 2000);
     };
 

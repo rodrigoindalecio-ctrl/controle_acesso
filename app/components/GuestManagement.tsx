@@ -15,6 +15,7 @@ import buttonStyles from '@/lib/buttons.module.css';
 import { statusTranslation, translateStatus } from '@/lib/statusUtils';
 import { enqueueAction, getOfflineQueue, removeActionFromQueue } from '@/app/lib/offlineQueue';
 import { Search, Plus, Check, ListFilter, Layout, ChevronDown, ChevronUp, FileText, FileSpreadsheet, Edit2, Trash2, X, Users, Clock, BarChart3 } from 'lucide-react';
+import { useToast } from '@/app/lib/context/ToastContext';
 
 interface Guest {
   id: string;
@@ -65,6 +66,7 @@ interface Props {
 
 export default function GuestManagement({ eventId, eventName, eventDate, eventDescription, eventStatus, exportRef, deleteAllRef, addGuestRef }: Props) {
   const { user } = useAuth();
+  const toast = useToast();
   // Função padrão para check-in/desfazer check-in igual à página de colaboradores
   // Check-in admin: usa o mesmo fluxo do sistema (POST /api/events/[eventId]/check-in)
   // Check-in admin: sempre usa a rota oficial do sistema
@@ -193,8 +195,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       enqueueAction('UNDO_CHECK_IN', undoEndpoint, undoMethod, undoPayload);
       updatePendingCount();
     } finally {
-      setSuccessMessage('Presença desfeita!');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      toast.success('Presença desfeita!');
     }
   };
   const [showFilter, setShowFilter] = useState<string | null>(null);
@@ -216,7 +217,6 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const [guests, setGuests] = useState<Guest[]>([]);
   const [filteredGuests, setFilteredGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingGuest, setEditingGuest] = useState<EditingGuest | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
@@ -224,7 +224,6 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
   const [isDeletingGuest, setIsDeletingGuest] = useState(false);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [isSavingGuest, setIsSavingGuest] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const [showImportModal, setShowImportModal] = useState(false);
   const [showManualAddModal, setShowManualAddModal] = useState(false);
   const [showTablesModal, setShowTablesModal] = useState(false);
@@ -338,7 +337,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
         lastUpdateRef.current = new Date().toISOString();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar convidados');
+      toast.error(err instanceof Error ? err.message : 'Erro ao carregar convidados');
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -506,8 +505,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
     } finally {
       setEditingId(null);
       setEditingGuest(null);
-      setSuccessMessage('Convidado atualizado');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      toast.success('Convidado atualizado');
       setIsSavingGuest(false);
     }
   };
@@ -543,8 +541,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       updatePendingCount();
     } finally {
       setDeleteConfirm(null);
-      setSuccessMessage('Convidado removido');
-      setTimeout(() => setSuccessMessage(''), 2000);
+      toast.success('Convidado removido');
       setIsDeletingGuest(false);
     }
   };
@@ -572,10 +569,9 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
       setGuests([]);
       setFilteredGuests([]);
       setDeleteAllConfirm(false);
-      setSuccessMessage(`${data.deletedCount} convidado(s) removido(s) com sucesso`);
-      setTimeout(() => setSuccessMessage(''), 2000);
+      toast.success(`${data.deletedCount} convidado(s) removido(s) com sucesso`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao deletar convidados');
+      toast.error(err instanceof Error ? err.message : 'Erro ao deletar convidados');
       setDeleteAllConfirm(false);
     } finally {
       setIsDeletingAll(false);
@@ -982,8 +978,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
         </div>
       )}
 
-      {error && <div className={styles.error}>{error}</div>}
-      {successMessage && <div className={styles.success}>{successMessage}</div>}
+
 
       {/* Estatísticas Modal */}
       {showStatsModal && (
@@ -1018,7 +1013,10 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                     pending: guests.filter(g => !g.checkedInAt).length,
                     paying: guests.filter(g => g.isPaying).length,
                     nonPaying: guests.filter(g => !g.isPaying).length
-                  }));
+                  })).catch(err => {
+                    console.error('PDF error:', err);
+                    toast.error('Erro ao gerar PDF do relatório');
+                  });
                   setShowExportModal(false);
                 }}
               >
@@ -1037,6 +1035,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                     if (!response.ok) {
                       throw new Error('Erro ao exportar');
                     }
+                    toast.success('Exportação iniciada com sucesso');
                     const contentDisposition = response.headers.get('content-disposition');
                     let filename = 'convidados.xlsx';
                     if (contentDisposition) {
@@ -1056,6 +1055,7 @@ export default function GuestManagement({ eventId, eventName, eventDate, eventDe
                     window.URL.revokeObjectURL(url);
                   } catch (err) {
                     console.error('Erro ao exportar XLSX:', err);
+                    toast.error('Erro ao exportar planilha XLSX');
                   }
                   setShowExportModal(false);
                 }}

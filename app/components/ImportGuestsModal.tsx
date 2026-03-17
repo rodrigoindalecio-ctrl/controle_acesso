@@ -5,6 +5,7 @@ import styles from './ImportGuestsModal.module.css';
 import ImportPreviewTable from './ImportPreviewTable';
 import ImportSummary from './ImportSummary';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useToast } from '@/app/lib/context/ToastContext';
 
 interface Props {
   eventId: string;
@@ -26,13 +27,13 @@ type ValidateResponse = {
 
 export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen = false, onOpenChange, onImportComplete }: Props) {
   const { user, loading: authLoading } = useAuth();
+  const toast = useToast();
   const [open, setOpen] = useState(isOpen);
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [validateResult, setValidateResult] = useState<ValidateResponse | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [strategy, setStrategy] = useState<'ignore' | 'update' | 'mark'>('ignore');
 
   const buildApiErrorMessage = (body: any, fallback: string) => {
@@ -85,7 +86,6 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
   };
 
   const handleFile = async (file: File) => {
-    setError(null);
     setFileName(file.name);
     try {
       // Upload to validate endpoint
@@ -107,7 +107,7 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
       const json = await res.json();
       setValidateResult(json as ValidateResponse);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      toast.error(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setIsValidating(false);
     }
@@ -115,12 +115,12 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
 
   const handleConfirm = async () => {
     if (!strategy) {
-      setError('Selecione uma estratégia para duplicados');
+      toast.error('Selecione uma estratégia para duplicados');
       return;
     }
 
     if (!validateResult) {
-      setError('Dados de validação não encontrados. Refaça o upload do arquivo.');
+      toast.error('Dados de validação não encontrados. Refaça o upload do arquivo.');
       return;
     }
 
@@ -140,7 +140,7 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
       .filter((g) => typeof g.full_name === 'string' && g.full_name.trim().length > 0);
 
     if (guests.length === 0) {
-      setError('Nenhum convidado válido para importar. Verifique o arquivo ou baixe o CSV de erros.');
+      toast.error('Nenhum convidado válido para importar. Verifique o arquivo ou baixe o CSV de erros.');
       return;
     }
 
@@ -161,10 +161,9 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
       // success: call callback
       onImportComplete?.();
       setOpen(false);
-      // show simple browser alert for success (could be replaced with toasts)
-      alert(`Importação concluída: ${json?.summary?.created || 0} criados, ${json?.summary?.updated || 0} atualizados, ${json?.summary?.skipped || 0} ignorados, ${json?.summary?.failed || 0} falharam`);
+      toast.success(`Importação concluída: ${json?.summary?.created || 0} criados, ${json?.summary?.updated || 0} atualizados, ${json?.summary?.skipped || 0} ignorados`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao confirmar');
+      toast.error(err instanceof Error ? err.message : 'Erro ao confirmar');
     } finally {
       setIsConfirming(false);
     }
@@ -244,7 +243,6 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
                     </div>
                   </div>
                   {isValidating && <div className={styles.loading}>Validando arquivo…</div>}
-                  {error && <div className={styles.error}>{error}</div>}
                 </div>
               ) : (
                 <div>
@@ -350,7 +348,6 @@ export default function ImportGuestsModal({ eventId, isAdminOnly = true, isOpen 
                         {isConfirming ? 'Importando…' : 'Confirmar importação'}
                       </button>
                     </div>
-                    {error && <div className={styles.error}>{error}</div>}
                   </div>
                 </div>
               )}
