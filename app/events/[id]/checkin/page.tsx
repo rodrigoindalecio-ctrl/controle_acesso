@@ -12,6 +12,8 @@ import buttonStyles from '@/lib/buttons.module.css';
 import BottomNavigation from '@/app/components/BottomNavigation';
 import UserProfileModal from '@/app/components/UserProfileModal';
 import ReportsModal from '@/app/components/ReportsModal';
+import QuickAccessModal from '@/app/components/QuickAccessModal';
+import { QrCode } from 'lucide-react';
 
 export default function CheckInPage() {
   const router = useRouter();
@@ -25,6 +27,7 @@ export default function CheckInPage() {
   const [eventStatus, setEventStatus] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isReportsOpen, setIsReportsOpen] = useState(false);
+  const [isQuickAccessOpen, setIsQuickAccessOpen] = useState(false);
   const [eventsForReports, setEventsForReports] = useState<any[]>([]);
   const exportRef = useRef<(() => void) | null>(null);
   const addGuestRef = useRef<(() => void) | null>(null);
@@ -98,6 +101,14 @@ export default function CheckInPage() {
               <span className={styles.backIcon}>←</span>
               <span className={styles.backText}>Dashboard</span>
             </button>
+            <button
+              className={buttonStyles.btn + ' ' + buttonStyles['btn--secondary'] + ' ' + styles.quickAccessButton}
+              onClick={() => setIsQuickAccessOpen(true)}
+              title="Acesso Rápido (Ajudantes)"
+            >
+              <QrCode size={18} strokeWidth={1.5} />
+              <span className={styles.btnText}>Ajudante</span>
+            </button>
           </div>
           <h1 className={styles.title}>{eventName}</h1>
           <div className={styles.headerRight}>
@@ -130,6 +141,12 @@ export default function CheckInPage() {
         isOpen={isReportsOpen}
         onClose={() => setIsReportsOpen(false)}
         events={eventsForReports.length > 0 ? eventsForReports : (eventId ? [{ id: eventId, name: eventName }] : []) as any}
+      />
+
+      <QuickAccessModal
+        isOpen={isQuickAccessOpen}
+        onClose={() => setIsQuickAccessOpen(false)}
+        eventId={eventId}
       />
 
       {isProfileOpen && (
