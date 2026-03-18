@@ -157,12 +157,12 @@
 }
 
 .btnConfirm {
-  background: var(--color-primary, #8b7355);
+  background: var(--color-primary);
   color: white;
 }
 
 .btnConfirm:hover:not(:disabled) {
-  background: #7a6349;
+  background: var(--color-primary-dark);
 }
 
 .btnCancel:disabled,

@@ -285,7 +285,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { slug?: st
             userAgent: meta.userAgent
         });
 
-        return NextResponse.json({ success: true }, { status: 204 });
+        return NextResponse.json({ success: true });
     }
 
     if (slug.length === 2 && slug[1] === 'collaborators') {
