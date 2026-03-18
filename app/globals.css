@@ -647,10 +647,14 @@ a:hover {
     font-size: 1.1rem;
   }
 
-  button,
+  /* Apenas botões fora de header/nav recebem largura total em telas pequenas */
+  main button:not([class*="btn--"]):not([class*="filterBar"]):not([class*="addBtn"]):not([class*="clearSearch"]),
   .btn-primary,
   .btn-secondary {
     width: 100%;
+  }
+  header button {
+    width: auto !important;
   }
 }
 
