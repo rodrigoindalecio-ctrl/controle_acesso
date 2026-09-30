@@ -13,7 +13,7 @@ model Event {
   // Relação com convidados
   guests    Guest[]
 
-  @@map("events")
+  @@map("ca_events")
 }
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
@@ -40,7 +40,7 @@ model User {
   updated_at DateTime   @updatedAt
   // Relação com eventos
   events    UserEvent[]
-  @@map("users")
+  @@map("ca_users")
 }
 
 model Guest {
@@ -69,7 +69,7 @@ model Guest {
   
   // Índice para prevenir duplicatas
   @@unique([fullName, eventId])
-  @@map("guests")
+  @@map("ca_guests")
 }
 
 model UserEvent {
@@ -83,7 +83,7 @@ model UserEvent {
   updated_at DateTime   @default(now()) @updatedAt
   
   @@unique([userId, eventId])
-  @@map("user_events")
+  @@map("ca_user_events")
 }
 
 model AuditLog {
@@ -105,7 +105,7 @@ model AuditLog {
   @@index([action])
   @@index([entityType])
   @@index([created_at])
-  @@map("audit_logs")
+  @@map("ca_audit_logs")
 }
 
 model ImportJob {
@@ -118,7 +118,7 @@ model ImportJob {
   created_at      DateTime @default(now())
 
   @@unique([userId, eventId, idempotencyKey])
-  @@map("import_jobs")
+  @@map("ca_import_jobs")
 }
 
 model QuickAccess {
@@ -128,6 +128,6 @@ model QuickAccess {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  @@map("quick_access")
+  @@map("ca_quick_access")
 }
 
